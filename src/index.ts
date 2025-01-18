@@ -6,16 +6,16 @@ import './util/moddingTools'
 // Import your source files here
 //-------------------------------
 
-// Svelte
-import { openExampleDialog } from './svelte/exampleDialog'
+// Formats
+import './formats/utilityModel'
+
 // Mods
 import './mods'
 
 // Provide a global object for other plugins to interact with
 // @ts-expect-error
-window[PACKAGE.name] = {
+window['UtilityMod'] = {
 	events: events,
-	openExampleDialog,
 }
 
 BBPlugin.register(PACKAGE.name, {

@@ -1,13 +1,13 @@
 {
-	"name": "blockbench_plugin_template",
-	"title": "BlockBench Plugin Template",
+	"name": "utility-mod",
+	"title": "Utility Mod",
 	"version": "1.0.0",
 	"tags": [
-		"Tag A",
-		"Tag B",
-		"Tag C"
+		"Minecraft: Java Edition",
+		"Commands",
+		"Animation"
 	],
-	"min_blockbench_version": "4.2.0",
+	"min_blockbench_version": "4.12.0",
 	"author": {
 		"name": "SnaveSutit",
 		"email": "snavesutit@gmail.com",
@@ -17,7 +17,7 @@
 		"type": "github",
 		"url": "https://github.com/SnaveSutit/blockbench-plugin-template"
 	},
-	"description": "A simple Blockbench plugin template",
+	"description": "A Blockbench plugin for creating Utility Mod models.",
 	"main": "./dist/index.js",
 	"types": "./dist/src/index.d.ts",
 	"private": true,
