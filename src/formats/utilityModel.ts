@@ -1,6 +1,6 @@
 import { injectSvelteCompomponent } from '../util/injectSvelteComponent'
 import PACKAGE from '../../package.json'
-import FormatPage from './svelte/formatPage.svelte'
+import FormatPage from './svelte/utilityModel/formatPage.svelte'
 
 // region > Format
 export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
@@ -30,6 +30,7 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	onSetup(project, newModel) {
 		console.log('Utility Model format setup')
 	},
+
 	onActivation() {
 		console.log('Utility Model format activated')
 	},

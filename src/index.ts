@@ -22,7 +22,7 @@ BBPlugin.register(PACKAGE.name, {
 	title: PACKAGE.title,
 	author: PACKAGE.author.name,
 	description: PACKAGE.description,
-	icon: 'create_session',
+	icon: 'icon.png',
 	variant: 'desktop',
 	version: PACKAGE.version,
 	min_version: PACKAGE.min_blockbench_version,

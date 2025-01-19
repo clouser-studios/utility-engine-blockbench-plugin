@@ -43,13 +43,10 @@ function plugin(): Plugin {
 		name: 'packagerPlugin',
 		setup(build) {
 			build.onEnd(() => {
-				if (process.env.NODE_ENV === 'production') {
-					console.log('📦 Packaging...')
-					const label = '📦 Package built in'
-					console.time(label)
-					createPackage()
-					console.timeEnd(label)
-				}
+				const label = '📦 Package built in'
+				console.time(label)
+				createPackage()
+				console.timeEnd(label)
 			})
 		},
 	}
