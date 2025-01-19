@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Icon from '../../../assets/icons/icon.png'
-	import { UTILITY_MODEL_FORMAT } from '../../utilityModel'
+	import { UTILITY_MODEL_FORMAT } from '../'
+	import { translate } from '../../../util/translation'
 
 	function createModel() {
 		newProject(UTILITY_MODEL_FORMAT)
@@ -12,23 +13,20 @@
 
 <h2>
 	<img src={Icon} alt="" />
-	Utility Model
+	{translate('model_format.utility_model.name')}
 </h2>
 
-<p class="format_description">The basic model format for Utility.</p>
+<p class="model_format_description">
+	{translate('model_format.utility_model.description')}
+</p>
 
 <p class="format_target">
 	<b>Target</b>:
 	<span>Minecraft: Java Edition</span>
 </p>
 
-<h3 class="markdown">
-	<p class="markdown">Getting Started</p>
-</h3>
-
-<p>
-	<a href="URL-GOES-HERE">Check out the Docs</a> to learn how to use Utility Models.
-</p>
+<!-- svelte-ignore missing-declaration -->
+{@html pureMarked(translate('model_format.utility_model.format_page'))}
 
 <div class="button_bar">
 	<button on:click={() => createModel()}>

@@ -1,11 +1,35 @@
-import { injectSvelteCompomponent } from '../util/injectSvelteComponent'
-import PACKAGE from '../../package.json'
-import FormatPage from './svelte/utilityModel/formatPage.svelte'
+import {
+	injectSvelteCompomponent,
+	injectSvelteCompomponentMod,
+} from '../../util/injectSvelteComponent'
+import PACKAGE from '../../../package.json'
+import FormatPage from './svelte/formatPage.svelte'
+import Icon from './svelte/icon.svelte'
+import { translate } from '../../util/translation'
+
+// Delete default format page title
+const INTERVAL = setInterval(() => {
+	const title = $('#format_page_utility_model h2')[0]
+	if (!title) return
+	title.remove()
+	clearInterval(INTERVAL)
+})
+
+// Format Category Icon
+injectSvelteCompomponentMod({
+	component: Icon,
+	props: {},
+	elementSelector() {
+		$('[format=utility_model] span')[0]?.remove()
+		return $('[format=utility_model]')[0]
+	},
+	prepend: true,
+})
 
 // region > Format
 export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	id: 'utility_model',
-	name: 'Utility Model',
+	name: translate('model_format.utility_model.name'),
 	icon: 'fa-gear',
 	category: 'utility',
 	target: 'Minecraft: Java Edition',

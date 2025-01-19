@@ -1,0 +1,11 @@
+action:
+  create_skin_texture.name: 'Create Skin Texture'
+
+model_format:
+  utility_model:
+    name: 'Utility Model'
+    description: 'The basic model format for Utility.'
+    format_page: |-
+      ### Getting Started
+
+      [Check out the docs](URL-GOES-HERE) for more information on how to use this model format.
