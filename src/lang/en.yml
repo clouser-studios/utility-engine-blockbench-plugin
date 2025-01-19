@@ -1,5 +1,10 @@
 action:
-  create_skin_texture.name: 'Create Skin Texture'
+  create_skin_texture: 'Create Skin Texture'
+
+menu:
+  skin_texture:
+    change_preview_skin: 'Change Preview Skin'
+    remove_preview_skin: 'Remove Preview Skin'
 
 model_format:
   utility_model:
