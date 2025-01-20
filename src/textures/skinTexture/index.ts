@@ -1,11 +1,71 @@
-import PACKAGE from '../../package.json'
-import { UTILITY_MODEL_FORMAT } from '../formats/utilityModel'
-import { createAction, createBlockbenchMod } from '../util/moddingTools'
-import { translate } from '../util/translation'
-import SteveSkin from '../assets/steve.png'
+import PACKAGE from '../../../package.json'
+import { UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
+import { createAction, createBlockbenchMod } from '../../util/moddingTools'
+import { translate } from '../../util/translation'
+import SteveSkin from '../../assets/steve.png'
+import { SvelteDialog } from '../../util/svelteDialog'
+import UsernamePrompt from './usernamePrompt.svelte'
+import { Valuable } from '../../util/stores'
+
+const SKIN_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
+const USERNAME_TO_UUID_URL = 'https://api.mojang.com/users/profiles/minecraft/'
+
+async function fetchSkinUrl(username: string) {
+	const data = await fetch(USERNAME_TO_UUID_URL + username).catch(() => undefined)
+	if (!data) return
+	const json = await data.json()
+	if (!json.id) return
+	const uuid = json.id as string
+	const profileData = await fetch(SKIN_URL + uuid)
+		.then(res => res.json())
+		.catch(() => undefined)
+	if (!profileData) return
+	try {
+		const skinData = JSON.parse(
+			Buffer.from(profileData.properties[0].value as string, 'base64').toString()
+		)
+		return skinData.textures.SKIN.url as string
+	} catch (e) {
+		return
+	}
+}
+
+// Automatically converts the old 64x32 skin format to the new 64x64 format
+async function autoUpdateSkinFormat(skinUrl: string) {
+	const texture = new Texture().fromDataURL(skinUrl)
+	return new Promise<string>(resolve => {
+		texture.img.onload = () => {
+			if (texture.img.height === 32) {
+				const canvas = document.createElement('canvas')
+				canvas.width = 64
+				canvas.height = 64
+				const ctx = canvas.getContext('2d')!
+				ctx.drawImage(texture.img, 0, 0, 64, 32, 0, 0, 64, 32)
+				ctx.drawImage(texture.img, 0, 0, 64, 32, 0, 32, 64, 32)
+				return resolve(canvas.toDataURL())
+			}
+			return resolve(skinUrl)
+		}
+	})
+}
+
+async function promptForUsername() {
+	const username = new Valuable<string | undefined>('')
+	return new Promise<string | undefined>(resolve => {
+		new SvelteDialog({
+			id: `${PACKAGE.name}:username_prompt`,
+			title: '',
+			component: UsernamePrompt,
+			props: { username },
+			onClose() {
+				resolve(username.get())
+			},
+		}).show()
+	})
+}
 
 export const CREATE_SKIN_TEXTURE_ACTION = createAction(`${PACKAGE.name}:create_skin_texture`, {
-	name: translate('action.create_skin_texture'),
+	name: translate('action.create_skin_texture.label'),
 	icon: 'portrait',
 	condition() {
 		return UTILITY_MODEL_FORMAT.isCurrentFormat()
@@ -26,8 +86,6 @@ declare global {
 
 class OverrideTexture extends Texture {
 	constructor(data?: TextureData, uuid?: string, forceNotSkinTexture = false) {
-		console.log('Texture constructor', data, uuid)
-
 		if (!forceNotSkinTexture && data?.is_skin_texture) {
 			return new SkinTexture(data, uuid)
 		}
@@ -125,11 +183,36 @@ export class SkinTexture extends OverrideTexture {
 
 SkinTexture.prototype.menu = new Menu([
 	{
+		id: '',
 		icon: 'portrait',
-		name: translate('menu.skin_texture.change_preview_skin'),
-		click(texture: Texture) {
-			texture.reopen(true)
-		},
+		name: translate('menu.skin_texture.change_preview_skin.label'),
+		children: [
+			{
+				icon: 'image',
+				name: translate('menu.skin_texture.change_preview_skin.from_file'),
+				click(texture: Texture) {
+					texture.reopen(true)
+				},
+			},
+			{
+				icon: 'person',
+				name: translate('menu.skin_texture.change_preview_skin.from_username'),
+				click(texture: SkinTexture) {
+					void promptForUsername().then(async username => {
+						if (!username) return
+						const url = await fetchSkinUrl(username)
+						if (url) {
+							texture.fromDataURL(await autoUpdateSkinFormat(url))
+						} else {
+							Blockbench.showQuickMessage(
+								'Failed to fetch skin, please double check your username is correct, then try again',
+								8000
+							)
+						}
+					})
+				},
+			},
+		],
 	},
 	{
 		icon: 'close',

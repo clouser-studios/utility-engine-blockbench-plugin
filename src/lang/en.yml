@@ -1,10 +1,19 @@
 action:
-  create_skin_texture: 'Create Skin Texture'
+  create_skin_texture.label: 'Create Skin Texture'
 
 menu:
   skin_texture:
-    change_preview_skin: 'Change Preview Skin'
+    change_preview_skin:
+      label: 'Change Preview Skin'
+      from_file: 'From File'
+      from_username: 'From Username'
+
     remove_preview_skin: 'Remove Preview Skin'
+
+dialog:
+  username_prompt:
+    username.label: 'Enter a Minecraft Username'
+    username.placeholder: 'Enter a Minecraft username'
 
 model_format:
   utility_model:
