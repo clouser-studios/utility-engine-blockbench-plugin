@@ -6,6 +6,7 @@ import PACKAGE from '../../../package.json'
 import FormatPage from './svelte/formatPage.svelte'
 import Icon from './svelte/icon.svelte'
 import { translate } from '../../util/translation'
+import { ContextProperty, createBlockbenchMod } from '../../util/moddingTools'
 
 // Delete default format page title
 const INTERVAL = setInterval(() => {
@@ -92,22 +93,21 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	vertex_color_ambient_occlusion: true,
 })
 
-// NOTE: This will be needed later on when we want to add properties to the project options dialog.
-// createBlockbenchMod(
-// 	`${PACKAGE.name}:utility_model_model_format_properties`,
-// 	{
-// 		resourcePackProperty: undefined as ContextProperty<'string'>,
-// 	},
-// 	context => {
-// 		context.resourcePackProperty = new Property(ModelProject, 'string', 'resource_pack', {
-// 			label: 'Resource Pack',
-// 			condition: {
-// 				formats: [UTILITY_MODEL_FORMAT.id],
-// 			},
-// 		})
-// 		return context
-// 	},
-// 	context => {
-// 		context.resourcePackProperty?.delete()
-// 	}
-// )
+createBlockbenchMod(
+	`${PACKAGE.name}:utility_model_model_format_properties`,
+	{
+		modelIdentifierProperty: undefined as ContextProperty<'string'>,
+	},
+	context => {
+		context.modelIdentifierProperty = new Property(ModelProject, 'string', 'model_identifier', {
+			label: translate('model_format.utility_model.project_settings.model_identifier'),
+			condition: {
+				formats: [UTILITY_MODEL_FORMAT.id],
+			},
+		})
+		return context
+	},
+	context => {
+		context.modelIdentifierProperty?.delete()
+	}
+)

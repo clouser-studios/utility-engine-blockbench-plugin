@@ -17,9 +17,11 @@ dialog:
 
 model_format:
   utility_model:
-    name: 'Utility Model'
-    description: 'The basic model format for Utility.'
+    name: Utility Model
+    description: The basic model format for Utility.
     format_page: |-
       ### Getting Started
 
       [Check out the docs](URL-GOES-HERE) for more information on how to use this model format.
+    project_settings:
+      model_identifier: Model Identifier
