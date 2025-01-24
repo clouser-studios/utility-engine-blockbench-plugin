@@ -35,16 +35,17 @@ async function autoUpdateSkinFormat(skinUrl: string) {
 	const texture = new Texture().fromDataURL(skinUrl)
 	return new Promise<string>(resolve => {
 		texture.img.onload = () => {
-			if (texture.img.height === 32) {
-				const canvas = document.createElement('canvas')
-				canvas.width = 64
-				canvas.height = 64
-				const ctx = canvas.getContext('2d')!
+			const canvas = document.createElement('canvas')
+			canvas.width = 64
+			canvas.height = 64
+			const ctx = canvas.getContext('2d')!
+			if (texture.height === 32) {
 				ctx.drawImage(texture.img, 0, 0, 64, 32, 0, 0, 64, 32)
-				ctx.drawImage(texture.img, 0, 0, 64, 32, 0, 32, 64, 32)
-				return resolve(canvas.toDataURL())
+				// ctx.drawImage(texture.img, 0, 0, 64, 32, 0, 32, 64, 32)
+			} else {
+				ctx.drawImage(texture.img, 0, 0, 64, 64, 0, 0, 64, 64)
 			}
-			return resolve(skinUrl)
+			return resolve(canvas.toDataURL())
 		}
 	})
 }
@@ -84,6 +85,10 @@ declare global {
 	}
 }
 
+interface SkinTextureData extends TextureData {
+	previewSkinSource?: string
+}
+
 class OverrideTexture extends Texture {
 	constructor(data?: TextureData, uuid?: string, forceNotSkinTexture = false) {
 		if (!forceNotSkinTexture && data?.is_skin_texture) {
@@ -112,18 +117,44 @@ createBlockbenchMod(
 )
 
 export class SkinTexture extends OverrideTexture {
-	public previewSkinTexture = new Texture().fromDataURL(SteveSkin)
+	public previewSkinTexture = new Texture()
+	public previewSkinSource = SteveSkin
 
-	constructor(data?: TextureData, uuid?: string) {
+	constructor(data?: SkinTextureData, uuid?: string) {
 		data ??= {}
 		data.name ??= 'Skin'
 		super(data, uuid, true)
 
-		// texture source should never change
-		this.source = SteveSkin
+		this.extend(data)
+
+		requestAnimationFrame(() => {
+			if (this.previewSkinSource) {
+				if (this.previewSkinSource.startsWith('data:')) {
+					console.log('fromDataURL')
+					this.fromDataURL(this.previewSkinSource)
+				} else {
+					const parsed = PathModule.parse(this.previewSkinSource)
+					console.log('fromFile')
+					this.fromFile({
+						name: parsed.base,
+						path: this.previewSkinSource,
+					})
+				}
+			} else {
+				this.resetPreviewSkin()
+			}
+		})
+
 		this.internal = true
 		this.saved = false
 		this.load()
+	}
+
+	extend(data: SkinTextureData) {
+		Texture.prototype.extend.call(this, data)
+		data.previewSkinSource = this.previewSkinSource ?? SteveSkin
+		console.log('extend', data)
+		return this
 	}
 
 	load() {
@@ -153,20 +184,23 @@ export class SkinTexture extends OverrideTexture {
 	}
 
 	resetPreviewSkin() {
+		this.previewSkinSource = ''
 		this.previewSkinTexture.fromDataURL(SteveSkin)
 	}
 
-	fromFile(file: File) {
+	fromFile(file: { name: string; path: string; content?: any }) {
 		if (file.name === 'Skin.png') {
 			this.resetPreviewSkin()
 			return this
 		}
 		this.previewSkinTexture.fromFile(file)
+		this.previewSkinSource = file.path
 		return this
 	}
 
 	fromDataURL(dataUrl: string) {
 		this.previewSkinTexture.fromDataURL(dataUrl)
+		this.previewSkinSource = dataUrl
 		return this
 	}
 
@@ -176,6 +210,11 @@ export class SkinTexture extends OverrideTexture {
 
 	getSaveCopy() {
 		const copy = Texture.prototype.getSaveCopy.call(this) as TextureData
+		// @ts-expect-error
+		for (const key in SkinTexture.properties) {
+			// @ts-expect-error
+			SkinTexture.properties[key].copy(this, copy)
+		}
 		copy.is_skin_texture = true
 		return copy
 	}
@@ -319,3 +358,5 @@ SharedActions.add('duplicate', {
 		new_tex.load().add(true)
 	},
 })
+
+new Property(SkinTexture, 'string', 'previewSkinSource', {})

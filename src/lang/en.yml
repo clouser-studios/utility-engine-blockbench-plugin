@@ -1,19 +1,62 @@
 action:
-  create_skin_texture.label: 'Create Skin Texture'
+  create_skin_texture.label: Create Skin Texture
+  export_utility_model.label: Export Utility Model
 
 menu:
   skin_texture:
     change_preview_skin:
-      label: 'Change Preview Skin'
-      from_file: 'From File'
-      from_username: 'From Username'
+      label: Change Preview Skin
+      from_file: From File
+      from_username: From Username
 
-    remove_preview_skin: 'Remove Preview Skin'
+    remove_preview_skin: Remove Preview Skin
 
 dialog:
+  reset: Reset
+
   username_prompt:
-    username.label: 'Enter a Minecraft Username'
-    username.placeholder: 'Enter a Minecraft username'
+    username.label: Enter a Minecraft Username
+    username.placeholder: Enter a Minecraft username
+
+  animation_properties:
+    title: Animation Properties for {0}
+
+    animation_type:
+      label: Animation Type
+      description: The type of animation.
+      options:
+        basic_loop: Basic Loop
+        being_broken: Being Broken
+        being_used_loop: Being Used Loop
+        left_click: Left Click
+        obtained: Obtained
+        placed_loop: Placed Loop
+        placed: Placed
+        right_click: Right Click
+        stopped_being_used: Stopped Being Used
+        used: Used
+        custom: Custom
+
+    animation_name:
+      label: Animation Name
+      description: The name of the animation.
+      placeholder: Enter an animation name
+
+    loop_mode:
+      label: Loop Mode
+      description: |-
+        The loop mode of the animation.
+        - Once: The animation will play once, then reset to the first frame.
+        - Hold on Last Frame: The animation will play once, and stop on the last frame.
+        - Loop: The animation will loop indefinitely.
+      options:
+        once: Once
+        hold: Hold on Last Frame
+        loop: Loop
+
+    loop_delay:
+      label: Loop Delay
+      description: The loop delay of the animation.
 
 model_format:
   utility_model:

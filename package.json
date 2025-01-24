@@ -15,7 +15,7 @@
 	},
 	"repository": {
 		"type": "github",
-		"url": "https://github.com/SnaveSutit/blockbench-plugin-template"
+		"url": "https://github.com/SnaveSutit/utility-mod-blockbench-plugin"
 	},
 	"description": "A Blockbench plugin for creating Utility Mod models.",
 	"main": "./dist/index.js",
