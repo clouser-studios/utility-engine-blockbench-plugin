@@ -76,7 +76,7 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	integer_size: false,
 	java_face_properties: true,
 	locators: false,
-	meshes: false,
+	meshes: true,
 	model_identifier: false,
 	optional_box_uv: false,
 	paint_mode: true,
