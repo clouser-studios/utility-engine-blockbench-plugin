@@ -1,4 +1,5 @@
 import * as PACKAGE from '../../package.json'
+import { UTILITY_MODEL_FORMAT } from '../formats/utilityModel'
 import { createBlockbenchMod } from '../util/moddingTools'
 
 const ANIMATION_RENAME_ACTION_CONTENT =
@@ -8,7 +9,11 @@ createBlockbenchMod(
 	`${PACKAGE.name}:animationRenameAction`,
 	{
 		originalCondition: undefined as unknown as () => boolean,
-		newCondition: () => {
+		newCondition: undefined as unknown as () => boolean,
+	},
+	context => {
+		context.newCondition = () => {
+			if (!UTILITY_MODEL_FORMAT.isCurrentFormat()) return !!context.originalCondition?.()
 			// @ts-expect-error
 			if (Prop.active_panel == 'animations' && AnimationItem.selected) {
 				if (AnimationItem.selected.utility_type === 'custom') {
@@ -18,9 +23,8 @@ createBlockbenchMod(
 				}
 			}
 			return false
-		},
-	},
-	context => {
+		}
+
 		const interval = setInterval(() => {
 			const action = SharedActions.actions.rename.find(
 				v => v.condition?.toString() === ANIMATION_RENAME_ACTION_CONTENT
