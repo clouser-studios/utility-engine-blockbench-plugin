@@ -7,7 +7,6 @@ import AnimationProperties from './animationProperties.svelte'
 export const DIALOG_ID = `${PACKAGE.name}:animationPropertiesDialog`
 
 export function openAnimationPropertiesDialog(animation: _Animation) {
-	const animationType = new Valuable(animation.utility_type || 'custom')
 	const animationName = new Valuable(animation.name)
 	const loopMode = new Valuable(animation.loop as string)
 	const loopDelay = new Valuable(Number(animation.loop_delay) || 0)
@@ -18,14 +17,12 @@ export function openAnimationPropertiesDialog(animation: _Animation) {
 		width: 600,
 		component: AnimationProperties,
 		props: {
-			animationType,
 			animationName,
 			loopMode,
 			loopDelay,
 		},
 		preventKeybinds: true,
 		onConfirm() {
-			animation.utility_type = animationType.get()
 			animation.name = animationName.get()
 			animation.createUniqueName(Blockbench.Animation.all)
 			animation.loop = loopMode.get() as any

@@ -5,24 +5,32 @@
 	import NumberSlider from '../../svelte/dialogItems/numberSlider.svelte'
 	import Select from '../../svelte/dialogItems/select.svelte'
 
-	export let animationType: Valuable<string>
 	export let animationName: Valuable<string>
 	export let loopMode: Valuable<string>
 	export let loopDelay: Valuable<number>
 
-	const animationTypes = [
-		'basic_loop',
-		'being_broken',
-		'being_used_loop',
-		'left_click',
-		'obtained',
-		'placed_loop',
-		'placed',
-		'right_click',
-		'stopped_being_used',
-		'used',
-		'custom',
-	]
+	let animationType = new Valuable<string>('custom')
+	const animationTypes: Record<string, string> = {
+		basic_loop: 'loop',
+		being_broken: 'loop',
+		being_used_loop: 'loop',
+		left_click: 'once',
+		obtained: 'once',
+		placed_loop: 'loop',
+		placed: 'hold',
+		right_click: 'loop',
+		stopped_being_used: 'once',
+		used: 'loop',
+		custom: 'loop',
+	}
+
+	if ($animationName.startsWith('utility.')) {
+		const type = Object.keys(animationTypes).find(v => $animationName.endsWith(v))
+		if (type) {
+			animationType.set(type)
+			loopMode.set(animationTypes[type])
+		}
+	}
 
 	let isCustomAnimationType = false
 
@@ -32,20 +40,22 @@
 			return
 		}
 		isCustomAnimationType = false
-		console.log(v)
-		animationName.set(v)
+		animationName.set(`utility.${v}`)
 	})
 
-	const animationTypeOptions = animationTypes.reduce((acc: Record<string, string>, type) => {
-		if (
-			Blockbench.Animation.all.some(
-				v => v.name !== 'custom' && v.name === type && animationName.get() !== type,
+	const animationTypeOptions = Object.keys(animationTypes).reduce(
+		(acc: Record<string, string>, type) => {
+			if (
+				Blockbench.Animation.all.some(
+					v => v.name !== 'custom' && v.name === type && animationName.get() !== type,
+				)
 			)
-		)
+				return acc
+			acc[type] = translate(`dialog.animation_properties.animation_type.options.${type}`)
 			return acc
-		acc[type] = translate(`dialog.animation_properties.animation_type.options.${type}`)
-		return acc
-	}, {})
+		},
+		{},
+	)
 
 	if (animationType.get() === undefined) {
 		animationType.set(Object.keys(animationTypeOptions)[0])
@@ -69,17 +79,19 @@
 		disabled={!isCustomAnimationType}
 	/>
 
-	<Select
-		label={translate('dialog.animation_properties.loop_mode.label')}
-		tooltip={translate('dialog.animation_properties.loop_mode.description')}
-		options={{
-			once: translate('dialog.animation_properties.loop_mode.options.once'),
-			hold: translate('dialog.animation_properties.loop_mode.options.hold'),
-			loop: translate('dialog.animation_properties.loop_mode.options.loop'),
-		}}
-		defaultOption={'once'}
-		bind:value={loopMode}
-	/>
+	{#if isCustomAnimationType}
+		<Select
+			label={translate('dialog.animation_properties.loop_mode.label')}
+			tooltip={translate('dialog.animation_properties.loop_mode.description')}
+			options={{
+				once: translate('dialog.animation_properties.loop_mode.options.once'),
+				hold: translate('dialog.animation_properties.loop_mode.options.hold'),
+				loop: translate('dialog.animation_properties.loop_mode.options.loop'),
+			}}
+			defaultOption={'once'}
+			bind:value={loopMode}
+		/>
+	{/if}
 
 	<NumberSlider
 		label={translate('dialog.animation_properties.loop_delay.label')}
