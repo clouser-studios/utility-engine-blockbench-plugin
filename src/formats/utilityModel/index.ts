@@ -85,7 +85,7 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	render_sides: 'front',
 	rotate_cubes: true,
 	rotation_limit: false,
-	select_texture_for_particles: false,
+	select_texture_for_particles: true,
 	single_texture: false,
 	texture_folder: false,
 	texture_meshes: false,

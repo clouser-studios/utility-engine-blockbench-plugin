@@ -61,10 +61,24 @@ dialog:
 model_format:
   utility_model:
     name: Utility Model
-    description: The basic model format for Utility.
+    description: The basic model format for Utility Engine.
     format_page: |-
       ### Getting Started
 
       [Check out the docs](URL-GOES-HERE) for more information on how to use this model format.
     project_settings:
       model_identifier: Model Identifier
+
+message:
+  failed_to_export:
+    title: Failed to Export
+    message: |-
+      An error occurred while exporting the model.
+      Error: {0}
+
+export:
+  error:
+    texture_not_saved: The texture {0} is not saved to disk!
+    invalid_resource_pack_path: |-
+      Texture {0} is not saved inside of a valid resource pack!
+      Path: {1}

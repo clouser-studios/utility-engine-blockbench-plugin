@@ -69,7 +69,11 @@ export const CREATE_SKIN_TEXTURE_ACTION = createAction(`${PACKAGE.name}:create_s
 	name: translate('action.create_skin_texture.label'),
 	icon: 'portrait',
 	condition() {
-		return UTILITY_MODEL_FORMAT.isCurrentFormat()
+		return (
+			UTILITY_MODEL_FORMAT.isCurrentFormat() &&
+			// Project can only have one skin texture
+			!Texture.all.some(v => v instanceof SkinTexture)
+		)
 	},
 	click() {
 		new SkinTexture().add(true)

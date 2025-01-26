@@ -1,5 +1,6 @@
 import { UTILITY_MODEL_FORMAT } from '.'
 import * as PACKAGE from '../../../package.json'
+import { exportUtilityModel } from '../../systems/utilityModelExporter'
 import { createAction } from '../../util/moddingTools'
 import { translate } from '../../util/translation'
 
@@ -11,5 +12,8 @@ export const EXPORT_UTILITY_MODEL_ACTION = createAction(`${PACKAGE.name}:exportU
 	},
 	click() {
 		console.log('Exporting utility model...')
+		exportUtilityModel()
 	},
 })
+
+MenuBar.addAction(EXPORT_UTILITY_MODEL_ACTION, 'file.export.0')
