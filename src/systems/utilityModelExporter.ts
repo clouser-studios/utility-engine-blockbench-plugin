@@ -187,6 +187,10 @@ function renderCube(cube: Cube) {
 function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 	const saveCopy = mesh.getSaveCopy!(true) as IMeshSaveCopy
 
+	for (const face of Object.values(saveCopy.faces)) {
+		face.texture = '#' + face.texture
+	}
+
 	return {
 		name: saveCopy.name,
 		uuid: mesh.uuid,
