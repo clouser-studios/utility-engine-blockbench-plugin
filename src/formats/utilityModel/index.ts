@@ -8,11 +8,11 @@ import Icon from './svelte/icon.svelte'
 import { translate } from '../../util/translation'
 import { ContextProperty, createBlockbenchMod } from '../../util/moddingTools'
 
-// Delete default format page title
+// Hide the default format page title
 const INTERVAL = setInterval(() => {
 	const title = $('#format_page_utility_model h2')[0]
 	if (!title) return
-	title.remove()
+	title.style.display = 'none'
 	clearInterval(INTERVAL)
 })
 
