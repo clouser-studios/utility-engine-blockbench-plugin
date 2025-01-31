@@ -9,6 +9,7 @@ import { Valuable } from '../../util/stores'
 
 const SKIN_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
 const USERNAME_TO_UUID_URL = 'https://api.mojang.com/users/profiles/minecraft/'
+const SKIN_TEXTURE_NAME = 'utility:skin'
 
 async function fetchSkinUrl(username: string) {
 	const data = await fetch(USERNAME_TO_UUID_URL + username).catch(() => undefined)
@@ -85,20 +86,21 @@ requestAnimationFrame(() => {
 
 declare global {
 	interface TextureData {
-		is_skin_texture?: boolean
+		isSkinTexture?: boolean
 	}
 }
 
-interface SkinTextureData extends TextureData {
-	previewSkinSource?: string
+export interface ISkinTextureData extends TextureData {
+	// Will always be true, but I want to keep the ISkinTextureData interface separate from TextureData, and don't have any other properties to add yet.
+	isSkinTexture?: boolean
 }
 
 class OverrideTexture extends Texture {
 	constructor(data?: TextureData, uuid?: string, forceNotSkinTexture = false) {
-		if (!forceNotSkinTexture && data?.is_skin_texture) {
+		if (!forceNotSkinTexture && data?.isSkinTexture) {
+			// REVIEW: This might not be necessary anymore now that we're using a custom codec.
 			return new SkinTexture(data, uuid)
 		}
-
 		super(data, uuid)
 	}
 }
@@ -121,66 +123,38 @@ createBlockbenchMod(
 )
 
 export class SkinTexture extends OverrideTexture {
-	public previewSkinTexture = new Texture()
-	public previewSkinSource = SteveSkin
+	public isSkinTexture = true
 
-	constructor(data?: SkinTextureData, uuid?: string) {
+	constructor(data?: ISkinTextureData, uuid?: string) {
 		data ??= {}
-		data.name ??= 'Skin'
+		data.name = SKIN_TEXTURE_NAME
 		super(data, uuid, true)
-
 		this.extend(data)
-
-		requestAnimationFrame(() => {
-			if (this.previewSkinSource) {
-				if (this.previewSkinSource.startsWith('data:')) {
-					console.log('fromDataURL')
-					this.fromDataURL(this.previewSkinSource)
-				} else {
-					const parsed = PathModule.parse(this.previewSkinSource)
-					console.log('fromFile')
-					this.fromFile({
-						name: parsed.base,
-						path: this.previewSkinSource,
-					})
-				}
-			} else {
-				this.resetPreviewSkin()
-			}
-		})
-
-		this.internal = true
-		this.saved = false
 		this.load()
 	}
 
-	extend(data: SkinTextureData) {
+	extend(data: ISkinTextureData) {
+		data.name = SKIN_TEXTURE_NAME
 		Texture.prototype.extend.call(this, data)
-		data.previewSkinSource = this.previewSkinSource ?? SteveSkin
-		console.log('extend', data)
 		return this
 	}
 
 	load() {
 		this.error = 0
+		this.name = SKIN_TEXTURE_NAME
 		this.show_icon = true
-		this.img.src = SteveSkin
+		this.img.src = this.source
+		this.internal = true
+		this.saved = true
 		return this
 	}
 
 	get material() {
-		if (!this.previewSkinTexture) {
-			// @ts-expect-error
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-			return this._static.properties.material
-		}
-		return this.previewSkinTexture.material
+		return this._static.properties.material
 	}
 
 	set material(mat) {
-		if (this.previewSkinTexture) {
-			this.previewSkinTexture.material = mat
-		}
+		this._static.properties.material = mat
 	}
 
 	edit() {
@@ -188,28 +162,12 @@ export class SkinTexture extends OverrideTexture {
 	}
 
 	resetPreviewSkin() {
-		this.previewSkinSource = ''
-		this.previewSkinTexture.fromDataURL(SteveSkin)
+		this.fromDataURL(SteveSkin)
 	}
 
 	fromFile(file: { name: string; path: string; content?: any }) {
-		if (file.name === 'Skin.png') {
-			this.resetPreviewSkin()
-			return this
-		}
-		this.previewSkinTexture.fromFile(file)
-		this.previewSkinSource = file.path
+		this.loadContentFromPath(file.path)
 		return this
-	}
-
-	fromDataURL(dataUrl: string) {
-		this.previewSkinTexture.fromDataURL(dataUrl)
-		this.previewSkinSource = dataUrl
-		return this
-	}
-
-	reopen(force = false) {
-		Texture.prototype.reopen.call(this, force)
 	}
 
 	getSaveCopy() {
@@ -219,7 +177,7 @@ export class SkinTexture extends OverrideTexture {
 			// @ts-expect-error
 			SkinTexture.properties[key].copy(this, copy)
 		}
-		copy.is_skin_texture = true
+		copy.isSkinTexture = true
 		return copy
 	}
 }
@@ -261,7 +219,7 @@ SkinTexture.prototype.menu = new Menu([
 		icon: 'close',
 		name: translate('menu.skin_texture.remove_preview_skin'),
 		condition(texture: SkinTexture) {
-			return texture.previewSkinTexture.source !== SteveSkin
+			return texture.source !== SteveSkin
 		},
 		click(texture: SkinTexture) {
 			texture.resetPreviewSkin()
@@ -363,4 +321,4 @@ SharedActions.add('duplicate', {
 	},
 })
 
-new Property(SkinTexture, 'string', 'previewSkinSource', {})
+new Property(SkinTexture, 'boolean', 'isSkinTexture', {})
