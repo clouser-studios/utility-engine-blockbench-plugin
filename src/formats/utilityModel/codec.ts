@@ -32,11 +32,12 @@ export interface IUtilityModelJSON {
 
 	elements: any[]
 	outliner: any[]
-	textures: Texture[]
+	textures: Array<TextureData | ISkinTextureData>
 	animations: AnimationOptions[]
 	animation_controllers?: AnimationControllerOptions[]
 	animation_variable_placeholders: string
 	backgrounds?: Record<string, any>
+	collections?: CollectionOptions[]
 }
 
 export function addProjectToRecentProjects(file: FileResult) {
@@ -109,7 +110,12 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 		if (model.textures) {
 			for (const texture of model.textures) {
-				const newTexture = new Texture(texture, texture.uuid).add(false)
+				let newTexture: Texture
+				if (texture.isSkinTexture) {
+					newTexture = new SkinTexture(texture, texture.uuid).add(false)
+				} else {
+					newTexture = new Texture(texture, texture.uuid).add(false)
+				}
 				if (texture.relative_path && Project.save_path) {
 					const resolvedPath = PathModule.resolve(
 						Project.save_path,
@@ -242,12 +248,42 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 				ModelProject.properties[key].copy(Project, model)
 		}
 
+		let allCollectionChildren: any[] = []
+		if (options.collection_only) {
+			allCollectionChildren = options.collection_only.getAllChildren()
+		}
+
 		model.elements = []
 		for (const element of elements) {
+			if (options.collection_only && !allCollectionChildren.includes(element)) return
 			model.elements.push(element.getSaveCopy && element.getSaveCopy(!!model.meta))
 		}
 
 		model.outliner = compileGroups(true)
+		if (options.collection_only) {
+			const filterList = (list: any[]) => {
+				list.forEachReverse(item => {
+					if (typeof item == 'string') {
+						if (!allCollectionChildren.find(node => node.uuid == item)) {
+							list.remove(item)
+						}
+					} else {
+						if (item.children instanceof Array) {
+							filterList(item.children as any[])
+						}
+						if (
+							item.uuid &&
+							!allCollectionChildren.find(node => node.uuid == item.uuid)
+						) {
+							if (!item.children || item.children.length == 0) {
+								list.remove(item)
+							}
+						}
+					}
+				})
+			}
+			filterList(model.outliner)
+		}
 
 		model.textures = []
 		for (const texture of Texture.all) {
@@ -258,10 +294,16 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 				texture.relative_path = relative.replace(/\\/g, '/')
 			}
 			save.source = 'data:image/png;base64,' + texture.getBase64()
-			save.mode = 'bitmap'
+			save.internal = true
 			if (options.absolute_paths === false) delete save.path
 			model.textures.push(save)
 		}
+
+		const collections: any = []
+		for (const collection of Collection.all) {
+			collections.push(collection.getSaveCopy())
+		}
+		if (collections.length) model.collections = collections
 
 		model.animations = [] as any
 		const animationOptions = { bone_names: true, absolute_paths: options.absolute_paths }
