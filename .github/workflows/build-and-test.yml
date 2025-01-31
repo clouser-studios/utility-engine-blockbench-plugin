@@ -1,0 +1,44 @@
+name: Build & Test PR
+on:
+    pull_request:
+        types:
+            - opened
+            - synchronize
+        branches:
+            - main
+
+jobs:
+    build-and-test:
+        name: Test
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set Node.js 17.x
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 17.x
+
+            - name: Clean node_modules
+              run: rm -rf node_modules
+
+            - name: Run install
+              uses: borales/actions-yarn@v4
+              with:
+                  cmd: install --frozen-lockfile
+            #   env:
+            #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
+            - name: Build production bundle
+              uses: borales/actions-yarn@v4
+              with:
+                  cmd: prod
+            # - name: Test the app
+            #   uses: borales/actions-yarn@v4
+            #   with:
+            #       cmd: test # will run `yarn test` command
+
+            # - name: Run test in sub-folder
+            #   uses: borales/actions-yarn@v4
+            #   with:
+            #       cmd: test
+            #       dir: 'frontend' # will run `yarn test` in `frontend` sub folder
