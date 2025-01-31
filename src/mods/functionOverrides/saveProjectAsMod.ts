@@ -1,6 +1,6 @@
-import { BLUEPRINT_CODEC, BLUEPRINT_FORMAT } from '../blueprintFormat'
-import { PACKAGE } from '../constants'
-import { createBlockbenchMod } from '../util/moddingTools'
+import { UTILITY_MODEL_CODEC, UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
+import { PACKAGE } from '../../package'
+import { createBlockbenchMod } from '../../util/moddingTools'
 
 createBlockbenchMod(
 	`${PACKAGE.name}:save_project_as`,
@@ -11,8 +11,8 @@ createBlockbenchMod(
 	context => {
 		context.action.click = (event: Event) => {
 			if (!Project || !Format) return
-			if (Format === BLUEPRINT_FORMAT) {
-				BLUEPRINT_CODEC.export()
+			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
+				UTILITY_MODEL_CODEC.export()
 			} else {
 				context.originalClick.call(context.action, event)
 			}

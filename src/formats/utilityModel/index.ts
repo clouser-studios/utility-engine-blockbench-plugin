@@ -27,9 +27,14 @@ injectSvelteCompomponentMod({
 	prepend: true,
 })
 
+export function saveUtilityModelProject() {
+	if (!Project || UTILITY_MODEL_FORMAT.isCurrentFormat()) return
+	UTILITY_MODEL_CODEC.write(UTILITY_MODEL_CODEC.compile(), Project.save_path)
+}
+
 // region > Format
 export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
-	id: 'utility_model',
+	id: `${PACKAGE.name}:utility_model`,
 	name: translate('model_format.utility_model.name'),
 	icon: 'fa-gear',
 	category: 'utility',
