@@ -5,7 +5,8 @@ on:
     pull_request:
         types: [opened]
 jobs:
-    run:
+    'assign-snavesutit':
+        name: 'Auto-Assign SnaveSutit'
         runs-on: ubuntu-latest
         permissions:
             issues: write
