@@ -1,5 +1,6 @@
-import { PACKAGE } from '../constants'
-import { createBlockbenchMod } from '../util/moddingTools'
+import { UTILITY_MODEL_FORMAT, UTILITY_MODEL_CODEC } from '../../formats/utilityModel'
+import { PACKAGE } from '../../package'
+import { createBlockbenchMod } from '../../util/moddingTools'
 
 createBlockbenchMod(
 	`${PACKAGE.name}:exportOverAction`,
@@ -10,20 +11,20 @@ createBlockbenchMod(
 	context => {
 		context.action.click = (event: Event) => {
 			if (!Project || !Format) return
-			if (Format.id === BLUEPRINT_FORMAT.id)	 {
+			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
 				const path = Project.save_path || Project.export_path
 				if (path) {
 					if (fs.existsSync(PathModule.dirname(path))) {
 						Project.save_path = path
-						BLUEPRINT_CODEC.write(BLUEPRINT_CODEC.compile(), path)
+						UTILITY_MODEL_CODEC.write(UTILITY_MODEL_CODEC.compile(), path)
 					} else {
 						console.error(
-							`Failed to export Animated Java Blueprint, file location '${path}' does not exist!`
+							`Failed to export Utility Model, file location '${path}' does not exist!`
 						)
-						BLUEPRINT_CODEC.export()
+						UTILITY_MODEL_CODEC.export()
 					}
 				} else {
-					BLUEPRINT_CODEC.export()
+					UTILITY_MODEL_CODEC.export()
 				}
 			} else {
 				context.originalClick.call(context.action, event)

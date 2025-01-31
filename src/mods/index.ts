@@ -1,5 +1,4 @@
+import './functionOverrides'
 import './modelFormatMod'
 import './formatCategoryMod'
-import './functionOverrides/animationPropertiesMod'
-import './functionOverrides/animationRenameMod'
 import './titleBarItem'
