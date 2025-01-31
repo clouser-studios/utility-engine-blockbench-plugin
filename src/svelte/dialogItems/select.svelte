@@ -17,7 +17,8 @@
 		options,
 		value: value.get(),
 		onChange() {
-			value.set(selectInput.node.getAttribute('value'))
+			const v = selectInput.node.getAttribute('value') ?? ''
+			value.set(v)
 		},
 	})
 
