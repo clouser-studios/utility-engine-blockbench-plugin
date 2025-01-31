@@ -1,5 +1,5 @@
 ---
-name: '✨ Implement Feature'
+template: '✨ Implement Feature'
 about: Implement a new feature or enhancement
 title: '✨ <feature-overview> (#<feature-request-id>)'
 labels: '✨ Enhancement'
