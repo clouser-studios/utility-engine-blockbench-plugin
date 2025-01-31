@@ -1,10 +1,9 @@
 ---
-name: "✨ Feature request"
+name: '✨ Feature request'
 about: Suggest an idea for this project
-title: "✨ My Awesome Feature Request"
-labels: "✨ Enhancement"
+title: '✨ My Awesome Feature Request'
+labels: '✨ Enhancement'
 assignees: SnaveSutit
-
 ---
 
 **Is your feature request related to a problem? Please describe.**
