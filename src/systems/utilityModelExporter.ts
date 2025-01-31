@@ -49,8 +49,10 @@ namespace UtilityModel {
 	export interface IMesh {
 		name: string
 		uuid: string
-		origin: ArrayVector3
-		rotation: ArrayVector3
+		rotation: {
+			value: ArrayVector3
+			origin: ArrayVector3
+		}
 		vertices: Record<string, ArrayVector3>
 		faces: Record<string, IMeshFaceSaveCopy>
 	}
@@ -194,8 +196,10 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 	return {
 		name: saveCopy.name,
 		uuid: mesh.uuid,
-		origin: saveCopy.origin,
-		rotation: saveCopy.rotation,
+		rotation: {
+			value: saveCopy.rotation,
+			origin: saveCopy.origin,
+		},
 		vertices: saveCopy.vertices,
 		faces: saveCopy.faces,
 	}
