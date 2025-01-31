@@ -1,5 +1,5 @@
 ---
-name: '🐛 Bug Fix'
+template: '🐛 Bug Fix'
 about: Fix a bug or issue
 title: '🐛 Fix <bug-overview> (#<bug-id>)'
 labels: '🐛 Bug'
