@@ -7,6 +7,8 @@ import FormatPage from './svelte/formatPage.svelte'
 import Icon from './svelte/icon.svelte'
 import { translate } from '../../util/translation'
 import { ContextProperty, createBlockbenchMod } from '../../util/moddingTools'
+import { UTILITY_MODEL_CODEC } from './codec'
+export { UTILITY_MODEL_CODEC } from './codec'
 
 // Hide the default format page title
 const INTERVAL = setInterval(() => {
@@ -65,8 +67,6 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 		console.log('Utility Model format activated')
 	},
 
-	codec: Codecs.project,
-
 	animated_textures: false,
 	animation_controllers: false,
 	animation_files: false,
@@ -97,6 +97,9 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	uv_rotation: true,
 	vertex_color_ambient_occlusion: true,
 })
+
+UTILITY_MODEL_FORMAT.codec = UTILITY_MODEL_CODEC
+UTILITY_MODEL_CODEC.format = UTILITY_MODEL_FORMAT
 
 createBlockbenchMod(
 	`${PACKAGE.name}:utility_model_model_format_properties`,

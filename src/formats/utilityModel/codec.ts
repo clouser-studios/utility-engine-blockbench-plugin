@@ -1,5 +1,6 @@
 import { UTILITY_MODEL_FORMAT } from '.'
-import PACKAGE from '../../../package.json'
+import { PACKAGE } from '../../package'
+import { SkinTexture, type ISkinTextureData } from '../../textures/skinTexture'
 import { translate } from '../../util/translation'
 import { updateUtilityModel } from './dfu'
 
@@ -338,5 +339,3 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		return `${Project.name}.utilitymodel'`
 	},
 })
-
-UTILITY_MODEL_FORMAT.codec = UTILITY_MODEL_CODEC
