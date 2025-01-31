@@ -1,5 +1,6 @@
 import * as PACKAGE from '../../package.json'
 import { createBlockbenchMod } from '../util/moddingTools'
+import { translate } from '../util/translation'
 
 // Modifies the format category sorting order to insert Utility directly below General
 createBlockbenchMod(
@@ -10,9 +11,8 @@ createBlockbenchMod(
 			const label = $("li.format_category > label:contains('format_category.utility')")
 			const utilityContainer = label.first().parent()
 			if (utilityContainer.children().length === 0) return
-			console.log('Utility container found')
 
-			label.html('Utility')
+			label.html(translate('format_category.utility'))
 
 			const generalContainer = $(
 				`li.format_category > label:contains('${tl('format_category.general')}')`
