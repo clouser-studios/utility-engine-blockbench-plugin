@@ -1,5 +1,5 @@
 import './modelFormatMod'
 import './formatCategoryMod'
-import './animationPropertiesOverride'
-import './animationRenameActionOverride'
+import './functionOverrides/animationPropertiesMod'
+import './functionOverrides/animationRenameMod'
 import './titleBarItem'

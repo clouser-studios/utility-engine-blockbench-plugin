@@ -1,7 +1,7 @@
 {
 	"name": "utility-engine",
 	"title": "Utility Engine",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"tags": [
 		"Minecraft: Java Edition",
 		"Commands",
@@ -25,7 +25,8 @@
 		"build:scripts": "esbuild --bundle --platform=node --outfile=dist/build.cjs --packages=external ./tools/esbuild.ts",
 		"dev": "yarn build:scripts && node ./dist/build.cjs --mode=dev",
 		"build": "yarn build:scripts && node ./dist/build.cjs",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"launch": "envbench"
 	},
 	"devDependencies": {
 		"@types/eslint": "^8.21.1",
@@ -35,6 +36,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.54.0",
 		"@typescript-eslint/parser": "^5.54.0",
 		"blockbench-types": "https://github.com/SnaveSutit/blockbench-types.git",
+		"envbench": "^2.0.2",
 		"esbuild": "^0.17.10",
 		"esbuild-plugin-import-glob": "^0.1.1",
 		"esbuild-plugin-inline-image": "^0.0.9",
