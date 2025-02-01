@@ -1,0 +1,1 @@
+-   [ ] Add 6 sliders to display preview to adjust the arms rotation and position for holding the item in-game.

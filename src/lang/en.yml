@@ -1,0 +1,111 @@
+action:
+  create_skin_texture.label: Create Skin Texture
+  export_utility_model.label: Export Utility Model
+
+menu:
+  skin_texture:
+    change_preview_skin:
+      label: Change Preview Skin
+      from_file: From File
+      from_username: From Username
+
+    remove_preview_skin: Remove Preview Skin
+
+dialog:
+  reset: Reset
+
+  username_prompt:
+    username.label: Enter a Minecraft Username
+    username.placeholder: Enter a Minecraft username
+
+  animation_properties:
+    title: Animation Properties for {0}
+
+    animation_type:
+      label: Animation Type
+      description: The type of animation.
+      options:
+        basic_loop: Basic Loop
+        being_broken: Being Broken
+        being_used_loop: Being Used Loop
+        left_click: Left Click
+        obtained: Obtained
+        placed_loop: Placed Loop
+        placed: Placed
+        right_click: Right Click
+        stopped_being_used: Stopped Being Used
+        used: Used
+        custom: Custom
+
+    animation_name:
+      label: Animation Name
+      description: The name of the animation.
+      placeholder: Enter an animation name
+
+    loop_mode:
+      label: Loop Mode
+      description: |-
+        The loop mode of the animation.
+        - Once: The animation will play once, then reset to the first frame.
+        - Hold on Last Frame: The animation will play once, and stop on the last frame.
+        - Loop: The animation will loop indefinitely.
+      options:
+        once: Once
+        hold: Hold on Last Frame
+        loop: Loop
+
+    loop_delay:
+      label: Loop Delay
+      description: The loop delay of the animation.
+
+model_format:
+  utility_model:
+    name: Utility Model
+    description: The basic model format for Utility Engine.
+    format_page: |-
+      ### Getting Started
+
+      [Check out the docs](URL-GOES-HERE) for more information on how to use this model format.
+    project_settings:
+      model_identifier: Model Identifier
+
+format_category:
+  utility: Utility Engine
+
+message:
+  failed_to_export:
+    title: Failed to Export
+    message: |-
+      An error occurred while exporting the model.
+      Error: {0}
+
+export:
+  error:
+    texture_not_saved: The texture {0} is not saved to disk!
+    invalid_resource_pack_path: |-
+      Texture {0} is not saved inside of a valid resource pack!
+      Path: {1}
+
+error:
+  utility_model_format:
+    failed_to_upgrade_project:
+      title: Failed to Upgrade Project!
+      # Uses Markdown formatting
+      description: |-
+        An unexpected error occurred while upgrading the project:
+
+        ```
+        {0}
+        ```
+
+        Your model may be corrupted! Continue editing at your own risk!
+
+    failed_to_export_project.title: Failed to export the project.
+    failed_to_export_project.description: |-
+      An unexpected error occurred while exporting the project:
+
+      ```
+      {0}
+      ```
+
+    invalid_export_path: The export path is invalid!
