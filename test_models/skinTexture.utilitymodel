@@ -1,9 +1,9 @@
 {
 	"meta": {
 		"format": "utility-engine:utility_model",
-		"format_version": "0.0.4",
+		"format_version": "0.0.5",
 		"uuid": "929a162f-73ab-2f10-ea44-49c3d9564b2a",
-		"save_location": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utilitymodel"
+		"save_location": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utilitymodel"
 	},
 	"resolution": {
 		"width": 64,

@@ -88,8 +88,24 @@ export:
 
 error:
   utility_model_format:
+    failed_to_upgrade_project:
+      title: Failed to Upgrade Project!
+      # Uses Markdown formatting
+      description: |-
+        An unexpected error occurred while upgrading the project:
+
+        ```
+        {0}
+        ```
+
+        Your model may be corrupted! Continue editing at your own risk!
+
     failed_to_export_project.title: Failed to export the project.
     failed_to_export_project.description: |-
-      An error occurred while exporting the project:
+      An unexpected error occurred while exporting the project:
+
+      ```
       {0}
+      ```
+
     invalid_export_path: The export path is invalid!
