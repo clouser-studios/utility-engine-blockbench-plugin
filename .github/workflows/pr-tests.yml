@@ -55,7 +55,7 @@ jobs:
                   only_changed: true
                   prettier_options: --config-precedence=file-override --write .
                   commit_message: 🎨 Prettify code
-                  same_commit: true
+                  # same_commit: true
 
     # lint:
     #     name: 🔍 Inspect Code Linting
