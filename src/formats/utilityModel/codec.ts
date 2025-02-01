@@ -1,17 +1,18 @@
 import { UTILITY_MODEL_FORMAT } from '.'
 import { PACKAGE } from '../../package'
 import { SkinTexture, type ISkinTextureData } from '../../textures/skinTexture'
+import { resetAllConsoleGroups } from '../../util/misc'
 import { translate } from '../../util/translation'
 import { updateUtilityModel } from './dfu'
-
-export interface IUtilityModelSettings {
-	model_identifier: string
-}
 
 declare global {
 	interface ModelProject {
 		utility_model: IUtilityModelSettings
 	}
+}
+
+export interface IUtilityModelSettings {
+	model_identifier: string
 }
 
 export interface IUtilityModelJSON {
@@ -38,6 +39,7 @@ export interface IUtilityModelJSON {
 	animation_variable_placeholders: string
 	backgrounds?: Record<string, any>
 	collections?: CollectionOptions[]
+	texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
 }
 
 export function addProjectToRecentProjects(file: FileResult) {
@@ -70,7 +72,19 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 	// region > load
 	load(model: IUtilityModelJSON, file) {
 		console.log(`Loading Utility Model from '${file.name}'...`)
-		model = updateUtilityModel(model)
+		try {
+			model = updateUtilityModel(model)
+		} catch (e: any) {
+			resetAllConsoleGroups()
+			console.error('Failed to upgrade Utility Model:', e)
+			Blockbench.showMessageBox({
+				title: translate('error.utility_model_format.failed_to_upgrade_project.title'),
+				message: translate(
+					'error.utility_model_format.failed_to_upgrade_project.description',
+					e.message as string
+				),
+			})
+		}
 		setupProject(UTILITY_MODEL_FORMAT, model.meta.uuid)
 		if (!Project) {
 			throw new Error('Failed to load Utility Model')
@@ -106,6 +120,12 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 		if (model.options) {
 			Project.utility_model = { ...Project.utility_model, ...model.options }
+		}
+
+		if (model.texture_groups) {
+			model.texture_groups.forEach(texGroup => {
+				new TextureGroup(texGroup, texGroup.uuid).add()
+			})
 		}
 
 		if (model.textures) {
@@ -301,6 +321,11 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 			save.internal = true
 			if (options.absolute_paths === false) delete save.path
 			model.textures.push(save)
+		}
+
+		for (const textureGroup of TextureGroup.all) {
+			if (!model.texture_groups) model.texture_groups = []
+			model.texture_groups.push(textureGroup.getSaveCopy())
 		}
 
 		const collections: any = []
