@@ -19,53 +19,16 @@ concurrency:
     group: pr-tests-${{ github.ref }}
 
 jobs:
-    # prettier:
-    #     name: 🎨 Inspect Code Formatting
-    #     runs-on: ubuntu-latest
-
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v3
-    #           with:
-    #               # Make sure the actual branch is checked out when running on pull requests
-    #               ref: ${{ github.head_ref }}
-
-    #         - name: Set Node.js 17.x
-    #           uses: actions/setup-node@v3
-    #           with:
-    #               node-version: 17.x
-
-    #         - name: Run install
-    #           uses: borales/actions-yarn@v4
-    #           with:
-    #               cmd: install --frozen-lockfile
-
-    #         - name: Validate formatting
-    #           uses: creyD/prettier_action@v4.3
-    #           with:
-    #               dry: true
-    #               only_changed: true
-    #               prettier_options: --config-precedence=file-override --write . --check
-    #               # commit_message: 🎨 Prettify code
-    #               # same_commit: true
-
-    lint:
-        name: 🔍 Inspect Code Linting
+    prettier:
+        name: 🎨 Inspect Code Formatting
         runs-on: ubuntu-latest
-        # needs: prettier
-
-        permissions:
-            contents: read
-            packages: read
-            # To report GitHub Actions status checks
-            statuses: write
 
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v3
               with:
-                  # super-linter needs the full git history to get the
-                  # list of files that changed across commits
-                  fetch-depth: 0
+                  # Make sure the actual branch is checked out when running on pull requests
+                  ref: ${{ github.head_ref }}
 
             - name: Set Node.js 17.x
               uses: actions/setup-node@v3
@@ -77,35 +40,72 @@ jobs:
               with:
                   cmd: install --frozen-lockfile
 
-            - name: Super-linter
-              uses: super-linter/super-linter/slim@v7.2.1 # x-release-please-version
-              env:
-                  # To report GitHub Actions status checks
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  TYPESCRIPT_ES_CONFIG_FILE: .eslintrc.json
-                  VALIDATE_JSON_PRETTIER: true
-                  VALIDATE_TYPESCRIPT_ES: true
-                  VALIDATE_TYPESCRIPT_STANDARD: true
-                  VALIDATE_TYPESCRIPT_PRETTIER: true
+            - name: Validate formatting
+              uses: creyD/prettier_action@v4.3
+              with:
+                  dry: true
+                  only_changed: true
+                  prettier_options: --config-precedence=file-override --write . --check
+                  commit_message: 🎨 Prettify code
+                  same_commit: true
 
-            # - name: Commit and push linting fixes
-            #   # Run only on:
-            #   # - Pull requests
-            #   # - Not on the default branch
-            #   if: >
-            #       github.event_name == 'pull_request' &&
-            #       github.ref_name != github.event.repository.default_branch
-            #   uses: stefanzweifel/git-auto-commit-action@v5
-            #   with:
-            #       branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
-            #       commit_message: '🎨 Auto-Fix Linting Issues'
-            #       commit_user_name: super-linter
-            #       commit_user_email: super-linter@super-linter.dev
+    # lint:
+    #     name: 🔍 Inspect Code Linting
+    #     runs-on: ubuntu-latest
+    #     # needs: prettier
+
+    #     permissions:
+    #         contents: read
+    #         packages: read
+    #         # To report GitHub Actions status checks
+    #         statuses: write
+
+    #     steps:
+    #         - uses: actions/checkout@v3
+    #           with:
+    #               # super-linter needs the full git history to get the
+    #               # list of files that changed across commits
+    #               fetch-depth: 0
+
+    #         - name: Set Node.js 17.x
+    #           uses: actions/setup-node@v3
+    #           with:
+    #               node-version: 17.x
+
+    #         - name: Run install
+    #           uses: borales/actions-yarn@v4
+    #           with:
+    #               cmd: install --frozen-lockfile
+
+    #         - name: Super-linter
+    #           uses: super-linter/super-linter/slim@v7.2.1 # x-release-please-version
+    #           env:
+    #               # To report GitHub Actions status checks
+    #               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #               TYPESCRIPT_ES_CONFIG_FILE: .eslintrc.json
+    #               VALIDATE_JSON_PRETTIER: true
+    #               VALIDATE_TYPESCRIPT_ES: true
+    #               VALIDATE_TYPESCRIPT_STANDARD: true
+    #               VALIDATE_TYPESCRIPT_PRETTIER: true
+
+    # - name: Commit and push linting fixes
+    #   # Run only on:
+    #   # - Pull requests
+    #   # - Not on the default branch
+    #   if: >
+    #       github.event_name == 'pull_request' &&
+    #       github.ref_name != github.event.repository.default_branch
+    #   uses: stefanzweifel/git-auto-commit-action@v5
+    #   with:
+    #       branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+    #       commit_message: '🎨 Auto-Fix Linting Issues'
+    #       commit_user_name: super-linter
+    #       commit_user_email: super-linter@super-linter.dev
 
     build-and-test:
         name: 🏗️ Build & Test
         runs-on: ubuntu-latest
-        needs: lint
+        needs: prettier
 
         steps:
             - uses: actions/checkout@v3
