@@ -1,0 +1,91 @@
+name: Build & Test PR
+description: Run ESLint on the codebase to ensure code quality, and consistency. Then build & test the plugin.
+on:
+    # Trigger the workflow on push or pull request,
+    # but only for the main branch
+    push:
+        branches:
+            - main
+    # Replace pull_request with pull_request_target if you
+    # plan to use this action with forks, see the Limitations section
+    pull_request:
+        types:
+            - opened
+            - synchronize
+        branches:
+            - main
+
+concurrency:
+    group: pr-tests-${{ github.ref }}
+
+jobs:
+    lint:
+        name: Run Linters
+        runs-on: ubuntu-latest
+
+        # Down scope as necessary via https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+        permissions:
+            checks: write
+            contents: write
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set Node.js 17.x
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 17.x
+
+            - name: Clean node_modules
+              run: rm -rf node_modules
+
+            - name: Run install
+              uses: borales/actions-yarn@v4
+              with:
+                  cmd: install --frozen-lockfile
+
+            - name: Run linters
+              uses: wearerequired/lint-action@v2
+              with:
+                  eslint: true
+                  prettier: true
+
+    build-and-test:
+        name: Test
+        runs-on: ubuntu-latest
+        needs: lint
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set Node.js 17.x
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 17.x
+
+            - name: Clean node_modules
+              run: rm -rf node_modules
+
+            - name: Run install
+              uses: borales/actions-yarn@v4
+              with:
+                  cmd: install --frozen-lockfile
+
+            #   env:
+            #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
+
+            - name: Build production bundle
+              uses: borales/actions-yarn@v4
+              with:
+                  cmd: prod
+
+            # - name: Test the app
+            #   uses: borales/actions-yarn@v4
+            #   with:
+            #       cmd: test # will run `yarn test` command
+
+            # - name: Run test in sub-folder
+            #   uses: borales/actions-yarn@v4
+            #   with:
+            #       cmd: test
+            #       dir: 'frontend' # will run `yarn test` in `frontend` sub folder
