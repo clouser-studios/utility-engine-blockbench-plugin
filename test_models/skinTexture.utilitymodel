@@ -123,7 +123,8 @@
 						"jqAy": [17, 8],
 						"xMXn": [17, 0]
 					},
-					"vertices": ["xMXn", "jqAy", "veBO", "pT93"]
+					"vertices": ["xMXn", "jqAy", "veBO", "pT93"],
+					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
 				},
 				"TPd7p2qc": {
 					"uv": {
@@ -132,7 +133,8 @@
 						"4KmA": [17, 9],
 						"2Fpl": [33, 9]
 					},
-					"vertices": ["2Fpl", "4KmA", "OIiy", "BM1x"]
+					"vertices": ["2Fpl", "4KmA", "OIiy", "BM1x"],
+					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
 				},
 				"Br0LSX2z": {
 					"uv": {
@@ -141,7 +143,8 @@
 						"veBO": [16, 0],
 						"xMXn": [16, 16]
 					},
-					"vertices": ["xMXn", "veBO", "2Fpl", "4KmA"]
+					"vertices": ["xMXn", "veBO", "2Fpl", "4KmA"],
+					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
 				},
 				"qjTgUYY2": {
 					"uv": {
@@ -150,7 +153,8 @@
 						"OIiy": [0, 17],
 						"jqAy": [16, 17]
 					},
-					"vertices": ["jqAy", "OIiy", "pT93", "BM1x"]
+					"vertices": ["jqAy", "OIiy", "pT93", "BM1x"],
+					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
 				},
 				"9Z435A32": {
 					"uv": {
@@ -159,7 +163,8 @@
 						"2Fpl": [17, 18],
 						"xMXn": [33, 18]
 					},
-					"vertices": ["xMXn", "2Fpl", "jqAy", "OIiy"]
+					"vertices": ["xMXn", "2Fpl", "jqAy", "OIiy"],
+					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
 				},
 				"d0gwCVc4": {
 					"uv": {
@@ -168,7 +173,8 @@
 						"pT93": [17, 35],
 						"veBO": [17, 27]
 					},
-					"vertices": ["veBO", "pT93", "4KmA", "BM1x"]
+					"vertices": ["veBO", "pT93", "4KmA", "BM1x"],
+					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
 				}
 			},
 			"type": "mesh",
@@ -207,7 +213,7 @@
 	],
 	"textures": [
 		{
-			"path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\utility-engine-blockbench-plugin\\test_models\\assets\\test\\textures\\entity\\texture.png",
+			"path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\assets\\test\\textures\\entity\\texture.png",
 			"name": "texture.png",
 			"folder": "block",
 			"namespace": "",
@@ -230,14 +236,13 @@
 			"frame_interpolate": false,
 			"isSkinTexture": "",
 			"visible": true,
-			"internal": false,
+			"internal": true,
 			"saved": true,
 			"uuid": "36c832fe-aee8-a1b7-72d5-b465f7e38c22",
-			"source": "data:image/png;base64,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",
-			"mode": "bitmap"
+			"source": "data:image/png;base64,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"
 		},
 		{
-			"path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\utility-engine-blockbench-plugin\\test_models\\SnaveSutit 2.0 - Tweaks.png",
+			"path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\SnaveSutit 2.0 - Tweaks.png",
 			"name": "utility:skin",
 			"folder": "",
 			"namespace": "",
@@ -263,9 +268,8 @@
 			"internal": true,
 			"saved": true,
 			"uuid": "ba65039b-c5ae-874e-4ab1-581f65f5944b",
-			"source": "data:image/png;base64,D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\utility-engine-blockbench-plugin\\test_models\\SnaveSutit 2.0 - Tweaks.png?1",
-			"image_data": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\utility-engine-blockbench-plugin\\test_models\\SnaveSutit 2.0 - Tweaks.png?1",
-			"mode": "bitmap"
+			"source": "data:image/png;base64,D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\SnaveSutit 2.0 - Tweaks.png?1",
+			"image_data": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\SnaveSutit 2.0 - Tweaks.png?1"
 		}
 	],
 	"animations": [

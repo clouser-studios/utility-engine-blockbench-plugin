@@ -256,7 +256,11 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		model.elements = []
 		for (const element of elements) {
 			if (options.collection_only && !allCollectionChildren.includes(element)) return
-			model.elements.push(element.getSaveCopy && element.getSaveCopy(!!model.meta))
+			if (element instanceof Mesh) {
+				model.elements.push(element.getSaveCopy && element.getSaveCopy())
+			} else {
+				model.elements.push(element.getSaveCopy && element.getSaveCopy(model.meta))
+			}
 		}
 
 		model.outliner = compileGroups(true)
