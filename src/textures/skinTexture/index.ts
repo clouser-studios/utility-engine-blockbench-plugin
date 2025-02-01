@@ -149,14 +149,6 @@ export class SkinTexture extends OverrideTexture {
 		return this
 	}
 
-	get material() {
-		return this._static.properties.material
-	}
-
-	set material(mat) {
-		this._static.properties.material = mat
-	}
-
 	edit() {
 		// Cannot edit skin textures
 	}
