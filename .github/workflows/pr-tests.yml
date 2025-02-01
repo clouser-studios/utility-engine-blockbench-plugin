@@ -18,10 +18,18 @@ on:
 concurrency:
     group: pr-tests-${{ github.ref }}
 
+permissions:
+    contents: read
+
 jobs:
     prettier:
         name: 🎨 Inspect Code Formatting
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            packages: read
+            # To report GitHub Actions status checks
+            statuses: write
 
         steps:
             - name: Checkout
