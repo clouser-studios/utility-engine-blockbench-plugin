@@ -1,4 +1,5 @@
 import { events } from './events'
+import { resetAllConsoleGroups } from './misc'
 import { Subscribable } from './subscribable'
 
 export type NamespacedString = `${string}${string}:${string}${string}`
@@ -13,6 +14,7 @@ class BlockbenchModInstallError extends Error {
 
 class BlockbenchModUninstallError extends Error {
 	constructor(id: string, err: Error) {
+		resetAllConsoleGroups()
 		super(
 			`Mod '${id}' failed to uninstall: ${err.message}` + (err.stack ? '\n' + err.stack : '')
 		)
@@ -68,7 +70,6 @@ export function createBlockbenchMod<InjectContext = any, ExtractContext = any>(
 		} catch (err) {
 			throw new BlockbenchModInstallError(id, err as Error)
 		}
-		console.log('Sucess!')
 	})
 
 	events.EXTRACT_MODS.subscribe(() => {
@@ -80,7 +81,6 @@ export function createBlockbenchMod<InjectContext = any, ExtractContext = any>(
 		} catch (err) {
 			throw new BlockbenchModUninstallError(id, err as Error)
 		}
-		console.log('Sucess!')
 	})
 }
 
