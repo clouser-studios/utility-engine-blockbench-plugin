@@ -48,6 +48,8 @@ jobs:
               uses: wearerequired/lint-action@v2
               with:
                   eslint: true
+                  eslint_extensions: ts, d.ts
+                  eslint_args: -c .eslintrc.json --max-warnings 0
                   prettier: true
 
     build-and-test:
