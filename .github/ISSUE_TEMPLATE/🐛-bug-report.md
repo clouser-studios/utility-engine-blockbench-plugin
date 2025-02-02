@@ -25,11 +25,11 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
 
--   OS: [e.g. iOS]
--   Browser [e.g. chrome, safari]
--   OS Version [e.g. 22]
--   Blockbench Version
--   Utility Engine Version
+- OS: [e.g. iOS]
+- Browser [e.g. chrome, safari]
+- OS Version [e.g. 22]
+- Blockbench Version
+- Utility Engine Version
 
 **Additional context**
 Add any other context about the problem here.

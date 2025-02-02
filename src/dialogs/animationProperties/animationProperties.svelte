@@ -87,14 +87,14 @@
 		(acc: Record<string, string>, type) => {
 			if (
 				Blockbench.Animation.all.some(
-					v => v.name !== 'custom' && v.name === type && animationName.get() !== type,
+					v => v.name !== 'custom' && v.name === type && animationName.get() !== type
 				)
 			)
 				return acc
 			acc[type] = translate(`dialog.animation_properties.animation_type.options.${type}`)
 			return acc
 		},
-		{},
+		{}
 	)
 
 	if (animationType.get() === undefined) {

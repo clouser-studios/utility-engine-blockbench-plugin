@@ -27,8 +27,8 @@
 						Math.clamp(
 							value.get() + (difference - last_difference),
 							min !== undefined ? min : -Infinity,
-							max !== undefined ? max : Infinity,
-						) || 0,
+							max !== undefined ? max : Infinity
+						) || 0
 					)
 					last_difference = difference
 				}
@@ -46,8 +46,8 @@
 				Math.clamp(
 					molangParser.parse(value.get()),
 					min !== undefined ? min : -Infinity,
-					max !== undefined ? max : Infinity,
-				) || 0,
+					max !== undefined ? max : Infinity
+				) || 0
 			)
 		})
 	})
