@@ -127,7 +127,7 @@ function validateTextures() {
 			throw new ExportError(
 				'export.error.invalid_resource_pack_path',
 				texture.name,
-				texture.path
+				texture.path,
 			)
 		}
 	}
@@ -191,6 +191,13 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 
 	for (const face of Object.values(saveCopy.faces)) {
 		face.texture = '#' + face.texture
+
+		// Re-order vertices to match Minecraft's winding order
+		if (face.vertices.length === 4) {
+			const vertex3 = face.vertices[2]
+			face.vertices[2] = face.vertices[3]
+			face.vertices[3] = vertex3
+		}
 	}
 
 	return {
