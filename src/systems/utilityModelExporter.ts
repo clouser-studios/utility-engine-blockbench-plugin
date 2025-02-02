@@ -138,8 +138,8 @@ function renderCube(cube: Cube) {
 
 	const element = { uuid: cube.uuid } as UtilityModel.IElement
 
-	element.from = [...cube.from].V3_add(8, 0, 8)
-	element.to = [...cube.to].V3_add(8, 0, 8)
+	element.from = [...cube.from]
+	element.to = [...cube.to]
 
 	if (cube.inflate) {
 		element.from.V3_subtract(cube.inflate, cube.inflate, cube.inflate)
@@ -150,7 +150,7 @@ function renderCube(cube: Cube) {
 
 	element.rotation = {
 		value: [...cube.rotation],
-		origin: [...cube.origin].V3_add(8, 0, 8),
+		origin: [...cube.origin],
 	}
 
 	if (cube.parent instanceof Group) {
