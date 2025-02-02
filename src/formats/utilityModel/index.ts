@@ -1,13 +1,13 @@
+import PACKAGE from '../../../package.json'
 import {
 	injectSvelteCompomponent,
 	injectSvelteCompomponentMod,
 } from '../../util/injectSvelteComponent'
-import PACKAGE from '../../../package.json'
+import { ContextProperty, createBlockbenchMod } from '../../util/moddingTools'
+import { translate } from '../../util/translation'
+import { UTILITY_MODEL_CODEC } from './codec'
 import FormatPage from './svelte/formatPage.svelte'
 import Icon from './svelte/icon.svelte'
-import { translate } from '../../util/translation'
-import { ContextProperty, createBlockbenchMod } from '../../util/moddingTools'
-import { UTILITY_MODEL_CODEC } from './codec'
 export { UTILITY_MODEL_CODEC } from './codec'
 
 // Hide the default format page title
@@ -75,7 +75,7 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	bone_binding_expression: false,
 	bone_rig: true,
 	box_uv: false,
-	centered_grid: true,
+	centered_grid: false,
 	display_mode: true,
 	edit_mode: true,
 	integer_size: false,
@@ -117,5 +117,5 @@ createBlockbenchMod(
 	},
 	context => {
 		context.modelIdentifierProperty?.delete()
-	}
+	},
 )
