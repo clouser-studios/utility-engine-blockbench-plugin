@@ -52,7 +52,7 @@
 		target: HTMLElement,
 		value: Valuable<number>,
 		min?: number,
-		max?: number,
+		max?: number
 	) {
 		addEventListeners(target, 'mousedown touchstart', (e1: any) => {
 			convertTouchEvent(e1)
@@ -65,8 +65,8 @@
 						Math.clamp(
 							value.get() + (difference - last_difference),
 							min !== undefined ? min : -Infinity,
-							max !== undefined ? max : Infinity,
-						),
+							max !== undefined ? max : Infinity
+						)
 					)
 					last_difference = difference
 				}
@@ -84,8 +84,8 @@
 				Math.clamp(
 					molangParser.parse(value.get()),
 					min !== undefined ? min : -Infinity,
-					max !== undefined ? max : Infinity,
-				),
+					max !== undefined ? max : Infinity
+				)
 			)
 		})
 	}

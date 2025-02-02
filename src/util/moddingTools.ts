@@ -262,7 +262,7 @@ const SUBSCRIBABLES = new Map<
 	any,
 	[
 		Subscribable<{ storage: Storage<any>; value: any }>,
-		Subscribable<{ storage: Storage<any>; newValue: any }>
+		Subscribable<{ storage: Storage<any>; newValue: any }>,
 	]
 >()
 
