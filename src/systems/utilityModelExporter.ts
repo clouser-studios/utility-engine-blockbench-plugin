@@ -33,10 +33,8 @@ namespace UtilityModel {
 		from: number[]
 		to: number[]
 		shade?: boolean
-		rotation: {
-			value: ArrayVector3
-			origin: ArrayVector3
-		}
+		origin: ArrayVector3
+		rotation: ArrayVector3
 		faces?: Record<string, IElementFace>
 	}
 
@@ -49,10 +47,8 @@ namespace UtilityModel {
 	export interface IMesh {
 		name: string
 		uuid: string
-		rotation: {
-			value: ArrayVector3
-			origin: ArrayVector3
-		}
+		origin: ArrayVector3
+		rotation: ArrayVector3
 		vertices: Record<string, ArrayVector3>
 		faces: Record<string, IMeshFaceSaveCopy>
 	}
@@ -82,7 +78,24 @@ namespace UtilityModel {
 		name: string
 		origin: ArrayVector3
 		rotation: ArrayVector3
-		children: string[]
+		children: IStructure
+	}
+
+	export interface IStructure {
+		elements?: string[]
+		meshes?: string[]
+		bones?: IBone[]
+	}
+
+	export interface IDisplayContainer {
+		thirdperson_righthand?: IDisplay
+		thirdperson_lefthand?: IDisplay
+		firstperson_righthand?: IDisplay
+		firstperson_lefthand?: IDisplay
+		head?: IDisplay
+		gui?: IDisplay
+		ground?: IDisplay
+		fixed?: IDisplay
 	}
 
 	export interface IModel {
@@ -92,19 +105,10 @@ namespace UtilityModel {
 			particle?: string
 		}
 		elements: IElement[]
-		outliner: Array<string | IBone>
+		structure: IStructure
 		meshes?: IMesh[]
 		animations?: IAnimation[]
-		display: {
-			thirdperson_righthand?: IDisplay
-			thirdperson_lefthand?: IDisplay
-			firstperson_righthand?: IDisplay
-			firstperson_lefthand?: IDisplay
-			head?: IDisplay
-			gui?: IDisplay
-			ground?: IDisplay
-			fixed?: IDisplay
-		}
+		display?: IDisplayContainer
 	}
 }
 
@@ -148,19 +152,8 @@ function renderCube(cube: Cube) {
 
 	if (cube.shade === false) element.shade = false
 
-	element.rotation = {
-		value: [...cube.rotation],
-		origin: [...cube.origin],
-	}
-
-	if (cube.parent instanceof Group) {
-		const parent = cube.parent
-		element.from.V3_subtract(parent.origin)
-		element.to.V3_subtract(parent.origin)
-		if (element.rotation && !Array.isArray(element.rotation)) {
-			element.rotation.origin.V3_subtract(parent.origin)
-		}
-	}
+	element.origin = [...cube.origin]
+	element.rotation = [...cube.rotation]
 
 	element.faces = {}
 	for (const [face, data] of Object.entries(cube.faces)) {
@@ -203,74 +196,93 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 	return {
 		name: saveCopy.name,
 		uuid: mesh.uuid,
-		rotation: {
-			value: saveCopy.rotation,
-			origin: saveCopy.origin,
-		},
+		origin: saveCopy.origin,
+		rotation: saveCopy.rotation,
 		vertices: saveCopy.vertices,
 		faces: saveCopy.faces,
 	}
 }
 
+function recurseStructure(
+	model: UtilityModel.IModel,
+	children: OutlinerNode[],
+	parent?: Group,
+): UtilityModel.IStructure {
+	const structure: UtilityModel.IStructure = {}
+
+	for (const child of children) {
+		if (!child.export) continue
+		if (child instanceof Group) {
+			const bone: UtilityModel.IBone = {
+				name: child.name,
+				origin: child.origin,
+				rotation: child.rotation,
+				children: recurseStructure(model, child.children, child),
+			}
+			structure.bones ??= []
+			structure.bones.push(bone)
+		} else if (child instanceof Mesh) {
+			const mesh = renderMesh(child)
+			if (parent) {
+				mesh.origin.V3_subtract(parent.origin)
+			}
+			model.meshes ??= []
+			model.meshes.push(mesh)
+			structure.meshes ??= []
+			structure.meshes.push(mesh.uuid)
+		} else if (child instanceof Cube) {
+			const element = renderCube(child)
+			if (element) {
+				if (parent) {
+					element.from.V3_subtract(parent.origin)
+					element.to.V3_subtract(parent.origin)
+					element.origin.V3_subtract(parent.origin)
+					element.rotation.V3_subtract(parent.rotation)
+				}
+				structure.elements ??= []
+				structure.elements.push(element.uuid)
+				model.elements.push(element)
+			}
+		} else {
+			console.warn(`Skipping unknown outliner node type when generating children:`, child)
+		}
+	}
+
+	return structure
+}
+
 function createUtilityModel(): UtilityModel.IModel {
 	validateTextures()
 
-	const textures: UtilityModel.IModel['textures'] = {}
+	const model: UtilityModel.IModel = {
+		__comment:
+			'Created in Blockbench, exported via Utility Engine. Will not work in Vanilla Minecraft!',
+		format_version: FORMAT_VERSION,
+		textures: {},
+		elements: [],
+		structure: {},
+		display: {},
+	}
+
 	const particleTexture = Texture.all.find(v => v.particle)
 	if (particleTexture) {
 		// Path and Parsed should always be defined after validating textures.
 		const parsed = parseResourcePackPath(particleTexture.path!)!
-		textures.particle = parsed.resourceLocation
+		model.textures.particle = parsed.resourceLocation
 	}
 	for (const texture of Texture.all) {
 		if (texture instanceof SkinTexture) {
-			textures[texture.id] = 'utility:skin'
+			model.textures[texture.id] = 'utility:skin'
 			continue
 		}
 		// Path and Parsed should always be defined after validating textures.
 		const parsed = parseResourcePackPath(texture.path!)!
-		textures[texture.id] = parsed.resourceLocation
+		model.textures[texture.id] = parsed.resourceLocation
 	}
 
-	const elements: UtilityModel.IModel['elements'] = []
-	for (const cube of Cube.all) {
-		const element = renderCube(cube)
-		if (element) elements.push(element)
-	}
-
-	const meshes: UtilityModel.IModel['meshes'] = []
-	for (const mesh of Mesh.all) {
-		const renderedMesh = renderMesh(mesh)
-		meshes.push(renderedMesh)
-	}
-
-	const outliner: UtilityModel.IModel['outliner'] = []
-	function recurseGroup(group: Group) {
-		const bone: UtilityModel.IBone = {
-			name: group.name,
-			origin: group.origin,
-			rotation: group.rotation,
-			children: [],
-		}
-		outliner.push(bone)
-		for (const child of group.children) {
-			if (child instanceof Group) {
-				recurseGroup(child)
-			} else {
-				bone.children.push(child.uuid)
-			}
-		}
-	}
-	for (const node of Outliner.root) {
-		if (node instanceof Group) {
-			recurseGroup(node)
-		} else {
-			outliner.push(node.uuid)
-		}
-	}
+	model.structure = recurseStructure(model, Outliner.root)
 
 	const animations: UtilityModel.IModel['animations'] = []
-
 	for (const animation of Blockbench.Animation.all) {
 		const bedrock = animation.compileBedrockAnimation()
 		animations.push({
@@ -281,9 +293,9 @@ function createUtilityModel(): UtilityModel.IModel {
 			bones: bedrock.bones,
 		})
 	}
+	if (animations.length) model.animations = animations
 
-	const display: UtilityModel.IModel['display'] = {}
-
+	const display: UtilityModel.IDisplayContainer = {}
 	for (const [key, settings] of Object.entries(Project!.display_settings)) {
 		if (
 			settings.rotation.allAre(v => v === 0) &&
@@ -294,25 +306,16 @@ function createUtilityModel(): UtilityModel.IModel {
 			// Ignore default display settings
 			continue
 		}
-		display[key as keyof UtilityModel.IModel['display']] = {
+		display[key as keyof UtilityModel.IDisplayContainer] = {
 			transform: settings.translation,
 			rotation: settings.rotation,
 			scale: settings.scale,
 			mirror: settings.mirror,
 		}
 	}
+	if (Object.keys(display).length) model.display = display
 
-	return {
-		__comment:
-			'Created in Blockbench, exported via Utility Engine. Will not work in Vanilla Minecraft!',
-		format_version: FORMAT_VERSION,
-		textures,
-		elements,
-		outliner,
-		meshes,
-		animations,
-		display,
-	}
+	return model
 }
 
 export function exportUtilityModel() {
