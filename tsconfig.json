@@ -1,5 +1,6 @@
 {
 	"include": ["./src/**/*", "./tools/**/*"],
+	"exclude": ["./node_modules/**/*"],
 	"compilerOptions": {
 		"outDir": "./dist/",
 		"noImplicitAny": true,
@@ -10,6 +11,7 @@
 		"types": ["node", "./types/blockbench-types", "svelte"],
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
-		"allowUmdGlobalAccess": true
+		"allowUmdGlobalAccess": true,
+		"allowUnreachableCode": true
 	}
 }

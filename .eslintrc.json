@@ -48,6 +48,7 @@
 		"@typescript-eslint/consistent-generic-constructors": "warn",
 		"@typescript-eslint/no-namespace": "off",
 		"@typescript-eslint/restrict-template-expressions": "off",
+		"no-unreachable": "warn",
 		"@typescript-eslint/naming-convention": [
 			"warn",
 			{
