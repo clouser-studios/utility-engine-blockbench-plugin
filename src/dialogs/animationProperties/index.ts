@@ -25,8 +25,10 @@ export function openAnimationPropertiesDialog(animation: _Animation) {
 		onConfirm() {
 			animation.name = animationName.get()
 			animation.createUniqueName(Blockbench.Animation.all)
-			animation.loop = loopMode.get() as any
+			animation.loop = loopMode.get() as typeof animation.loop
 			animation.loop_delay = loopDelay.get().toString()
+			Animator.exportAnimationFile('') // Custom override for utility models doesn't take a path
+			Project!.saved = false
 		},
 	}).show()
 }

@@ -69,7 +69,7 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 
 	animated_textures: false,
 	animation_controllers: false,
-	animation_files: false,
+	animation_files: true,
 	texture_mcmeta: true,
 	animation_mode: true,
 	bone_binding_expression: false,

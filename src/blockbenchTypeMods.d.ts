@@ -18,9 +18,4 @@ declare global {
 		| 'stopped_being_used'
 		| 'used'
 		| 'custom'
-
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	interface _Animation {
-		utility_type?: UtilityAnimationType
-	}
 }
