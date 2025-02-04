@@ -1,4 +1,6 @@
+import './animationFileOverridesMod'
+import './formatCategoryMod'
 import './functionOverrides'
 import './modelFormatMod'
-import './formatCategoryMod'
+import './shadowAnimationMod'
 import './titleBarItem'
