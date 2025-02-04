@@ -1,7 +1,7 @@
 {
 	"meta": {
 		"format": "utility-engine:utility_model",
-		"format_version": "0.0.5",
+		"format_version": "0.0.6",
 		"uuid": "929a162f-73ab-2f10-ea44-49c3d9564b2a",
 		"save_location": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utilitymodel"
 	},
@@ -183,7 +183,7 @@
 	],
 	"outliner": [
 		{
-			"name": "bone2",
+			"name": "head",
 			"origin": [0, 0, -8],
 			"color": 0,
 			"uuid": "88c153e8-741f-0a39-9b12-b0b916a08526",
@@ -194,7 +194,23 @@
 			"visibility": true,
 			"autouv": 0,
 			"selected": false,
-			"children": ["414b46ca-9830-0c5b-fe41-3f9900ea71dc", "de4fe036-eedf-dae9-0ea1-2a3750e8bc06"]
+			"children": [
+				"414b46ca-9830-0c5b-fe41-3f9900ea71dc",
+				{
+					"name": "hat",
+					"origin": [0, 4, 0],
+					"color": 0,
+					"uuid": "3a4c5eb9-e3f9-e461-7ce4-b1cf64dbe544",
+					"export": true,
+					"mirror_uv": false,
+					"isOpen": true,
+					"locked": false,
+					"visibility": true,
+					"autouv": 0,
+					"selected": false,
+					"children": ["de4fe036-eedf-dae9-0ea1-2a3750e8bc06"]
+				}
+			]
 		},
 		{
 			"name": "bone",
@@ -280,14 +296,16 @@
 			"override": false,
 			"length": 0.5,
 			"snapping": 24,
-			"selected": false,
+			"selected": true,
+			"saved": false,
+			"path": "",
 			"anim_time_update": "",
 			"blend_weight": "",
 			"start_delay": "",
 			"loop_delay": "0",
 			"animators": {
 				"88c153e8-741f-0a39-9b12-b0b916a08526": {
-					"name": "bone2",
+					"name": "head",
 					"type": "bone",
 					"keyframes": [
 						{

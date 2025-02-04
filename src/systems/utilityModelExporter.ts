@@ -12,8 +12,8 @@ interface IMeshFaceSaveCopy {
 
 interface IMeshSaveCopy {
 	name: string
-	origin: ArrayVector3
 	rotation: ArrayVector3
+	origin: ArrayVector3
 	vertices: Record<string, ArrayVector3>
 	faces: Record<string, IMeshFaceSaveCopy>
 }
@@ -33,8 +33,10 @@ namespace UtilityModel {
 		from: number[]
 		to: number[]
 		shade?: boolean
-		origin: ArrayVector3
-		rotation: ArrayVector3
+		rotation?: {
+			euler: ArrayVector3
+			origin: ArrayVector3
+		}
 		faces?: Record<string, IElementFace>
 	}
 
@@ -47,8 +49,10 @@ namespace UtilityModel {
 	export interface IMesh {
 		name: string
 		uuid: string
-		origin: ArrayVector3
-		rotation: ArrayVector3
+		rotation?: {
+			euler: ArrayVector3
+			origin: ArrayVector3
+		}
 		vertices: Record<string, ArrayVector3>
 		faces: Record<string, IMeshFaceSaveCopy>
 	}
@@ -76,8 +80,10 @@ namespace UtilityModel {
 
 	export interface IBone {
 		name: string
-		origin: ArrayVector3
-		rotation: ArrayVector3
+		rotation?: {
+			euler: ArrayVector3
+			origin: ArrayVector3
+		}
 		children: IStructure
 	}
 
@@ -131,7 +137,7 @@ function validateTextures() {
 			throw new ExportError(
 				'export.error.invalid_resource_pack_path',
 				texture.name,
-				texture.path,
+				texture.path
 			)
 		}
 	}
@@ -152,8 +158,10 @@ function renderCube(cube: Cube) {
 
 	if (cube.shade === false) element.shade = false
 
-	element.origin = [...cube.origin]
-	element.rotation = [...cube.rotation]
+	element.rotation = {
+		euler: [...cube.rotation],
+		origin: [...cube.origin],
+	}
 
 	element.faces = {}
 	for (const [face, data] of Object.entries(cube.faces)) {
@@ -196,8 +204,10 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 	return {
 		name: saveCopy.name,
 		uuid: mesh.uuid,
-		origin: saveCopy.origin,
-		rotation: saveCopy.rotation,
+		rotation: {
+			euler: saveCopy.rotation,
+			origin: saveCopy.origin,
+		},
 		vertices: saveCopy.vertices,
 		faces: saveCopy.faces,
 	}
@@ -206,7 +216,7 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 function recurseStructure(
 	model: UtilityModel.IModel,
 	children: OutlinerNode[],
-	parent?: Group,
+	parent?: Group
 ): UtilityModel.IStructure {
 	const structure: UtilityModel.IStructure = {}
 
@@ -215,16 +225,20 @@ function recurseStructure(
 		if (child instanceof Group) {
 			const bone: UtilityModel.IBone = {
 				name: child.name,
-				origin: child.origin,
-				rotation: child.rotation,
+				rotation: {
+					euler: child.rotation,
+					origin: child.origin,
+				},
 				children: recurseStructure(model, child.children, child),
 			}
 			structure.bones ??= []
 			structure.bones.push(bone)
 		} else if (child instanceof Mesh) {
 			const mesh = renderMesh(child)
-			if (parent) {
-				mesh.origin.V3_subtract(parent.origin)
+			//REVIEW - Is origin stored implicitly in the vertices? I might have to add the parent offset to the vertices...
+			if (parent && mesh.rotation) {
+				mesh.rotation.euler.V3_subtract(parent.rotation)
+				mesh.rotation.origin.V3_subtract(parent.origin)
 			}
 			model.meshes ??= []
 			model.meshes.push(mesh)
@@ -236,8 +250,10 @@ function recurseStructure(
 				if (parent) {
 					element.from.V3_subtract(parent.origin)
 					element.to.V3_subtract(parent.origin)
-					element.origin.V3_subtract(parent.origin)
-					element.rotation.V3_subtract(parent.rotation)
+					if (element.rotation) {
+						element.rotation.euler.V3_subtract(parent.rotation)
+						element.rotation.origin.V3_subtract(parent.origin)
+					}
 				}
 				structure.elements ??= []
 				structure.elements.push(element.uuid)
