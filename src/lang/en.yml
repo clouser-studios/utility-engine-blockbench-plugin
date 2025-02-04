@@ -26,65 +26,65 @@ dialog:
   animation_properties:
     title: Animation Properties for {0}
 
-  animation_type:
-    label: Animation Type
-    description: The type of animation.
-    options:
-      custom: Custom
-      being_worn_loop: Being Worn Loop
-      being_worn_reset: Being Worn Reset
-      charging_loop: Charging Loop
-      charging_reset: Charging Reset
-      consume_cancel: Consume Cancel
-      consume_loop: Consume Loop
-      consume_reset: Consume Reset
-      held_loop: Held Loop
-      held_reset: Held Reset
-      held_stop: Held Stop
-      left_click: Left Click
-      main_loop: Main Loop
-      not_held_loop: Not Held Loop
-      picked_up: Picked Up
-      placed_breaking_loop: Placed Breaking Loop
-      placed_breaking_reset: Placed Breaking Reset
-      placed_breaking_stop: Placed Breaking Stop
-      placed_broken: Placed Broken
-      placed_falling_reset: Placed Falling Reset
-      placed_falling: Placed Falling
-      placed_loop: Placed Loop
-      placed_reset: Placed Reset
-      placed_use_loop: Placed Use Loop
-      placed_use_reset: Placed Use Reset
-      placed_use_stop: Placed Use Stop
-      placed_walked_on_loop: Placed Walked On Loop
-      placed_walked_on_reset: Placed Walked On Reset
-      right_click: Right Click
-      selected_reset: Selected Reset
-      swimming_loop: Swimming Loop
-      swimming_reset: Swimming Reset
-      swimming_stop: Swimming Stop
-      used: Used
+    animation_type:
+      label: Animation Type
+      description: The type of animation.
+      options:
+        custom: Custom
+        being_worn_loop: Being Worn Loop
+        being_worn_reset: Being Worn Reset
+        charging_loop: Charging Loop
+        charging_reset: Charging Reset
+        consume_cancel: Consume Cancel
+        consume_loop: Consume Loop
+        consume_reset: Consume Reset
+        held_loop: Held Loop
+        held_reset: Held Reset
+        held_stop: Held Stop
+        left_click: Left Click
+        main_loop: Main Loop
+        not_held_loop: Not Held Loop
+        picked_up: Picked Up
+        placed_breaking_loop: Placed Breaking Loop
+        placed_breaking_reset: Placed Breaking Reset
+        placed_breaking_stop: Placed Breaking Stop
+        placed_broken: Placed Broken
+        placed_falling_reset: Placed Falling Reset
+        placed_falling: Placed Falling
+        placed_loop: Placed Loop
+        placed_reset: Placed Reset
+        placed_use_loop: Placed Use Loop
+        placed_use_reset: Placed Use Reset
+        placed_use_stop: Placed Use Stop
+        placed_walked_on_loop: Placed Walked On Loop
+        placed_walked_on_reset: Placed Walked On Reset
+        right_click: Right Click
+        selected_reset: Selected Reset
+        swimming_loop: Swimming Loop
+        swimming_reset: Swimming Reset
+        swimming_stop: Swimming Stop
+        used: Used
 
-      animation_name:
-        label: Animation Name
-        description: The name of the animation.
-        placeholder: Enter an animation name
+    animation_name:
+      label: Animation Name
+      description: The name of the animation.
+      placeholder: Enter an animation name
 
-      loop_mode:
-        label: Loop Mode
-        description: |-
-          The loop mode of the animation.
-          - Once: The animation will play once, then reset to the first frame.
-          - Hold on Last Frame: The animation will play once, and stop on the last frame.
-          - Loop: The animation will loop indefinitely.
-        options:
-          once: Once
-          hold: Hold on Last Frame
-          loop: Loop
+    loop_mode:
+      label: Loop Mode
+      description: |-
+        The loop mode of the animation.
+        - Once: The animation will play once, then reset to the first frame.
+        - Hold on Last Frame: The animation will play once, and stop on the last frame.
+        - Loop: The animation will loop indefinitely.
+      options:
+        once: Once
+        hold: Hold on Last Frame
+        loop: Loop
 
-      loop_delay:
-        label: Loop Delay
-        description: The loop delay of the animation.
+    loop_delay:
+      label: Loop Delay
+      description: The loop delay of the animation.
 
 model_format:
   utility_model:
