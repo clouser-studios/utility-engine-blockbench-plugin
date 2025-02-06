@@ -75,7 +75,7 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	bone_binding_expression: false,
 	bone_rig: true,
 	box_uv: false,
-	centered_grid: false,
+	centered_grid: true,
 	display_mode: true,
 	edit_mode: true,
 	integer_size: false,
@@ -117,5 +117,5 @@ createBlockbenchMod(
 	},
 	context => {
 		context.modelIdentifierProperty?.delete()
-	},
+	}
 )
