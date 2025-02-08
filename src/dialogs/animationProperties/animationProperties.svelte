@@ -10,7 +10,7 @@
 	export let loopDelay: Valuable<number>
 
 	let animationType = new Valuable<string>('custom')
-	const animationTypes: Record<string, string> = {
+	const ANIMATION_TYPES: Record<string, string> = {
 		custom: 'loop',
 
 		main_loop: 'loop',
@@ -64,10 +64,10 @@
 	}
 
 	$: if ($animationName.startsWith('utility.')) {
-		const type = Object.keys(animationTypes).find(v => $animationName.endsWith(v))
+		const type = Object.keys(ANIMATION_TYPES).find(v => $animationName.endsWith(v))
 		if (type) {
 			$animationType = type
-			$loopMode = animationTypes[type]
+			$loopMode = ANIMATION_TYPES[type]
 		}
 	}
 
@@ -83,7 +83,7 @@
 		animationName.set(`utility.${v}`)
 	})
 
-	const animationTypeOptions = Object.keys(animationTypes).reduce(
+	const ANIMATION_TYPE_OPTIONS = Object.keys(ANIMATION_TYPES).reduce(
 		(acc: Record<string, string>, type) => {
 			if (
 				Blockbench.Animation.all.some(
@@ -98,7 +98,7 @@
 	)
 
 	if (animationType.get() === undefined) {
-		animationType.set(Object.keys(animationTypeOptions)[0])
+		animationType.set(Object.keys(ANIMATION_TYPE_OPTIONS)[0])
 	}
 </script>
 
@@ -107,7 +107,7 @@
 		<Select
 			label={translate('dialog.animation_properties.animation_type.label')}
 			tooltip={translate('dialog.animation_properties.animation_type.description')}
-			options={animationTypeOptions}
+			options={ANIMATION_TYPE_OPTIONS}
 			defaultOption={'once'}
 			bind:value={animationType}
 		/>

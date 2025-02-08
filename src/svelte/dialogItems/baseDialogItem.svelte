@@ -8,7 +8,7 @@
 	export let errorText = ''
 	export let onReset: () => void
 
-	const id = guid()
+	const UUID = guid()
 
 	$: if (errorText) {
 		console.log(label, errorText)
@@ -23,7 +23,7 @@
 <div>
 	<div class="base_dialog_item" title={tooltip}>
 		<div class="slot_container" style={tooltip ? 'margin-right: 4px' : ''}>
-			<slot {id} />
+			<slot id={UUID} />
 		</div>
 		{#if tooltip}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->

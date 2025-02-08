@@ -1,6 +1,6 @@
-import * as PACKAGE from '../../../package.json'
 import { openAnimationPropertiesDialog } from '../../dialogs/animationProperties'
 import { UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
+import { PACKAGE } from '../../package'
 import { createBlockbenchMod } from '../../util/moddingTools'
 
 createBlockbenchMod(

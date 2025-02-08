@@ -3,14 +3,14 @@
 	import BaseDialogItem from './baseDialogItem.svelte'
 
 	export let label: string
-	export let tooltip: string = ''
+	export let tooltip = ''
 	export let value: Valuable<number>
 	export let defaultValue: number
 	export let min: number | undefined = undefined
 	export let max: number | undefined = undefined
 	export let step: number | undefined = undefined
 
-	const molangParser = new Molang()
+	const MOLANG_PARSER = new Molang()
 
 	let input: HTMLInputElement
 	let slider: HTMLElement
@@ -18,22 +18,22 @@
 	requestAnimationFrame(() => {
 		addEventListeners(slider, 'mousedown touchstart', (e1: any) => {
 			convertTouchEvent(e1)
-			let last_difference = 0
+			let lastDifference = 0
 			function move(e2: any) {
 				convertTouchEvent(e2)
-				let difference = Math.trunc((e2.clientX - e1.clientX) / 10) * (step || 1)
-				if (difference != last_difference) {
+				const difference = Math.trunc((e2.clientX - e1.clientX) / 10) * (step ?? 1)
+				if (difference != lastDifference) {
 					value.set(
 						Math.clamp(
-							value.get() + (difference - last_difference),
-							min !== undefined ? min : -Infinity,
-							max !== undefined ? max : Infinity
+							value.get() + (difference - lastDifference),
+							min ?? -Infinity,
+							max ?? Infinity
 						) || 0
 					)
-					last_difference = difference
+					lastDifference = difference
 				}
 			}
-			function stop(e2: any) {
+			function stop() {
 				removeEventListeners(document, 'mousemove touchmove', move, null)
 				removeEventListeners(document, 'mouseup touchend', stop, null)
 			}
@@ -43,11 +43,7 @@
 
 		addEventListeners(input, 'focusout dblclick', () => {
 			value.set(
-				Math.clamp(
-					molangParser.parse(value.get()),
-					min !== undefined ? min : -Infinity,
-					max !== undefined ? max : Infinity
-				) || 0
+				Math.clamp(MOLANG_PARSER.parse(value.get()), min ?? -Infinity, max ?? Infinity) || 0
 			)
 		})
 	})

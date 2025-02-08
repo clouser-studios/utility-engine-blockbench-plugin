@@ -1,4 +1,4 @@
-import * as PACKAGE from '../../../package.json'
+import { PACKAGE } from '../../package'
 import { Valuable } from '../../util/stores'
 import { SvelteDialog } from '../../util/svelteDialog'
 import { translate } from '../../util/translation'

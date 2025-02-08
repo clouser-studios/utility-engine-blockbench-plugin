@@ -1,5 +1,5 @@
-import * as PACKAGE from '../package.json'
-import { events } from './util/events'
+import { PACKAGE } from './package'
+import EVENTS from './util/events'
 import './util/moddingTools'
 
 //-------------------------------
@@ -18,7 +18,7 @@ import './textures/skinTexture'
 // Provide a global object for other plugins to interact with
 // @ts-expect-error
 window.UtilityEngine = {
-	events: events,
+	events: EVENTS,
 }
 
 BBPlugin.register(PACKAGE.name, {
@@ -31,15 +31,15 @@ BBPlugin.register(PACKAGE.name, {
 	min_version: PACKAGE.min_blockbench_version,
 	tags: PACKAGE.tags as [string, string, string],
 	onload() {
-		events.LOAD.dispatch()
+		EVENTS.LOAD.dispatch()
 	},
 	onunload() {
-		events.UNLOAD.dispatch()
+		EVENTS.UNLOAD.dispatch()
 	},
 	oninstall() {
-		events.INSTALL.dispatch()
+		EVENTS.INSTALL.dispatch()
 	},
 	onuninstall() {
-		events.UNINSTALL.dispatch()
+		EVENTS.UNINSTALL.dispatch()
 	},
 })

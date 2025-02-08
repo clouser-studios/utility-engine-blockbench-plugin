@@ -8,7 +8,6 @@ class ShadowAnimation extends Blockbench.Animation {
 }
 
 // @ts-ignore
-// eslint-disable-next-line no-global-assign
 Animation = ShadowAnimation
 // @ts-ignore
 Blockbench.Animation = ShadowAnimation
