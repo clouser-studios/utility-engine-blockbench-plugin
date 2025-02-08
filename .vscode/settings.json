@@ -31,6 +31,5 @@
 	"errorLens.excludePatterns": ["**/node_modules/**/*"],
 	"eslint.validate": ["javascript", "javascriptreact", "svelte"],
 	"eslint.useFlatConfig": true,
-	"eslint.problems.shortenToSingleLine": true,
-	"problems.showCurrentInStatus": true
+	"eslint.problems.shortenToSingleLine": true
 }

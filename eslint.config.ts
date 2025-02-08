@@ -4,7 +4,7 @@ import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
 import svelteConfig from './svelte.config'
 import type { NamingConventionRule } from './tools/tslintNamingConventionRule'
 
-console.log('Loading ESLint config')
+console.log(`[${new Date().toLocaleTimeString()}] Loading ESLint config`)
 
 const IGNORE_PATTERNS = [
 	'.DS_Store',
@@ -30,11 +30,12 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	'no-fallthrough': 'off',
 	'no-mixed-spaces-and-tabs': 'warn',
 	'no-unreachable': 'warn',
-	'no-unused-vars': [
+	'@typescript-eslint/no-unused-vars': [
 		'warn',
 		{
 			vars: 'local',
 			args: 'after-used',
+			argsIgnorePattern: '^_',
 			ignoreRestSiblings: true,
 		},
 	],
@@ -66,6 +67,19 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 			format: ['PascalCase'],
 		},
 		{
+			selector: 'import',
+			modifiers: ['default'],
+			filter: {
+				regex: 'v\\d+_\\d+_\\d+$',
+				match: true,
+			},
+			custom: {
+				match: true,
+				regex: 'v\\d+_\\d+_\\d+$',
+			},
+			format: null,
+		},
+		{
 			selector: ['import'],
 			modifiers: ['default'],
 			format: ['camelCase', 'PascalCase'],
@@ -95,16 +109,7 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		{
 			selector: 'variable',
 			modifiers: ['const', 'global'],
-			format: ['UPPER_CASE'],
-		},
-		{
-			selector: 'variable',
-			modifiers: ['const', 'global'],
-			filter: {
-				regex: '^_.*$',
-				match: true,
-			},
-			prefix: ['_'],
+			leadingUnderscore: 'allow',
 			format: ['UPPER_CASE'],
 		},
 		{
@@ -119,7 +124,10 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 			types: ['boolean', 'array', 'string', 'boolean', 'number'],
 			format: ['camelCase', 'UPPER_CASE'],
 		},
-		{ selector: 'variableLike', format: ['camelCase'] },
+		{
+			selector: 'variableLike',
+			format: ['camelCase'],
+		},
 		{ selector: 'interface', format: ['PascalCase'] },
 		{
 			selector: 'interface',
@@ -130,6 +138,12 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		{ selector: 'typeLike', format: ['PascalCase'] },
 		{ selector: 'objectLiteralProperty', format: null },
 		{ selector: 'default', format: ['camelCase'] },
+		{
+			selector: 'parameter',
+			modifiers: ['unused'],
+			format: ['camelCase'],
+			leadingUnderscore: 'allow',
+		},
 		{
 			selector: 'parameter',
 			format: ['camelCase'],
@@ -174,7 +188,25 @@ export default tsESLint.config(
 		rules: {
 			// Causes issues with Svelte and global types
 			'no-undef': 'off',
-		},
+			'@typescript-eslint/naming-convention': [
+				'warn',
+				{
+					selector: 'variable',
+					modifiers: ['exported'],
+					format: ['camelCase'],
+				},
+				{
+					selector: 'variable',
+					modifiers: ['const', 'global'],
+					format: ['UPPER_CASE'],
+				},
+				{
+					selector: 'variable',
+					format: ['camelCase'],
+					leadingUnderscore: 'allow',
+				},
+			] satisfies NamingConventionRule,
+		} as any,
 		languageOptions: {
 			parser: svelteParser,
 			parserOptions: {

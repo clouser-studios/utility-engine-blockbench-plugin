@@ -26,8 +26,8 @@
 		"dev": "yarn build:scripts && node ./dist/build.cjs --mode=dev",
 		"prod": "yarn build:scripts && node ./dist/build.cjs",
 		"format": "prettier --write .",
-		"check-formatting": "prettier . --check",
-		"lint": "eslint . --max-warnings=0",
+		"check-formatting": "prettier . --check --no-warn-ignored",
+		"lint": "eslint . --max-warnings=0 --no-warn-ignored",
 		"launch": "envbench"
 	},
 	"devDependencies": {
