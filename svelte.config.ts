@@ -1,14 +1,7 @@
 import { resolve } from 'path'
 import sveltePreprocess from 'svelte-preprocess'
 import { typescript } from 'svelte-preprocess-esbuild'
-import type { CompileOptions } from 'svelte/types/compiler'
 import type { ISvelteESBuildPluginOptions } from './tools/plugins/sveltePlugin'
-
-export const compilerOptions: CompileOptions = {
-	dev: process.env.NODE_ENV === 'development',
-	css: true,
-	errorMode: process.env.NODE_ENV === 'development' ? 'warn' : 'throw',
-}
 
 export const preprocess = [
 	typescript({
@@ -38,5 +31,9 @@ export const transformCssToJs = (
 export default {
 	preprocess,
 	transformCssToJs,
-	compilerOptions,
+	compilerOptions: {
+		dev: process.env.NODE_ENV === 'development',
+		css: true,
+		errorMode: process.env.NODE_ENV === 'development' ? 'warn' : 'throw',
+	},
 } satisfies ISvelteESBuildPluginOptions

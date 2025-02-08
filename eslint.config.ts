@@ -1,8 +1,8 @@
-import SvelteEslint from 'eslint-plugin-svelte'
-import SvelteParser from 'svelte-eslint-parser'
-import TypeScriptESLint, { type ConfigWithExtends } from 'typescript-eslint'
-import SvelteConfig from './svelte.config'
-import type { NamingConventionRule } from './tools/tslint-naming-convention-rule'
+import svelteEslint from 'eslint-plugin-svelte'
+import svelteParser from 'svelte-eslint-parser'
+import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
+import svelteConfig from './svelte.config'
+import type { NamingConventionRule } from './tools/tslintNamingConventionRule'
 
 console.log('Loading ESLint config')
 
@@ -11,25 +11,16 @@ const IGNORE_PATTERNS = [
 	'.env',
 	'.env.*',
 	'.github',
-	// On CI our PNPM store is local to the application source
-	'.pnpm-store/**/*',
-	'.svelte-kit/**/*',
 	'.vscode',
-	'node_modules/**/*',
-	'build/**/*',
-	'package/**/*',
+	'**/node_modules/**',
+
+	// Blockbench Plugin Template
+	'dist/**/*',
 
 	// Ignore files for PNPM, NPM and YARN
 	'pnpm-lock.yaml',
 	'package-lock.json',
 	'yarn.lock',
-
-	// i18n dictionaries and auto-generated data
-	'src/lib/paraglide/**/*',
-
-	// Blockbench Plugin Template
-	'dist/**',
-	'src/util/bufferGeometryUtils.ts',
 ]
 
 const CUSTOM_RULES: ConfigWithExtends['rules'] = {
@@ -42,7 +33,7 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	'no-unused-vars': [
 		'warn',
 		{
-			vars: 'global',
+			vars: 'local',
 			args: 'after-used',
 			ignoreRestSiblings: true,
 		},
@@ -77,8 +68,7 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		{
 			selector: ['import'],
 			modifiers: ['default'],
-			types: ['function'],
-			format: ['PascalCase'],
+			format: ['camelCase', 'PascalCase'],
 		},
 		{
 			selector: ['classProperty', 'classMethod'],
@@ -151,18 +141,24 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	] satisfies NamingConventionRule,
 }
 
-export default TypeScriptESLint.config(
-	...TypeScriptESLint.configs.stylisticTypeChecked,
-	...SvelteEslint.configs['flat/prettier'],
+export default tsESLint.config(
+	{
+		ignores: IGNORE_PATTERNS,
+	},
+	...tsESLint.configs.stylisticTypeChecked,
+	...svelteEslint.configs['flat/prettier'],
 	{
 		plugins: {
-			'@typescript-eslint': TypeScriptESLint.plugin,
-			svelte: SvelteEslint,
+			'@typescript-eslint': tsESLint.plugin,
+			svelte: svelteEslint,
 		},
 	},
 	{
+		rules: CUSTOM_RULES,
+	},
+	{
 		languageOptions: {
-			parser: TypeScriptESLint.parser,
+			parser: tsESLint.parser,
 			parserOptions: {
 				project: './tsconfig.json',
 				extraFileExtensions: ['.svelte'],
@@ -180,10 +176,10 @@ export default TypeScriptESLint.config(
 			'no-undef': 'off',
 		},
 		languageOptions: {
-			parser: SvelteParser,
+			parser: svelteParser,
 			parserOptions: {
-				parser: TypeScriptESLint.parser,
-				svelteConfig: SvelteConfig,
+				parser: tsESLint.parser,
+				svelteConfig: svelteConfig,
 				extraFileExtensions: ['.svelte'],
 			},
 			globals: {
@@ -196,8 +192,6 @@ export default TypeScriptESLint.config(
 		},
 	},
 	{
-		ignores: IGNORE_PATTERNS,
-		rules: CUSTOM_RULES,
 		languageOptions: {
 			parserOptions: {
 				projectService: true,
