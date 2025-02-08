@@ -1,5 +1,4 @@
 name: Build & Test PR
-description: Run ESLint on the codebase to ensure code quality, and consistency. Then build & test the plugin.
 on:
     # Trigger the workflow on push or pull request,
     # but only for the main branch
@@ -38,10 +37,10 @@ jobs:
                   # Make sure the actual branch is checked out when running on pull requests
                   ref: ${{ github.head_ref }}
 
-            - name: Set Node.js 17.x
+            - name: Set Node.js 22.x
               uses: actions/setup-node@v3
               with:
-                  node-version: 17.x
+                  node-version: 22.x
 
             - name: Run install
               uses: borales/actions-yarn@v4
@@ -75,10 +74,10 @@ jobs:
     #               # list of files that changed across commits
     #               fetch-depth: 0
 
-    #         - name: Set Node.js 17.x
+    #         - name: Set Node.js 22.x
     #           uses: actions/setup-node@v3
     #           with:
-    #               node-version: 17.x
+    #               node-version: 22.x
 
     #         - name: Run install
     #           uses: borales/actions-yarn@v4
@@ -118,10 +117,10 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - name: Set Node.js 17.x
+            - name: Set Node.js 22.x
               uses: actions/setup-node@v3
               with:
-                  node-version: 17.x
+                  node-version: 22.x
 
             - name: Clean node_modules
               run: rm -rf node_modules
