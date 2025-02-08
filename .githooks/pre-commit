@@ -6,18 +6,22 @@
 # and returning with non-zero exit status prevents the commit from being created.
 #
 # To enable this hook remove the `.sample` suffix from this file entirely.
+function join_by { local IFS="$1"; shift; echo "$*"; }
 
+files=$(git diff --cached --name-only)
+joinedFiles=$(join_by " " $files)
+echo Changed Files: $joinedFiles
 # Check for merge markers in modified files
-for file in $(git diff --cached --name-only); do
+for file in $files; do
     if grep -q -E '^(<<<<<<<|=======|>>>>>>>|\|\|\|\|\|\|\|)$' "$file"; then
         echo "Error: File '$file' contains merge markers. Please remove them before committing."
         exit 1
     fi
 done
 
-yarn check-formatting
+yarn check-formatting $joinedFiles
 
-yarn lint
+yarn lint $joinedFiles
 
 # Exit with success if there are no errors
 exit 0
