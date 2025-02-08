@@ -20,7 +20,7 @@ const IMPORT_PATH = resolve(__dirname, '../src/util/', 'events.ts')
 
 export const transformCssToJs = (
 	css: string
-) => `import { events as SVELTE_EVENTS } from ${JSON.stringify(IMPORT_PATH)};
+) => `import SVELTE_EVENTS from ${JSON.stringify(IMPORT_PATH)};
 (() => {
 	const $deletable = Blockbench.addCSS(${JSON.stringify(css)});
 	function DELETE_SVELTE_CSS() { $deletable?.delete() }

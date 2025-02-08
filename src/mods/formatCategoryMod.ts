@@ -1,4 +1,4 @@
-import * as PACKAGE from '../../package.json'
+import { PACKAGE } from '../package'
 import { createBlockbenchMod } from '../util/moddingTools'
 import { translate } from '../util/translation'
 

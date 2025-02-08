@@ -1,5 +1,5 @@
 import { UTILITY_MODEL_FORMAT } from '.'
-import * as PACKAGE from '../../../package.json'
+import { PACKAGE } from '../../package'
 import { exportUtilityModel } from '../../systems/utilityModelExporter'
 import { createAction } from '../../util/moddingTools'
 import { translate } from '../../util/translation'

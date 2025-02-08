@@ -1,8 +1,9 @@
-import type { events } from './util/events'
+import type EVENTS from './util/events'
 
 declare global {
+	// eslint-disable-next-line @typescript-eslint/naming-convention
 	const UtilityEngine: {
-		events: typeof events
+		events: typeof EVENTS
 	}
 
 	type UtilityAnimationType =

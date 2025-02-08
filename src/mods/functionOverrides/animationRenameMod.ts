@@ -1,5 +1,5 @@
-import * as PACKAGE from '../../../package.json'
 import { UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
+import { PACKAGE } from '../../package'
 import { createBlockbenchMod } from '../../util/moddingTools'
 
 const ANIMATION_RENAME_ACTION_CONTENT =

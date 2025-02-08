@@ -58,7 +58,7 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 		},
 	},
 
-	onSetup(project, newModel) {
+	onSetup(_project, _newModel) {
 		console.log('Utility Model format setup')
 	},
 

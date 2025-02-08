@@ -1,2 +1,2 @@
-import _PACKAGE from '../package.json'
-export const PACKAGE = _PACKAGE
+import PackageJSON from '../package.json'
+export const PACKAGE = PackageJSON

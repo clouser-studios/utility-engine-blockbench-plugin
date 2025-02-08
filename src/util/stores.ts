@@ -1,4 +1,4 @@
-import { type Writable, type Subscriber, type Unsubscriber, writable, get } from 'svelte/store'
+import { get, type Subscriber, type Unsubscriber, type Writable, writable } from 'svelte/store'
 
 export class Valuable<T> implements Writable<T> {
 	static all: Array<Valuable<any>> = []
@@ -8,7 +8,7 @@ export class Valuable<T> implements Writable<T> {
 
 	constructor(value: T, valueValidator?: Valuable<T>['valueValidator']) {
 		this.store = writable(value)
-		this.valueValidator = valueValidator || ((value: T) => value)
+		this.valueValidator = valueValidator ?? ((value: T) => value)
 		Valuable.all.push(this)
 	}
 

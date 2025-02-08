@@ -148,7 +148,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 				}
 				if (texture.path && fs.existsSync(texture.path) && !model.meta.backup) {
 					newTexture.fromPath(texture.path)
-				} else if (texture.source && texture.source.startsWith('data:')) {
+				} else if (texture.source?.startsWith('data:')) {
 					newTexture.fromDataURL(texture.source)
 				}
 			}
@@ -170,8 +170,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 								}
 							} else if (
 								defaultTexture &&
-								newElement.faces &&
-								newElement.faces[face].texture !== undefined
+								newElement.faces?.[face].texture !== undefined
 							) {
 								newElement.faces[face].texture = defaultTexture.uuid
 							}
@@ -189,7 +188,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		if (model.animations) {
 			for (const animation of model.animations) {
 				const newAnimation = new Blockbench.Animation()
-				newAnimation.uuid = animation.uuid || guid()
+				newAnimation.uuid = animation.uuid ?? guid()
 				newAnimation.extend(animation).add()
 			}
 		}
@@ -197,7 +196,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		if (model.animation_controllers) {
 			for (const controller of model.animation_controllers) {
 				const newController = new Blockbench.AnimationController()
-				newController.uuid = controller.uuid || guid()
+				newController.uuid = controller.uuid ?? guid()
 				newController.extend(controller).add()
 			}
 		}
@@ -277,9 +276,9 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		for (const element of elements) {
 			if (options.collection_only && !allCollectionChildren.includes(element)) return
 			if (element instanceof Mesh) {
-				model.elements.push(element.getSaveCopy && element.getSaveCopy())
+				model.elements.push(element.getSaveCopy?.())
 			} else {
-				model.elements.push(element.getSaveCopy && element.getSaveCopy(model.meta))
+				model.elements.push(element.getSaveCopy?.(model.meta))
 			}
 		}
 
@@ -406,7 +405,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 	// ANCHOR - Codec:fileName
 	fileName() {
-		if (!Project || !Project.name) return 'unnamed_project.utilitymodel'
+		if (!Project?.name) return 'unnamed_project.utilitymodel'
 		return `${Project.name}.utilitymodel'`
 	},
 })

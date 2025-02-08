@@ -1,4 +1,4 @@
-import { events } from './events'
+import EVENTS from './events'
 import { resetAllConsoleGroups } from './misc'
 import { Subscribable } from './subscribable'
 
@@ -61,7 +61,7 @@ export function createBlockbenchMod<InjectContext = any, ExtractContext = any>(
 	let installed = false
 	let extractContext: ExtractContext
 
-	events.INJECT_MODS.subscribe(() => {
+	EVENTS.INJECT_MODS.subscribe(() => {
 		console.log(`Injecting BBMod '${id}'`)
 		try {
 			if (installed) new Error('Mod is already installed!')
@@ -72,7 +72,7 @@ export function createBlockbenchMod<InjectContext = any, ExtractContext = any>(
 		}
 	})
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		console.log(`Extracting BBMod '${id}'`)
 		try {
 			if (!installed) new Error('Mod is not installed!')
@@ -93,7 +93,7 @@ export function createBlockbenchMod<InjectContext = any, ExtractContext = any>(
 export function createAction(id: NamespacedString, options: ActionOptions) {
 	const action = new Action(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		action.delete()
 	}, true)
 
@@ -109,7 +109,7 @@ export function createAction(id: NamespacedString, options: ActionOptions) {
 export function createNumSlider(id: NamespacedString, options: NumSliderOptions) {
 	const numSlider = new NumSlider(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		numSlider.delete()
 	}, true)
 
@@ -125,7 +125,7 @@ export function createNumSlider(id: NamespacedString, options: NumSliderOptions)
 export function createBarSlider(id: NamespacedString, options: NumSliderOptions) {
 	const barSlider = new BarSlider(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		barSlider.delete()
 	}, true)
 
@@ -141,7 +141,7 @@ export function createBarSlider(id: NamespacedString, options: NumSliderOptions)
 export function createBarSelect<T>(id: NamespacedString, options: BarSelectOptions<T>) {
 	const barSelect = new BarSelect(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		barSelect.delete()
 	}, true)
 
@@ -157,7 +157,7 @@ export function createBarSelect<T>(id: NamespacedString, options: BarSelectOptio
 export function createToggle(id: NamespacedString, options: ToggleOptions) {
 	const barSelect = new Toggle(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		barSelect.delete()
 	}, true)
 
@@ -178,7 +178,7 @@ export function createBarText(
 ) {
 	const barSelect = new BarText(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		barSelect.delete()
 	}, true)
 
@@ -194,7 +194,7 @@ export function createBarText(
 export function createColorPicker(id: NamespacedString, options: ColorPickerOptions) {
 	const barSelect = new ColorPicker(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		barSelect.delete()
 	}, true)
 
@@ -210,7 +210,7 @@ export function createColorPicker(id: NamespacedString, options: ColorPickerOpti
 export function createModelLoader(id: string, options: ModelLoaderOptions): ModelLoader {
 	const modelLoader = new ModelLoader(id, options)
 
-	events.EXTRACT_MODS.subscribe(() => {
+	EVENTS.EXTRACT_MODS.subscribe(() => {
 		modelLoader.delete()
 	}, true)
 
@@ -316,7 +316,7 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 			configurable: true,
 		})
 
-		events.EXTRACT_MODS.subscribe(() => {
+		EVENTS.EXTRACT_MODS.subscribe(() => {
 			const value = object[key]
 			delete object[key]
 			Object.defineProperty(object, key, {

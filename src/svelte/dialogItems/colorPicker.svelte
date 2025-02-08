@@ -5,20 +5,20 @@
 	import BaseDialogItem from './baseDialogItem.svelte'
 
 	export let label: string
-	export let tooltip: string = ''
+	export let tooltip = ''
 	export let value: Valuable<string>
 
-	let colorPicker = new ColorPicker(`${PACKAGE.name}:${label}-color_picker`, {
+	const COLOR_PICKER = new ColorPicker(`${PACKAGE.name}:${label}-color_picker`, {
 		onChange() {
-			const color = colorPicker.get() as tinycolor.Instance
+			const color = COLOR_PICKER.get() as tinycolor.Instance
 			value.set(color.toHexString())
 		},
 	})
 	let colorPickerMount: HTMLDivElement
 
 	function onLoad(el: HTMLDivElement) {
-		colorPicker.toElement(el)
-		colorPicker.set(value.get())
+		COLOR_PICKER.toElement(el)
+		COLOR_PICKER.set(value.get())
 	}
 
 	function onReset() {
@@ -26,7 +26,7 @@
 	}
 
 	onDestroy(() => {
-		colorPicker.delete()
+		COLOR_PICKER.delete()
 	})
 </script>
 

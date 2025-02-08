@@ -17,7 +17,7 @@ createBlockbenchMod(
 					if (anim.name.startsWith('utility.')) {
 						anim.path = `utility`
 					} else {
-						const match = anim.name.match(/^(.+?)\.(.+)/)
+						const match = /^(.+?)\.(.+)/.exec(anim.name)
 						anim.path = match ? match[1] : 'custom'
 					}
 					anim.saved = true
