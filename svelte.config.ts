@@ -1,10 +1,13 @@
 import { resolve } from 'path'
-import prep from 'svelte-preprocess'
+import sveltePreprocess from 'svelte-preprocess'
 import { typescript } from 'svelte-preprocess-esbuild'
+import type { CompileOptions } from 'svelte/types/compiler'
+import type { ISvelteESBuildPluginOptions } from './tools/plugins/sveltePlugin'
 
-export const compilerOptions = {
+export const compilerOptions: CompileOptions = {
 	dev: process.env.NODE_ENV === 'development',
 	css: true,
+	errorMode: process.env.NODE_ENV === 'development' ? 'warn' : 'throw',
 }
 
 export const preprocess = [
@@ -14,7 +17,10 @@ export const preprocess = [
 			'process.browser': 'true',
 		},
 	}),
-	prep({ typescript: false }),
+	sveltePreprocess({
+		typescript: false,
+		sourceMap: process.env.NODE_ENV === 'development',
+	}),
 ]
 
 const IMPORT_PATH = resolve(__dirname, '../src/util/', 'events.ts')
@@ -29,4 +35,8 @@ export const transformCssToJs = (
 	SVELTE_EVENTS.UNINSTALL.subscribe(DELETE_SVELTE_CSS, true);
 })()`
 
-export default { preprocess, transformCssToJs }
+export default {
+	preprocess,
+	transformCssToJs,
+	compilerOptions,
+} satisfies ISvelteESBuildPluginOptions

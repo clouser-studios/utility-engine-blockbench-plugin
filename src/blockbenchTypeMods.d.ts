@@ -1,8 +1,7 @@
-import { events } from './util/events'
+import type { events } from './util/events'
 
 declare global {
-	// Replace BlockbenchPluginTemplate with the name of your plugin.
-	const BlockbenchPluginTemplate: {
+	const UtilityEngine: {
 		events: typeof events
 	}
 

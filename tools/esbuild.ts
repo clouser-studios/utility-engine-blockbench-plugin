@@ -6,21 +6,22 @@ if (process.argv.includes('--mode=dev')) {
 
 process.env.FLAVOR ??= `local`
 
+import ESBuild from 'esbuild'
+import ImportGlobPlugin from 'esbuild-plugin-import-glob'
+import InlineImage from 'esbuild-plugin-inline-image'
 import * as fs from 'fs'
 import { readFile } from 'fs-extra'
+import { load } from 'js-yaml'
+import ProblemsPatchPlugin from 'node-modules-vscode-problems-patch'
 import { isAbsolute, join } from 'path'
 import { TextDecoder } from 'util'
-import { load } from 'js-yaml'
-import * as esbuild from 'esbuild'
-import sveltePlugin from './plugins/sveltePlugin'
-import svelteConfig from '../svelte.config.js'
-import inlineImage from 'esbuild-plugin-inline-image'
-import ImportGlobPlugin from 'esbuild-plugin-import-glob'
-import packagerPlugin from './plugins/packagePlugin'
+import SvelteConfig from '../svelte.config.js'
+import PackagerPlugin from './plugins/packagePlugin'
+import SveltePlugin from './plugins/sveltePlugin'
 
 const PACKAGE = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 
-const INFO_PLUGIN: esbuild.Plugin = {
+const INFO_PLUGIN: ESBuild.Plugin = {
 	name: 'infoPlugin',
 	setup(build) {
 		let start = Date.now()
@@ -42,7 +43,7 @@ const INFO_PLUGIN: esbuild.Plugin = {
 }
 
 function createBanner() {
-	const LICENSE = fs.readFileSync('./LICENSE').toString()
+	const license = fs.readFileSync('./LICENSE').toString()
 	let lines: string[] = [
 		`v${PACKAGE.version as string}`,
 		``,
@@ -55,7 +56,7 @@ function createBanner() {
 		`${PACKAGE.repository.url as string}`,
 		``,
 		`[ LICENSE ]`,
-		...LICENSE.split('\n').map(v => v.trim()),
+		...license.split('\n').map(v => v.trim()),
 	]
 
 	const maxLength = Math.max(...lines.map(line => line.length))
@@ -82,14 +83,14 @@ function createBanner() {
 const DEFINES: Record<string, string> = {}
 
 Object.entries(process.env).forEach(([key, value]) => {
-	if (key.match(/[^A-Za-z0-9_]/i)) return
+	if (/[^A-Za-z0-9_]/i.exec(key)) return
 	DEFINES[`process.env.${key}`] = JSON.stringify(value)
 })
 
 const yamlPlugin: (opts: {
 	loadOptions?: jsyaml.LoadOptions
 	transform?: any
-}) => esbuild.Plugin = options => ({
+}) => ESBuild.Plugin = options => ({
 	name: 'yaml',
 	setup(build) {
 		build.onResolve({ filter: /\.(yml|yaml)$/ }, args => {
@@ -114,7 +115,7 @@ const yamlPlugin: (opts: {
 })
 
 async function buildDev() {
-	const ctx = await esbuild.context({
+	const ctx = await ESBuild.context({
 		banner: createBanner(),
 		entryPoints: ['./src/index.ts'],
 		outfile: `./dist/${PACKAGE.name as string}.js`,
@@ -124,14 +125,15 @@ async function buildDev() {
 		sourcemap: 'inline',
 		loader: { '.svg': 'dataurl', '.ttf': 'binary' },
 		plugins: [
-			inlineImage({
+			ProblemsPatchPlugin(),
+			InlineImage({
 				limit: -1,
 			}),
 			ImportGlobPlugin(),
 			INFO_PLUGIN,
-			sveltePlugin(svelteConfig),
+			SveltePlugin(SvelteConfig),
 			yamlPlugin({}),
-			packagerPlugin(),
+			PackagerPlugin(),
 		],
 		format: 'iife',
 		define: DEFINES,
@@ -140,33 +142,30 @@ async function buildDev() {
 }
 
 function buildProd() {
-	// esbuild.transformSync('function devlog(message) {}')
-	esbuild
-		.build({
-			entryPoints: ['./src/index.ts'],
-			outfile: `./dist/${PACKAGE.name as string}.js`,
-			bundle: true,
-			minify: true,
-			platform: 'node',
-			loader: { '.svg': 'dataurl', '.ttf': 'binary' },
-			plugins: [
-				inlineImage({
-					limit: -1,
-				}),
-				ImportGlobPlugin(),
-				INFO_PLUGIN,
-				sveltePlugin(svelteConfig),
-				yamlPlugin({}),
-				packagerPlugin(),
-			],
-			// Disabling this will reduce file size, but make bugs much harder to track down.
-			keepNames: true,
-			banner: createBanner(),
-			drop: ['debugger'],
-			format: 'iife',
-			define: DEFINES,
-		})
-		.catch(() => process.exit(1))
+	ESBuild.build({
+		entryPoints: ['./src/index.ts'],
+		outfile: `./dist/${PACKAGE.name as string}.js`,
+		bundle: true,
+		minify: true,
+		platform: 'node',
+		loader: { '.svg': 'dataurl', '.ttf': 'binary' },
+		plugins: [
+			InlineImage({
+				limit: -1,
+			}),
+			ImportGlobPlugin(),
+			INFO_PLUGIN,
+			SveltePlugin(SvelteConfig),
+			yamlPlugin({}),
+			PackagerPlugin(),
+		],
+		// Disabling this will reduce file size, but make bugs much harder to track down.
+		keepNames: true,
+		banner: createBanner(),
+		drop: ['debugger'],
+		format: 'iife',
+		define: DEFINES,
+	}).catch(() => process.exit(1))
 }
 
 async function main() {

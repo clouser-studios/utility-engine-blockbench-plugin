@@ -3,7 +3,7 @@ import {
 	injectSvelteCompomponent,
 	injectSvelteCompomponentMod,
 } from '../../util/injectSvelteComponent'
-import { ContextProperty, createBlockbenchMod } from '../../util/moddingTools'
+import { type ContextProperty, createBlockbenchMod } from '../../util/moddingTools'
 import { translate } from '../../util/translation'
 import { UTILITY_MODEL_CODEC } from './codec'
 import FormatPage from './svelte/formatPage.svelte'
@@ -58,7 +58,6 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 		},
 	},
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onSetup(project, newModel) {
 		console.log('Utility Model format setup')
 	},

@@ -17,7 +17,7 @@ import './textures/skinTexture'
 
 // Provide a global object for other plugins to interact with
 // @ts-expect-error
-window['UtilityEngine'] = {
+window.UtilityEngine = {
 	events: events,
 }
 

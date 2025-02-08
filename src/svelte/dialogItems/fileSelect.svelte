@@ -54,7 +54,14 @@
 	onValueChange()
 </script>
 
-<BaseDialogItem {label} {tooltip} {onReset} bind:warning_text bind:error_text let:id>
+<BaseDialogItem
+	{label}
+	{tooltip}
+	{onReset}
+	bind:warningText={warning_text}
+	bind:errorText={error_text}
+	let:id
+>
 	<div class="dialog_bar form_bar">
 		<label class="name_space_left" for={id}>{label}</label>
 		<input

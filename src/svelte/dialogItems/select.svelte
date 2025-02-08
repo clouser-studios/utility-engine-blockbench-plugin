@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Valuable } from '../../util/stores'
-	import BaseDialogItem from './baseDialogItem.svelte'
+	import { Valuable } from "../../util/stores"
+	import BaseDialogItem from "./baseDialogItem.svelte"
 
 	export let label: string
-	export let tooltip: string = ''
+	export let tooltip = ""
 	export let options: Record<string, string>
 	export let defaultOption: string
 	export let value: Valuable<string>
@@ -12,25 +12,24 @@
 
 	if (!(value.get() || options[value.get()])) value.set(defaultOption)
 
-	// @ts-ignore
-	const selectInput = new Interface.CustomElements.SelectInput('dialog-select', {
+	const SELECT_INPUT = new Interface.CustomElements.SelectInput("dialog-select", {
 		options,
 		value: value.get(),
 		onChange() {
-			const v = selectInput.node.getAttribute('value') ?? ''
+			const v = SELECT_INPUT.node.getAttribute("value") ?? ""
 			value.set(v)
 		},
 	})
 
 	function onReset() {
 		value.set(defaultOption)
-		if (selectInput.node) {
-			selectInput.set(defaultOption)
+		if (SELECT_INPUT.node) {
+			SELECT_INPUT.set(defaultOption)
 		}
 	}
 
 	requestAnimationFrame(() => {
-		container.appendChild(selectInput.node)
+		container.appendChild(SELECT_INPUT.node)
 	})
 </script>
 

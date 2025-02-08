@@ -1,6 +1,6 @@
 {
-	"include": ["./src/**/*", "./tools/**/*"],
-	"exclude": ["./node_modules/**/*"],
+	"include": ["./src/**/*", "./tools/esbuild.ts", "./eslint.config.ts"],
+	"exclude": ["**/node_modules/**"],
 	"compilerOptions": {
 		"outDir": "./dist/",
 		"noImplicitAny": true,
@@ -8,10 +8,15 @@
 		"target": "ES2022",
 		"moduleResolution": "node",
 		"strict": true,
-		"types": ["node", "./types/blockbench-types", "svelte"],
+		"types": ["node"],
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
 		"allowUmdGlobalAccess": true,
-		"allowUnreachableCode": true
+		"allowUnreachableCode": true,
+		"esModuleInterop": true,
+		"noEmit": true,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"alwaysStrict": true
 	}
 }
