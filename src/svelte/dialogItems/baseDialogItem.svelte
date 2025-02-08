@@ -3,15 +3,15 @@
 	import { translate } from '../../util/translation'
 
 	export let label: string
-	export let tooltip: string = ''
-	export let warning_text: string = ''
-	export let error_text: string = ''
+	export let tooltip = ''
+	export let warningText = ''
+	export let errorText = ''
 	export let onReset: () => void
 
-	let id = guid()
+	const id = guid()
 
-	$: if (error_text) {
-		console.log(label, error_text)
+	$: if (errorText) {
+		console.log(label, errorText)
 		// blueprintSettingErrors.get()[label] = error_text
 	}
 
@@ -45,20 +45,20 @@
 		/>
 	</div>
 	<div class="base_dialog_item">
-		{#if error_text}
+		{#if errorText}
 			<div class="error_text">
 				<i class="fa fa-exclamation-circle dialog_form_error text_icon" />
 				<div class="error_lines">
-					{#each error_text.split('\n') as text}
+					{#each errorText.split('\n') as text}
 						<div>{text}</div>
 					{/each}
 				</div>
 			</div>
-		{:else if warning_text}
+		{:else if warningText}
 			<div class="warning_text">
 				<i class="fa fa-exclamation-triangle dialog_form_warning text_icon" />
 				<div class="warning_lines">
-					{#each warning_text.split('\n') as text}
+					{#each warningText.split('\n') as text}
 						<div>{text}</div>
 					{/each}
 				</div>

@@ -7,10 +7,29 @@
 	"arrowParens": "avoid",
 	"printWidth": 100,
 	"trailingComma": "es5",
-	"plugins": ["prettier-plugin-svelte"],
 	"bracketSameLine": false,
 	"overrides": [
-		{ "files": "*.ts", "options": { "parser": "typescript" } },
-		{ "files": "*.svelte", "options": { "parser": "svelte" } }
+		{
+			"files": ["**/*.yml", "**/*.yaml"],
+			"options": {
+				"parser": "yaml",
+				"tabWidth": 2,
+				"useTabs": false
+			}
+		},
+		{
+			"files": "**/*.ts",
+			"options": {
+				"parser": "typescript"
+			}
+		},
+		{
+			"files": "**/*.svelte",
+			"options": {
+				"parser": "svelte",
+				"singleQuote": false,
+				"plugins": ["prettier-plugin-svelte"]
+			}
+		}
 	]
 }

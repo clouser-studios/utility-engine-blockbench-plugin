@@ -1,6 +1,6 @@
-import { Plugin } from 'esbuild'
-import * as pathjs from 'path'
+import type { Plugin } from 'esbuild'
 import * as fs from 'fs'
+import * as pathjs from 'path'
 import * as svelteCompiler from 'svelte/compiler'
 import * as svelteInternal from 'svelte/internal'
 
@@ -8,7 +8,6 @@ const PACKAGE = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 const PLUGIN_PACKAGE_PATH = './src/package/'
 const SVELTE_FILE = './src/package/about.svelte'
 const README_DIST_PATH = './dist/package/about.md'
-const DIST_PATH = './dist/'
 const DIST_PACKAGE_PATH = './dist/package/'
 
 function createPackage() {
@@ -20,7 +19,7 @@ function createPackage() {
 	)
 	const svelteResult = svelteCompiler.compile(fs.readFileSync(SVELTE_FILE, 'utf-8'), {
 		generate: 'ssr',
-		cssHash({ name, filename, hash, css }) {
+		cssHash({ hash, css }) {
 			return `${PACKAGE.name}-plugin-page-${hash(css)}`
 		},
 	})

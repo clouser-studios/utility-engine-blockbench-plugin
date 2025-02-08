@@ -1,4 +1,4 @@
-import { ComponentConstructorOptions } from 'svelte'
+import type { ComponentConstructorOptions } from 'svelte'
 import { Valuable } from './stores'
 
 export type SvelteComponentConstructor<T, U extends ComponentConstructorOptions> = new (
@@ -48,7 +48,7 @@ export function scrubUndefined<T extends Record<string, any>>(obj: T) {
 }
 
 // Developed by FetchBot 💖
-type LLNode = {
+interface LLNode {
 	parent?: LLNode
 	name: string
 }

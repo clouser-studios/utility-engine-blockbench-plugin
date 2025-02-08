@@ -1,11 +1,11 @@
 import PACKAGE from '../../../package.json'
+import SteveSkin from '../../assets/steve.png'
 import { UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
 import { createAction, createBlockbenchMod } from '../../util/moddingTools'
-import { translate } from '../../util/translation'
-import SteveSkin from '../../assets/steve.png'
-import { SvelteDialog } from '../../util/svelteDialog'
-import UsernamePrompt from './usernamePrompt.svelte'
 import { Valuable } from '../../util/stores'
+import { SvelteDialog } from '../../util/svelteDialog'
+import { translate } from '../../util/translation'
+import UsernamePrompt from './usernamePrompt.svelte'
 
 const SKIN_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
 const USERNAME_TO_UUID_URL = 'https://api.mojang.com/users/profiles/minecraft/'
@@ -26,7 +26,7 @@ async function fetchSkinUrl(username: string) {
 			Buffer.from(profileData.properties[0].value as string, 'base64').toString()
 		)
 		return skinData.textures.SKIN.url as string
-	} catch (e) {
+	} catch {
 		return
 	}
 }
@@ -308,8 +308,7 @@ SharedActions.add('duplicate', {
 	run() {
 		const copy = Texture.selected!.getSaveCopy() as TextureData
 		delete copy.path
-		const new_tex = new SkinTexture(copy)
-		new_tex.load().add(true)
+		new SkinTexture(copy).load().add(true)
 	},
 })
 
