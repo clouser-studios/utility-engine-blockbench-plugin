@@ -55,5 +55,5 @@ createBlockbenchMod(
 	context => {
 		Animator.exportAnimationFile = context.exportAnimationFile
 		Blockbench.Animation.prototype.file_menu = context.animationFolderMenu
-	},
+	}
 )
