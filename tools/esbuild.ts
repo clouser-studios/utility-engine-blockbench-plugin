@@ -6,7 +6,6 @@ if (process.argv.includes('--mode=dev')) {
 
 process.env.FLAVOR ??= `local`
 
-import { spawnSync } from 'child_process'
 import ESBuild from 'esbuild'
 import ImportGlobPlugin from 'esbuild-plugin-import-glob'
 import InlineImage from 'esbuild-plugin-inline-image'
@@ -21,15 +20,13 @@ import PackagerPlugin from './plugins/packagePlugin'
 import SveltePlugin from './plugins/sveltePlugin'
 
 try {
-	spawnSync('git config --local core.hooksPath .githooks/', {
-		shell: 'bash',
-		timeout: 5000,
-		encoding: 'utf-8',
-	})
+	const hooks = fs.readdirSync('./.githooks/')
+	for (const hook of hooks) {
+		fs.copyFileSync(`./.githooks/${hook}`, `./.git/hooks/${hook}`)
+	}
 } catch (error) {
-	console.error('Failed to set local git hooks path:')
+	console.error('Failed to copy git hooks:')
 	console.error(error)
-	process.exit(1)
 }
 
 const PACKAGE = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
