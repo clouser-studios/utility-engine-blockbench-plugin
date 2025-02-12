@@ -213,10 +213,26 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 	}
 }
 
+// function getGlobalTransform(node: { mesh: THREE.Mesh }) {
+// 	const matrixWorld = node.mesh.matrixWorld.clone()
+
+// 	const origin = new THREE.Vector3()
+// 	const rotation = new THREE.Euler()
+// 	const quaternion = new THREE.Quaternion()
+// 	// Throw away scale using a reusable vector
+// 	matrixWorld.decompose(origin, quaternion, Reusable.vec1)
+// 	rotation.setFromQuaternion(quaternion, node.mesh.rotation.order)
+
+// 	return {
+// 		rotation: rotation.toArray() as ArrayVector3,
+// 		origin: origin.toArray() as ArrayVector3,
+// 	}
+// }
+
 function recurseStructure(
 	model: UtilityModel.IModel,
-	children: OutlinerNode[],
-	parent?: Group
+	children: OutlinerNode[]
+	// parent?: Group
 ): UtilityModel.IStructure {
 	const structure: UtilityModel.IStructure = {}
 
@@ -229,17 +245,18 @@ function recurseStructure(
 					euler: child.rotation,
 					origin: child.origin,
 				},
-				children: recurseStructure(model, child.children, child),
+				children: recurseStructure(model, child.children),
 			}
 			structure.bones ??= []
 			structure.bones.push(bone)
 		} else if (child instanceof Mesh) {
 			const mesh = renderMesh(child)
 			//REVIEW - Is origin stored implicitly in the vertices? I might have to add the parent offset to the vertices...
-			if (parent && mesh.rotation) {
-				mesh.rotation.euler.V3_subtract(parent.rotation)
-				mesh.rotation.origin.V3_subtract(parent.origin)
-			}
+			// if (parent && mesh.rotation) {
+			// 	const parentTransform = getGlobalTransform(parent)
+			// 	mesh.rotation.euler.V3_subtract(parentTransform.rotation)
+			// 	mesh.rotation.origin.V3_subtract(parentTransform.origin)
+			// }
 			model.meshes ??= []
 			model.meshes.push(mesh)
 			structure.meshes ??= []
@@ -247,14 +264,15 @@ function recurseStructure(
 		} else if (child instanceof Cube) {
 			const element = renderCube(child)
 			if (element) {
-				if (parent) {
-					element.from.V3_subtract(parent.origin)
-					element.to.V3_subtract(parent.origin)
-					if (element.rotation) {
-						element.rotation.euler.V3_subtract(parent.rotation)
-						element.rotation.origin.V3_subtract(parent.origin)
-					}
-				}
+				// if (parent) {
+				// 	const parentTransform = getGlobalTransform(parent)
+				// 	element.from.V3_subtract(parentTransform.origin)
+				// 	element.to.V3_subtract(parentTransform.origin)
+				// 	if (element.rotation) {
+				// 		element.rotation.euler.V3_subtract(parentTransform.rotation)
+				// 		element.rotation.origin.V3_subtract(parentTransform.origin)
+				// 	}
+				// }
 				structure.elements ??= []
 				structure.elements.push(element.uuid)
 				model.elements.push(element)
