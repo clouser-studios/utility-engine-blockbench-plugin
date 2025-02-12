@@ -107,6 +107,7 @@ namespace UtilityModel {
 	export interface IModel {
 		__comment?: string
 		format_version: string
+		texture_size: ArrayVector2
 		textures: Record<string, string> & {
 			particle?: string
 		}
@@ -292,6 +293,7 @@ function createUtilityModel(): UtilityModel.IModel {
 		__comment:
 			'Created in Blockbench, exported via Utility Engine. Will not work in Vanilla Minecraft!',
 		format_version: FORMAT_VERSION,
+		texture_size: [Project!.texture_width, Project!.texture_height],
 		textures: {},
 		elements: [],
 		structure: {},
