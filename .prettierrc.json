@@ -8,6 +8,7 @@
 	"printWidth": 100,
 	"trailingComma": "es5",
 	"bracketSameLine": false,
+	"endOfLine": "auto",
 	"overrides": [
 		{
 			"files": ["**/*.yml", "**/*.yaml"],
