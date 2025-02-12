@@ -10,7 +10,9 @@ function join_by { local IFS="$1"; shift; echo "$*"; }
 
 files=$(git diff --cached --name-only)
 joinedFiles=$(join_by " " $files)
-echo Changed Files: $joinedFiles
+echo Changed Files: $(joinedFiles)
+echo "Changed Files: $joinedFiles" > "D:/github-repos/clouser-studios/utility-engine-blockbench-plugin/commit-staged-out.txt"
+
 if [ -z "$files" ]; then
     echo "Commit has no changes!"
     exit 1
@@ -25,9 +27,9 @@ done
 
 set -e
 
-yarn check-formatting $joinedFiles
+yarn prettier --check $joinedFiles
 
-yarn lint $joinedFiles
+yarn eslint --max-warnings=0 --no-warn-ignored $joinedFiles
 
 # Exit with success if there are no errors
 exit 0
