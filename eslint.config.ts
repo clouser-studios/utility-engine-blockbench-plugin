@@ -1,3 +1,5 @@
+// // @ts-expect-error
+// import checkFile from 'eslint-plugin-check-file'
 import svelteEslint from 'eslint-plugin-svelte'
 import svelteParser from 'svelte-eslint-parser'
 import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
@@ -28,7 +30,7 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	semi: ['error', 'never'],
 	'prefer-const': 'warn',
 	'no-fallthrough': 'off',
-	'no-mixed-spaces-and-tabs': 'warn',
+	'no-mixed-spaces-and-tabs': 'off',
 	'no-unreachable': 'warn',
 	'@typescript-eslint/no-unused-vars': [
 		'warn',
@@ -43,6 +45,21 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	'svelte/html-quotes': ['warn', { prefer: 'double' }],
 	'svelte/block-lang': ['error', { script: ['ts', null], style: null }],
 	'svelte/comment-directive': ['error', { reportUnusedDisableDirectives: true }],
+	// // Check File
+	// 'check-file/filename-naming-convention': [
+	// 	'error',
+	// 	{
+	// 		'src/**/*.{ts.d.ts}': 'CAMEL_CASE',
+	// 		'tools/**/*.{ts.d.ts}': 'CAMEL_CASE',
+	// 	},
+	// ],
+	// 'check-file/folder-naming-convention': [
+	// 	'error',
+	// 	{
+	// 		'src/**': 'KEBAB_CASE',
+	// 		'tools/**': 'KEBAB_CASE',
+	// 	},
+	// ],
 	// TypeScript
 	'@typescript-eslint/no-explicit-any': 'off',
 	'@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
@@ -63,11 +80,8 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	'@typescript-eslint/naming-convention': [
 		'warn',
 		{
-			selector: 'class',
-			format: ['PascalCase'],
-		},
-		{
-			selector: 'import',
+			// DFU Version imports
+			selector: ['import'],
 			modifiers: ['default'],
 			filter: {
 				regex: 'v\\d+_\\d+_\\d+$',
@@ -82,7 +96,11 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		{
 			selector: ['import'],
 			modifiers: ['default'],
-			format: ['camelCase', 'PascalCase'],
+			format: ['camelCase', 'PascalCase', 'UPPER_CASE'],
+		},
+		{
+			selector: 'class',
+			format: ['PascalCase'],
 		},
 		{
 			selector: ['classProperty', 'classMethod'],
@@ -90,11 +108,14 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		},
 		{
 			selector: ['classProperty', 'classMethod'],
-			filter: {
-				regex: '^_.*$',
-				match: true,
-			},
-			prefix: ['_'],
+			leadingUnderscore: 'allow',
+			format: ['camelCase'],
+		},
+		{
+			selector: ['classProperty', 'classMethod'],
+			modifiers: ['private'],
+			leadingUnderscore: 'allowDouble',
+			trailingUnderscore: 'allowDouble',
 			format: ['camelCase'],
 		},
 		{
@@ -109,19 +130,19 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		{
 			selector: 'variable',
 			modifiers: ['const', 'global'],
+			types: ['function'],
+			leadingUnderscore: 'allow',
+			format: ['UPPER_CASE', 'camelCase'],
+		},
+		{
+			selector: 'variable',
+			modifiers: ['const', 'global'],
 			leadingUnderscore: 'allow',
 			format: ['UPPER_CASE'],
 		},
 		{
 			selector: 'variable',
-			modifiers: ['const', 'global'],
-			types: ['function'],
-			format: ['camelCase'],
-		},
-		{
-			selector: 'variable',
-			modifiers: ['const', 'global', 'exported'],
-			types: ['boolean', 'array', 'string', 'boolean', 'number'],
+			modifiers: ['const', 'exported'],
 			format: ['camelCase', 'UPPER_CASE'],
 		},
 		{
@@ -150,6 +171,10 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		},
 		{
 			selector: 'enumMember',
+			format: ['camelCase', 'PascalCase', 'UPPER_CASE'],
+		},
+		{
+			selector: 'enum',
 			format: ['UPPER_CASE'],
 		},
 	] satisfies NamingConventionRule,
@@ -165,6 +190,7 @@ export default tsESLint.config(
 		plugins: {
 			'@typescript-eslint': tsESLint.plugin,
 			svelte: svelteEslint,
+			// 'check-file': checkFile,
 		},
 	},
 	{
@@ -202,11 +228,17 @@ export default tsESLint.config(
 				},
 				{
 					selector: 'variable',
+					modifiers: ['const', 'global'],
+					types: ['function'],
+					format: ['camelCase'],
+				},
+				{
+					selector: 'variable',
 					format: ['camelCase'],
 					leadingUnderscore: 'allow',
 				},
 			] satisfies NamingConventionRule,
-		} as any,
+		},
 		languageOptions: {
 			parser: svelteParser,
 			parserOptions: {
