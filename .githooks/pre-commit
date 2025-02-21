@@ -1,14 +1,13 @@
 #!/bin/sh
-# A sample hook to prevent commits with merge-markers
-#####################################################
-# This example hook rejects changes that are about to be committed with merge markers,
-# as that would be a clear indication of a failed merge. It is triggered by `git commit`
-# and returning with non-zero exit status prevents the commit from being created.
-#
-# To enable this hook remove the `.sample` suffix from this file entirely.
-function join_by { local IFS="$1"; shift; echo "$*"; }
+
+function join_by {
+    local IFS="$1";
+    shift;
+    echo "$*";
+}
 
 files=$(git diff --cached --name-only)
+esbuildFiles=$(echo "$files" | grep -i -E '.*\.(js|ts|svelte)' | join_by " ")
 joinedFiles=$(join_by " " $files)
 echo Changed Files: $(joinedFiles)
 echo "Changed Files: $joinedFiles" > "D:/github-repos/clouser-studios/utility-engine-blockbench-plugin/commit-staged-out.txt"
@@ -27,9 +26,9 @@ done
 
 set -e
 
-yarn prettier --check $joinedFiles
-
-yarn eslint --max-warnings=0 --no-warn-ignored $joinedFiles
+npx prettier --check $joinedFiles
+npx eslint --max-warnings=0 --no-warn-ignored $esbuildFiles
+echo "ESLint and Prettier checks passed successfully!"
 
 # Exit with success if there are no errors
 exit 0
