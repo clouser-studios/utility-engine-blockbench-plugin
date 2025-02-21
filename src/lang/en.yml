@@ -16,6 +16,16 @@ menu:
 
     remove_preview_skin: Remove Preview Skin
 
+panel:
+  arm_rotation:
+    title: Arm Rotation
+
+    left_rotation:
+      label: Left Arm Rotation
+
+    right_rotation:
+      label: Right Arm Rotation
+
 dialog:
   reset: Reset
 

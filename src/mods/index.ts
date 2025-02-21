@@ -1,4 +1,5 @@
 import './animationFileOverridesMod'
+import './displayPanelMod'
 import './formatCategoryMod'
 import './functionOverrides'
 import './modelFormatMod'
