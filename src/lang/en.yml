@@ -23,6 +23,9 @@ panel:
   arm_rotation:
     title: Arm Rotation
 
+    overwrite_arm_rotation:
+      label: Overwrite Arm Rotation
+
     left_rotation:
       label: Left Arm Rotation
 
