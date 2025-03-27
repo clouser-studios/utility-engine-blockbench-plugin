@@ -41,6 +41,7 @@ export interface IUtilityModelJSON {
 	backgrounds?: Record<string, any>
 	collections?: CollectionOptions[]
 	texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
+	display_settings?: ModelProject['display_settings']
 }
 
 export function addProjectToRecentProjects(file: FileResult) {
@@ -209,6 +210,10 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 				model.animation_variable_placeholders
 		}
 
+		if (model.display_settings) {
+			Project.display_settings = model.display_settings
+		}
+
 		if (model.backgrounds) {
 			for (const key in model.backgrounds) {
 				if (Object.hasOwn(Project.backgrounds, key)) {
@@ -354,6 +359,10 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 			model.animation_variable_placeholders =
 				// @ts-expect-error
 				Interface.Panels.variable_placeholders.inside_vue._data.text
+		}
+
+		if (Object.keys(Project.display_settings).length > 0) {
+			model.display_settings = Project.display_settings
 		}
 
 		if (!options.backup) {
