@@ -23,6 +23,7 @@ export interface IUtilityModelJSON {
 		box_uv?: boolean
 		backup?: boolean
 		save_location?: string
+		export_path?: string
 	}
 	options: IUtilityModelSettings
 
@@ -103,6 +104,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		if (!Project) throw new Error('No project to parse into')
 
 		Project.save_path = path
+		Project.export_path = model.meta.export_path ?? ''
 
 		if (model.meta.box_uv !== undefined) {
 			Project.box_uv = model.meta.box_uv
@@ -254,6 +256,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 				format_version: PACKAGE.version,
 				uuid: Project.uuid,
 				save_location: Project.save_path,
+				export_path: Project!.export_path,
 			},
 			options: Project.utility_model,
 			resolution: {

@@ -354,18 +354,33 @@ function createUtilityModel(): UtilityModel.IModel {
 	return model
 }
 
-export function exportUtilityModel() {
+export function exportUtilityModel(path?: string) {
 	try {
 		const model = createUtilityModel()
 		console.log(model)
-		Blockbench.export({
-			// FIXME: This should enforce the `.utility.json` extension
-			resource_id: 'utility_model.export',
-			name: Project!.name + '.utility.json',
-			type: 'json',
-			extensions: ['json'],
-			content: autoStringify(model),
-		})
+
+		if (path) {
+			try {
+				fs.writeFileSync(path, autoStringify(model))
+				Blockbench.showQuickMessage(translate('message.exported'))
+				return
+			} catch {} // Ignore errors and continue with the file picker
+		}
+		Blockbench.export(
+			{
+				// FIXME: This should enforce the `.utility.json` extension
+				resource_id: 'utility_model.export',
+				name: Project!.name + '.utility.json',
+				type: 'json',
+				extensions: ['json'],
+				startpath: Project!.export_path,
+				content: autoStringify(model),
+			},
+			chosenPath => {
+				Project!.export_path = chosenPath
+				Blockbench.showQuickMessage(translate('message.exported'))
+			}
+		)
 	} catch (e: any) {
 		console.error(e)
 		if (e instanceof ExportError) {

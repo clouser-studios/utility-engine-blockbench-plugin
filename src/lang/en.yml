@@ -5,6 +5,7 @@ global:
 action:
   create_skin_texture.label: Create Skin Texture
   export_utility_model.label: Export Utility Model
+  export_utility_model_as.label: Export Utility Model As
   delete_animation_folder.label: Delete Animation Folder
 
 menu:
@@ -106,6 +107,8 @@ message:
     message: |-
       An error occurred while exporting the model.
       Error: {0}
+
+  exported: Successfully exported!
 
 export:
   error:
