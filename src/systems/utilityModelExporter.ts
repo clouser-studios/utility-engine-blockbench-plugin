@@ -1,4 +1,4 @@
-import { SkinTexture } from '../textures/skinTexture'
+import { SKIN_TEXTURE_NAME, SkinTexture } from '../textures/skinTexture'
 import { parseResourcePackPath } from '../util/minecraftUtil'
 import { translate } from '../util/translation'
 
@@ -308,7 +308,7 @@ function createUtilityModel(): UtilityModel.IModel {
 	}
 	for (const texture of Texture.all) {
 		if (texture instanceof SkinTexture) {
-			model.textures[texture.id] = 'utility:skin'
+			model.textures[texture.id] = SKIN_TEXTURE_NAME
 			continue
 		}
 		// Path and Parsed should always be defined after validating textures.
