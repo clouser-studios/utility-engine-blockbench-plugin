@@ -456,5 +456,17 @@
 			}
 		}
 	],
-	"animation_controllers": []
+	"animation_controllers": [],
+	"display_settings": {
+		"thirdperson_righthand": {
+			"slot_id": "thirdperson_righthand",
+			"rotation": [67, 0, 0],
+			"translation": [0, 0, 0],
+			"scale": [1, 1, 1],
+			"rotation_pivot": [0, 0, 0],
+			"scale_pivot": [0, 0, 0],
+			"mirror": [false, false, false],
+			"fit_to_frame": false
+		}
+	}
 }
