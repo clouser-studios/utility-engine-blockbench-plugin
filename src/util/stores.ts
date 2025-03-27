@@ -1,15 +1,15 @@
 import { get, type Subscriber, type Unsubscriber, type Writable, writable } from 'svelte/store'
 
-export class Valuable<T> implements Writable<T> {
-	static all: Array<Valuable<any>> = []
+export class Syncable<T> implements Writable<T> {
+	static all: Array<Syncable<any>> = []
 
-	private store: Writable<T>
-	private valueValidator: (value: T) => T
+	protected store: Writable<T>
+	protected valueValidator: (value: T) => T
 
-	constructor(value: T, valueValidator?: Valuable<T>['valueValidator']) {
+	constructor(value: T, valueValidator?: Syncable<T>['valueValidator']) {
 		this.store = writable(value)
 		this.valueValidator = valueValidator ?? ((value: T) => value)
-		Valuable.all.push(this)
+		Syncable.all.push(this)
 	}
 
 	get() {
@@ -29,7 +29,7 @@ export class Valuable<T> implements Writable<T> {
 	}
 }
 
-export class SetStore<T> extends Valuable<Set<T>> {
+export class SyncableSet<T> extends Syncable<Set<T>> {
 	constructor(value: Set<T>) {
 		super(value, (value: Set<T>) => new Set(value))
 	}

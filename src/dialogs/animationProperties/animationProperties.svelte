@@ -2,14 +2,14 @@
 	import LineInput from '../../svelte/dialogItems/lineInput.svelte'
 	import NumberSlider from '../../svelte/dialogItems/numberSlider.svelte'
 	import Select from '../../svelte/dialogItems/select.svelte'
-	import { Valuable } from '../../util/stores'
+	import { Syncable } from '../../util/stores'
 	import { translate } from '../../util/translation'
 
-	export let animationName: Valuable<string>
-	export let loopMode: Valuable<string>
-	export let loopDelay: Valuable<number>
+	export let animationName: Syncable<string>
+	export let loopMode: Syncable<string>
+	export let loopDelay: Syncable<number>
 
-	let animationType = new Valuable<string>('custom')
+	let animationType = new Syncable<string>('custom')
 	const ANIMATION_TYPES: Record<string, string> = {
 		custom: 'loop',
 

@@ -1,16 +1,20 @@
 <script lang="ts">
-	import { Valuable } from '../../util/stores'
+	import { Syncable } from '../../util/stores'
 	import { translate } from '../../util/translation'
 	import DisplaySectionToolbar from './displaySectionToolbar.svelte'
 	import Slider from './slider.svelte'
 
-	const LEFT_ROTATION_X = new Valuable(0)
-	const LEFT_ROTATION_Y = new Valuable(0)
-	const LEFT_ROTATION_Z = new Valuable(0)
+	const LEFT_ROTATION_X = new Syncable(0)
+	const LEFT_ROTATION_Y = new Syncable(0)
+	const LEFT_ROTATION_Z = new Syncable(0)
 
-	const RIGHT_ROTATION_X = new Valuable(0)
-	const RIGHT_ROTATION_Y = new Valuable(0)
-	const RIGHT_ROTATION_Z = new Valuable(0)
+	const RIGHT_ROTATION_X = new Syncable(0)
+	const RIGHT_ROTATION_Y = new Syncable(0)
+	const RIGHT_ROTATION_Z = new Syncable(0)
+
+	LEFT_ROTATION_X.subscribe(value => {
+		console.log('LEFT_ROTATION_X', value)
+	})
 
 	function resetLeftRotation() {
 		LEFT_ROTATION_X.set(0)

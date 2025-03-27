@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Valuable } from '../util/stores'
+	import { Syncable } from '../util/stores'
 
 	export let id = ''
-	export let value: Valuable<number>
+	export let value: Syncable<number>
 	export let min: number | undefined = undefined
 	export let max: number | undefined = undefined
 	export let step: number | undefined = undefined
@@ -36,8 +36,8 @@
 				}
 			}
 			function stop() {
-				removeEventListeners(document, 'mousemove touchmove', move, null)
-				removeEventListeners(document, 'mouseup touchend', stop, null)
+				removeEventListeners(document, 'mousemove touchmove', move)
+				removeEventListeners(document, 'mouseup touchend', stop)
 			}
 			addEventListeners(document as unknown as any, 'mousemove touchmove', move)
 			addEventListeners(document as unknown as any, 'mouseup touchend', stop)

@@ -2,7 +2,7 @@ import PACKAGE from '../../../package.json'
 import SteveSkin from '../../assets/steve.png'
 import { UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
 import { createAction, createBlockbenchMod } from '../../util/moddingTools'
-import { Valuable } from '../../util/stores'
+import { Syncable } from '../../util/stores'
 import { SvelteDialog } from '../../util/svelteDialog'
 import { translate } from '../../util/translation'
 import UsernamePrompt from './usernamePrompt.svelte'
@@ -52,7 +52,7 @@ async function autoUpdateSkinFormat(skinUrl: string) {
 }
 
 async function promptForUsername() {
-	const username = new Valuable<string | undefined>('')
+	const username = new Syncable<string | undefined>('')
 	return new Promise<string | undefined>(resolve => {
 		new SvelteDialog({
 			id: `${PACKAGE.name}:username_prompt`,

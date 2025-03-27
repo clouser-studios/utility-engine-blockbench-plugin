@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { type Valuable } from '../../util/stores'
+	import { type Syncable } from '../../util/stores'
 	import { translate } from '../../util/translation'
 
-	export let username: Valuable<string | undefined>
+	export let username: Syncable<string | undefined>
 </script>
 
 <div class="dialog_bar form_bar">

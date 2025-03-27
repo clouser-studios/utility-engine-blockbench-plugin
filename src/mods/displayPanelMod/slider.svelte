@@ -1,8 +1,8 @@
 <script lang="ts">
 	import NumberSlider from '../../svelte/numberSlider.svelte'
-	import { Valuable } from '../../util/stores'
+	import { Syncable } from '../../util/stores'
 
-	export let value: Valuable<number>
+	export let value: Syncable<number>
 	export let min: number | undefined = undefined
 	export let max: number | undefined = undefined
 	export let step = 1

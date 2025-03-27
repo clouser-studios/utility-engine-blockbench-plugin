@@ -1,5 +1,5 @@
 import type { ComponentConstructorOptions } from 'svelte'
-import { Valuable } from './stores'
+import { Syncable } from './stores'
 
 export type SvelteComponentConstructor<T, U extends ComponentConstructorOptions> = new (
 	options: U
@@ -107,13 +107,13 @@ export function markdownToHTML(markdown: string) {
 		.replace(/`(.+?)`/, '<code class="animated-java-code">$1</code>')
 }
 
-export function makeValuable<O extends Record<string, any>>(obj: O) {
-	return mapObjEntries(obj, (k, v) => [k, new Valuable(v)]) as {
-		[Key in keyof O]: Valuable<O[Key]>
+export function makeSyncable<O extends Record<string, any>>(obj: O) {
+	return mapObjEntries(obj, (k, v) => [k, new Syncable(v)]) as {
+		[Key in keyof O]: Syncable<O[Key]>
 	}
 }
 
-export function makeNotValueable<O extends Record<string, Valuable<any>>>(obj: O) {
+export function makeNotSyncable<O extends Record<string, Syncable<any>>>(obj: O) {
 	return mapObjEntries(obj, (k, v) => [k, v.get()]) as {
 		[Key in keyof O]: ReturnType<O[Key]['get']>
 	}
