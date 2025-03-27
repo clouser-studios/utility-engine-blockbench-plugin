@@ -2,6 +2,9 @@ global:
   confirm: Confirm
   cancel: Cancel
 
+texture:
+  skin: Skin Texture
+
 action:
   create_skin_texture.label: Create Skin Texture
   export_utility_model.label: Export Utility Model

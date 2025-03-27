@@ -131,6 +131,9 @@ export class SkinTexture extends OverrideTexture {
 		super(data, uuid, true)
 		this.extend(data)
 		this.load()
+		if (!this.source) {
+			this.resetPreviewSkin()
+		}
 	}
 
 	extend(data: ISkinTextureData) {
@@ -149,12 +152,33 @@ export class SkinTexture extends OverrideTexture {
 		return this
 	}
 
+	add(undo?: boolean) {
+		super.add(undo)
+		// Add skin indicator icon
+		requestAnimationFrame(() => {
+			const e = $(`li.texture[texid="${this.uuid}"]`)[0]
+			const icon = document.createElement('i')
+			icon.title = translate('texture.skin')
+			icon.className = 'material-icons texture_particle_icon'
+			icon.textContent = 'portrait'
+			e.insertBefore(icon, e.lastChild)
+		})
+
+		return this
+	}
+
 	edit() {
 		// Cannot edit skin textures
 	}
 
 	resetPreviewSkin() {
 		this.fromDataURL(SteveSkin)
+	}
+
+	fromDataURL(url: string): this {
+		super.fromDataURL(url)
+		this.path = undefined
+		return this
 	}
 
 	fromFile(file: { name: string; path: string; content?: any }) {
@@ -164,7 +188,6 @@ export class SkinTexture extends OverrideTexture {
 
 	getSaveCopy() {
 		const copy = Texture.prototype.getSaveCopy.call(this) as TextureData
-		// @ts-expect-error
 		for (const key in SkinTexture.properties) {
 			// @ts-expect-error
 			SkinTexture.properties[key].copy(this, copy)
@@ -284,14 +307,6 @@ SkinTexture.prototype.menu = new Menu([
 		},
 	},
 	'delete',
-	new MenuSeparator('properties'),
-	{
-		icon: 'list',
-		name: 'menu.texture.properties',
-		click(texture: Texture) {
-			texture.openMenu()
-		},
-	},
 ])
 
 SharedActions.add('duplicate', {
