@@ -3,7 +3,8 @@
 		"format": "utility-engine:utility_model",
 		"format_version": "0.0.6.2",
 		"uuid": "929a162f-73ab-2f10-ea44-49c3d9564b2a",
-		"save_location": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utilitymodel"
+		"save_location": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utilitymodel",
+		"export_path": ""
 	},
 	"resolution": {
 		"width": 64,
@@ -290,14 +291,14 @@
 	"animations": [
 		{
 			"uuid": "1692c60a-94ca-54e4-6b82-a3ddca57619c",
-			"name": "utility.being_broken",
+			"name": "utility.main_loop",
 			"loop": "loop",
 			"override": false,
 			"length": 0.5,
 			"snapping": 24,
-			"selected": false,
-			"saved": false,
-			"path": "",
+			"selected": true,
+			"saved": true,
+			"path": "utility",
 			"anim_time_update": "",
 			"blend_weight": "",
 			"start_delay": "",
