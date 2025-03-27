@@ -1,7 +1,10 @@
 import PACKAGE from '../../package.json'
 import UtilityIcon from '../assets/icons/icon.png'
 import { UTILITY_MODEL_FORMAT } from '../formats/utilityModel'
-import { EXPORT_UTILITY_MODEL_ACTION } from '../formats/utilityModel/export'
+import {
+	EXPORT_UTILITY_MODEL_ACTION,
+	EXPORT_UTILITY_MODEL_AS_ACTION,
+} from '../formats/utilityModel/export'
 import { createBarMenu, type NamespacedString } from '../util/moddingTools'
 
 function createIconImg() {
@@ -31,3 +34,4 @@ MENU.label.prepend(createIconImg())
 BLOCKBENCH_MENU_BAR.appendChild(MENU.label)
 
 MenuBar.addAction(EXPORT_UTILITY_MODEL_ACTION, MENU.id)
+MenuBar.addAction(EXPORT_UTILITY_MODEL_AS_ACTION, MENU.id)
