@@ -2,7 +2,7 @@ import PACKAGE from '../../../package.json'
 import SteveSkin from '../../assets/steve.png'
 import { UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
 import { createAction, createBlockbenchMod } from '../../util/moddingTools'
-import { Valuable } from '../../util/stores'
+import { Syncable } from '../../util/stores'
 import { SvelteDialog } from '../../util/svelteDialog'
 import { translate } from '../../util/translation'
 import UsernamePrompt from './usernamePrompt.svelte'
@@ -52,7 +52,7 @@ async function autoUpdateSkinFormat(skinUrl: string) {
 }
 
 async function promptForUsername() {
-	const username = new Valuable<string | undefined>('')
+	const username = new Syncable<string | undefined>('')
 	return new Promise<string | undefined>(resolve => {
 		new SvelteDialog({
 			id: `${PACKAGE.name}:username_prompt`,
@@ -131,6 +131,9 @@ export class SkinTexture extends OverrideTexture {
 		super(data, uuid, true)
 		this.extend(data)
 		this.load()
+		if (!this.source) {
+			this.resetPreviewSkin()
+		}
 	}
 
 	extend(data: ISkinTextureData) {
@@ -149,12 +152,33 @@ export class SkinTexture extends OverrideTexture {
 		return this
 	}
 
+	add(undo?: boolean) {
+		super.add(undo)
+		// Add skin indicator icon
+		requestAnimationFrame(() => {
+			const e = $(`li.texture[texid="${this.uuid}"]`)[0]
+			const icon = document.createElement('i')
+			icon.title = translate('texture.skin')
+			icon.className = 'material-icons texture_particle_icon'
+			icon.textContent = 'portrait'
+			e.insertBefore(icon, e.lastChild)
+		})
+
+		return this
+	}
+
 	edit() {
 		// Cannot edit skin textures
 	}
 
 	resetPreviewSkin() {
 		this.fromDataURL(SteveSkin)
+	}
+
+	fromDataURL(url: string): this {
+		super.fromDataURL(url)
+		this.path = undefined
+		return this
 	}
 
 	fromFile(file: { name: string; path: string; content?: any }) {
@@ -164,7 +188,6 @@ export class SkinTexture extends OverrideTexture {
 
 	getSaveCopy() {
 		const copy = Texture.prototype.getSaveCopy.call(this) as TextureData
-		// @ts-expect-error
 		for (const key in SkinTexture.properties) {
 			// @ts-expect-error
 			SkinTexture.properties[key].copy(this, copy)
@@ -284,14 +307,6 @@ SkinTexture.prototype.menu = new Menu([
 		},
 	},
 	'delete',
-	new MenuSeparator('properties'),
-	{
-		icon: 'list',
-		name: 'menu.texture.properties',
-		click(texture: Texture) {
-			texture.openMenu()
-		},
-	},
 ])
 
 SharedActions.add('duplicate', {

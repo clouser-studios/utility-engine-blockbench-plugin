@@ -2,14 +2,15 @@
 	import LineInput from '../../svelte/dialogItems/lineInput.svelte'
 	import NumberSlider from '../../svelte/dialogItems/numberSlider.svelte'
 	import Select from '../../svelte/dialogItems/select.svelte'
-	import { Valuable } from '../../util/stores'
+	import { Syncable } from '../../util/stores'
 	import { translate } from '../../util/translation'
 
-	export let animationName: Valuable<string>
-	export let loopMode: Valuable<string>
-	export let loopDelay: Valuable<number>
+	const UTILITY_PREFIX = 'utility.'
 
-	let animationType = new Valuable<string>('custom')
+	export let animationName: Syncable<string>
+	export let loopMode: Syncable<string>
+	export let loopDelay: Syncable<number>
+
 	const ANIMATION_TYPES: Record<string, string> = {
 		custom: 'loop',
 
@@ -63,11 +64,31 @@
 		placed_walked_on_loop: 'loop',
 	}
 
-	$: if ($animationName.startsWith('utility.')) {
-		const type = Object.keys(ANIMATION_TYPES).find(v => $animationName.endsWith(v))
-		if (type) {
-			$animationType = type
-			$loopMode = ANIMATION_TYPES[type]
+	function getAnimationTypeFromName(name: string) {
+		if (name.startsWith(UTILITY_PREFIX)) {
+			const type = Object.keys(ANIMATION_TYPES).find(v => name === UTILITY_PREFIX + v)
+			if (type) return type
+		}
+		return 'custom'
+	}
+
+	function getAnimationNameFromType(type: string) {
+		if (type === 'custom') return undefined
+		return UTILITY_PREFIX + type
+	}
+
+	let animationType = new Syncable<string>(getAnimationTypeFromName($animationName))
+
+	$: {
+		console.log('animationName', $animationName)
+		if ($animationName.startsWith(UTILITY_PREFIX)) {
+			const type = Object.keys(ANIMATION_TYPES).find(
+				v => $animationName === UTILITY_PREFIX + v
+			)
+			if (type) {
+				$animationType = type
+				$loopMode = ANIMATION_TYPES[type]
+			}
 		}
 	}
 
@@ -76,11 +97,12 @@
 	animationType.subscribe(v => {
 		if (v === 'custom') {
 			isCustomAnimationType = true
-			animationName.set(animationName.get().replace('utility.', ''))
+			$animationName =
+				getAnimationNameFromType(v) ?? $animationName.replace(UTILITY_PREFIX, '')
 			return
 		}
 		isCustomAnimationType = false
-		animationName.set(`utility.${v}`)
+		$animationName = UTILITY_PREFIX + v
 	})
 
 	const ANIMATION_TYPE_OPTIONS = Object.keys(ANIMATION_TYPES).reduce(

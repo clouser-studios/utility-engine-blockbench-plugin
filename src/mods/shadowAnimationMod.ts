@@ -5,9 +5,20 @@ class ShadowAnimation extends Blockbench.Animation {
 			this.name = 'custom'
 		}
 	}
+
+	setLength(len = this.length) {
+		this.length = 0
+		this.length = limitNumber(len, this.getMaxLength(), 1e4)
+		if (Blockbench.Animation.selected == this) {
+			// @ts-expect-error
+			Timeline.vue._data.animation_length = this.length
+			// @ts-expect-error
+			BarItems.slider_animation_length.update()
+		}
+	}
 }
 
-// @ts-ignore
+// @ts-expect-error
 Animation = ShadowAnimation
-// @ts-ignore
+// @ts-expect-error
 Blockbench.Animation = ShadowAnimation

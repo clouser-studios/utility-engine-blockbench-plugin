@@ -2,6 +2,9 @@ global:
   confirm: Confirm
   cancel: Cancel
 
+texture:
+  skin: Skin Texture
+
 action:
   create_skin_texture.label: Create Skin Texture
   export_utility_model.label: Export Utility Model
@@ -16,6 +19,19 @@ menu:
       from_username: From Username
 
     remove_preview_skin: Remove Preview Skin
+
+panel:
+  arm_rotation:
+    title: Arm Rotation
+
+    overwrite_arm_rotation:
+      label: Overwrite Arm Rotation
+
+    left_rotation:
+      label: Left Arm Rotation
+
+    right_rotation:
+      label: Right Arm Rotation
 
 dialog:
   reset: Reset

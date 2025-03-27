@@ -1,19 +1,23 @@
 <script lang="ts">
-	import { Syncable } from '../../util/stores'
-	import BaseDialogItem from './baseDialogItem.svelte'
+	import { Syncable } from '../util/stores'
 
-	export let label: string
-	export let tooltip = ''
+	export let id = ''
 	export let value: Syncable<number>
-	export let defaultValue: number
 	export let min: number | undefined = undefined
 	export let max: number | undefined = undefined
 	export let step: number | undefined = undefined
+	export let enforceMinMax = true
+	export let precision = 2
+	export let extraClasses = ''
 
 	const MOLANG_PARSER = new Molang()
 
 	let input: HTMLInputElement
 	let slider: HTMLElement
+
+	function reduceDecimals(num: number) {
+		return parseFloat(num.toFixed(precision))
+	}
 
 	requestAnimationFrame(() => {
 		addEventListeners(slider, 'mousedown touchstart', (e1: any) => {
@@ -23,13 +27,11 @@
 				convertTouchEvent(e2)
 				const difference = Math.trunc((e2.clientX - e1.clientX) / 10) * (step ?? 1)
 				if (difference != lastDifference) {
-					value.set(
-						Math.clamp(
-							value.get() + (difference - lastDifference),
-							min ?? -Infinity,
-							max ?? Infinity
-						) || 0
-					)
+					let v = value.get() + (difference - lastDifference)
+					if (enforceMinMax) {
+						v = Math.clamp(v, min ?? -Infinity, max ?? Infinity)
+					}
+					value.set(reduceDecimals(v || 0))
 					lastDifference = difference
 				}
 			}
@@ -42,31 +44,28 @@
 		})
 
 		addEventListeners(input, 'focusout dblclick', () => {
-			value.set(
-				Math.clamp(MOLANG_PARSER.parse(value.get()), min ?? -Infinity, max ?? Infinity) || 0
-			)
+			let v = MOLANG_PARSER.parse(value.get())
+			if (enforceMinMax) {
+				v = Math.clamp(v, min ?? -Infinity, max ?? Infinity)
+			}
+			value.set(reduceDecimals(v || 0))
 		})
 	})
 
-	function onReset() {
-		value.set(defaultValue)
-	}
+	// function onReset() {
+	// 	value.set(defaultValue)
+	// }
 </script>
 
-<BaseDialogItem {label} {tooltip} {onReset} let:id>
-	<div class="dialog_bar form_bar">
-		<label class="name_space_left" for={id}>{label}</label>
-		<div class="numeric_input">
-			<input
-				bind:this={input}
-				{id}
-				class="dark_bordered focusable_input"
-				bind:value={$value}
-				inputmode="decimal"
-			/>
-			<div bind:this={slider} class="tool numaric_input_slider">
-				<i class="material-icons icon">code</i>
-			</div>
-		</div>
+<div class={'numeric_input ' + extraClasses}>
+	<input
+		bind:this={input}
+		{id}
+		class="dark_bordered focusable_input"
+		inputmode="decimal"
+		bind:value={$value}
+	/>
+	<div bind:this={slider} class="tool numeric_input_slider">
+		<i class="material-icons icon">code</i>
 	</div>
-</BaseDialogItem>
+</div>
