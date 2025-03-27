@@ -9,7 +9,7 @@ import UsernamePrompt from './usernamePrompt.svelte'
 
 const SKIN_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
 const USERNAME_TO_UUID_URL = 'https://api.mojang.com/users/profiles/minecraft/'
-const SKIN_TEXTURE_NAME = 'utility:current_skin'
+export const SKIN_TEXTURE_NAME = 'utility:current_skin'
 
 async function fetchSkinUrl(username: string) {
 	const data = await fetch(USERNAME_TO_UUID_URL + username).catch(() => undefined)
