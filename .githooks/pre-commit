@@ -6,7 +6,19 @@ function join_by {
     echo "$*";
 }
 
+function filter_existing_files {
+    local files=$1
+    local existing_files=()
+    for file in $files; do
+        if [ -f "$file" ]; then
+            existing_files+=("$file")
+        fi
+    done
+    echo "${existing_files[@]}"
+}
+
 files=$(git diff --cached --name-only)
+files=$(filter_existing_files "$files")
 esbuildFiles=$(echo "$files" | grep -i -E '.*\.(js|ts|svelte)' | join_by " ")
 joinedFiles=$(join_by " " $files)
 echo Changed Files: $(joinedFiles)
