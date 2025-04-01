@@ -72,7 +72,7 @@ namespace UtilityModel {
 	}
 
 	export interface IDisplay {
-		transform: ArrayVector3
+		translation: ArrayVector3
 		rotation: ArrayVector3
 		scale: ArrayVector3
 		mirror: [boolean, boolean, boolean]
@@ -343,7 +343,7 @@ function createUtilityModel(): UtilityModel.IModel {
 			continue
 		}
 		display[key as keyof UtilityModel.IDisplayContainer] = {
-			transform: settings.translation,
+			translation: settings.translation,
 			rotation: settings.rotation,
 			scale: settings.scale,
 			mirror: settings.mirror,
