@@ -10,6 +10,9 @@ import FormatPage from './svelte/formatPage.svelte'
 import Icon from './svelte/icon.svelte'
 export { UTILITY_MODEL_CODEC } from './codec'
 
+import './export'
+import './import'
+
 // Hide the default format page title
 const INTERVAL = setInterval(() => {
 	const title = $('#format_page_utility_model h2')[0]

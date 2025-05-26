@@ -9,6 +9,7 @@ action:
   create_skin_texture.label: Create Skin Texture
   export_utility_model.label: Export Utility Model
   export_utility_model_as.label: Export Utility Model As
+  import_utility_model.label: Import Utility Model
   delete_animation_folder.label: Delete Animation Folder
 
 menu:

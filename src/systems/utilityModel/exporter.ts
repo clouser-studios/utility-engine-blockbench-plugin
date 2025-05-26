@@ -1,123 +1,9 @@
 import { SKIN_TEXTURE_NAME, SkinTexture } from '../../textures/skinTexture'
 import { parseResourcePackPath } from '../../util/minecraftUtil'
 import { translate } from '../../util/translation'
+import { type v0_0_1 as UtilityModel } from './versions/0.0.1'
 
 const FORMAT_VERSION = '0.0.1'
-
-interface IMeshFaceSaveCopy {
-	uv: Record<string, number[]>
-	vertices: string[]
-	texture: string
-}
-
-interface IMeshSaveCopy {
-	name: string
-	rotation: ArrayVector3
-	origin: ArrayVector3
-	vertices: Record<string, ArrayVector3>
-	faces: Record<string, IMeshFaceSaveCopy>
-}
-
-namespace UtilityModel {
-	export interface IElementFace {
-		uv: number[]
-		rotation?: number
-		texture: string
-		cullface?: string
-		tintindex?: number
-	}
-
-	export interface IElement {
-		name: string
-		uuid: string
-		from: number[]
-		to: number[]
-		shade?: boolean
-		rotation?: {
-			euler: ArrayVector3
-			origin: ArrayVector3
-		}
-		faces?: Record<string, IElementFace>
-	}
-
-	export interface IMeshFace {
-		uv: Record<string, ArrayVector2>
-		vertices: string[]
-		texture: number
-	}
-
-	export interface IMesh {
-		name: string
-		uuid: string
-		rotation?: {
-			euler: ArrayVector3
-			origin: ArrayVector3
-		}
-		vertices: Record<string, ArrayVector3>
-		faces: Record<string, IMeshFaceSaveCopy>
-	}
-
-	export interface IAnimationBone {
-		position: Record<string | number, ArrayVector3>
-		rotation: Record<string | number, ArrayVector3>
-		scale: Record<string | number, ArrayVector3>
-	}
-
-	export interface IAnimation {
-		name: string
-		animation_length: number
-		loop_mode: 'once' | 'loop' | 'hold'
-		loop_delay: number | string
-		bones: Record<string, IAnimationBone>
-	}
-
-	export interface IDisplay {
-		translation: ArrayVector3
-		rotation: ArrayVector3
-		scale: ArrayVector3
-		mirror: [boolean, boolean, boolean]
-	}
-
-	export interface IBone {
-		name: string
-		rotation?: {
-			euler: ArrayVector3
-			origin: ArrayVector3
-		}
-		children: IStructure
-	}
-
-	export interface IStructure {
-		elements?: string[]
-		meshes?: string[]
-		bones?: IBone[]
-	}
-
-	export interface IDisplayContainer {
-		thirdperson_righthand?: IDisplay
-		thirdperson_lefthand?: IDisplay
-		firstperson_righthand?: IDisplay
-		firstperson_lefthand?: IDisplay
-		head?: IDisplay
-		gui?: IDisplay
-		ground?: IDisplay
-		fixed?: IDisplay
-	}
-
-	export interface IModel {
-		__comment?: string
-		format_version: string
-		texture_size: ArrayVector2
-		textures: Record<string, string> & {
-			particle?: string
-		}
-		elements: IElement[]
-		structure: IStructure
-		meshes?: IMesh[]
-		animations?: IAnimation[]
-		display?: IDisplayContainer
-	}
-}
 
 export class ExportError extends Error {
 	constructor(key: string, ...args: string[]) {
@@ -189,7 +75,7 @@ function renderCube(cube: Cube) {
 }
 
 function renderMesh(mesh: Mesh): UtilityModel.IMesh {
-	const saveCopy = mesh.getSaveCopy!(true) as IMeshSaveCopy
+	const saveCopy = mesh.getSaveCopy!(true) as UtilityModel.IMeshSaveCopy
 
 	for (const face of Object.values(saveCopy.faces)) {
 		face.texture = '#' + face.texture
@@ -215,7 +101,7 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 }
 
 function recurseStructure(
-	model: UtilityModel.IModel,
+	model: UtilityModel.IUtilityModelJSON,
 	children: OutlinerNode[]
 	// parent?: Group
 ): UtilityModel.IStructure {
@@ -236,12 +122,6 @@ function recurseStructure(
 			structure.bones.push(bone)
 		} else if (child instanceof Mesh) {
 			const mesh = renderMesh(child)
-			//REVIEW - Is origin stored implicitly in the vertices? I might have to add the parent offset to the vertices...
-			// if (parent && mesh.rotation) {
-			// 	const parentTransform = getGlobalTransform(parent)
-			// 	mesh.rotation.euler.V3_subtract(parentTransform.rotation)
-			// 	mesh.rotation.origin.V3_subtract(parentTransform.origin)
-			// }
 			model.meshes ??= []
 			model.meshes.push(mesh)
 			structure.meshes ??= []
@@ -249,15 +129,6 @@ function recurseStructure(
 		} else if (child instanceof Cube) {
 			const element = renderCube(child)
 			if (element) {
-				// if (parent) {
-				// 	const parentTransform = getGlobalTransform(parent)
-				// 	element.from.V3_subtract(parentTransform.origin)
-				// 	element.to.V3_subtract(parentTransform.origin)
-				// 	if (element.rotation) {
-				// 		element.rotation.euler.V3_subtract(parentTransform.rotation)
-				// 		element.rotation.origin.V3_subtract(parentTransform.origin)
-				// 	}
-				// }
 				structure.elements ??= []
 				structure.elements.push(element.uuid)
 				model.elements.push(element)
@@ -270,10 +141,10 @@ function recurseStructure(
 	return structure
 }
 
-function createUtilityModel(): UtilityModel.IModel {
+function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 	validateTextures()
 
-	const model: UtilityModel.IModel = {
+	const model: UtilityModel.IUtilityModelJSON = {
 		__comment:
 			'Created in Blockbench, exported via Utility Engine. Will not work in Vanilla Minecraft!',
 		format_version: FORMAT_VERSION,
@@ -302,7 +173,7 @@ function createUtilityModel(): UtilityModel.IModel {
 
 	model.structure = recurseStructure(model, Outliner.root)
 
-	const animations: UtilityModel.IModel['animations'] = []
+	const animations: UtilityModel.IUtilityModelJSON['animations'] = []
 	for (const animation of Blockbench.Animation.all) {
 		const bedrock = animation.compileBedrockAnimation()
 		animations.push({
@@ -352,7 +223,6 @@ export function exportUtilityModel(path?: string) {
 		}
 		Blockbench.export(
 			{
-				// FIXME: This should enforce the `.utility.json` extension
 				resource_id: 'utility_model.export',
 				name: Project!.name + '.utility',
 				type: 'json',

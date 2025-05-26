@@ -17,6 +17,11 @@
 		"noEmit": true,
 		"verbatimModuleSyntax": true,
 		"isolatedModules": true,
-		"alwaysStrict": true
+		"alwaysStrict": true,
+		"paths": {
+			"@utility/*": ["./src/*"],
+			"@utilityProject/*": ["./src/formats/utilityProject/*"],
+			"@utilityModel/*": ["./src/systems/utilityModel/*"]
+		}
 	}
 }
