@@ -1,6 +1,6 @@
-import { SKIN_TEXTURE_NAME, SkinTexture } from '../textures/skinTexture'
-import { parseResourcePackPath } from '../util/minecraftUtil'
-import { translate } from '../util/translation'
+import { SKIN_TEXTURE_NAME, SkinTexture } from '../../textures/skinTexture'
+import { parseResourcePackPath } from '../../util/minecraftUtil'
+import { translate } from '../../util/translation'
 
 const FORMAT_VERSION = '0.0.1'
 
@@ -213,22 +213,6 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 		faces: saveCopy.faces,
 	}
 }
-
-// function getGlobalTransform(node: { mesh: THREE.Mesh }) {
-// 	const matrixWorld = node.mesh.matrixWorld.clone()
-
-// 	const origin = new THREE.Vector3()
-// 	const rotation = new THREE.Euler()
-// 	const quaternion = new THREE.Quaternion()
-// 	// Throw away scale using a reusable vector
-// 	matrixWorld.decompose(origin, quaternion, Reusable.vec1)
-// 	rotation.setFromQuaternion(quaternion, node.mesh.rotation.order)
-
-// 	return {
-// 		rotation: rotation.toArray() as ArrayVector3,
-// 		origin: origin.toArray() as ArrayVector3,
-// 	}
-// }
 
 function recurseStructure(
 	model: UtilityModel.IModel,

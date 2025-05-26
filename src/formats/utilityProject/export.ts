@@ -1,7 +1,7 @@
 import { UTILITY_MODEL_FORMAT } from '.'
 import Icon from '../../assets/icons/nobackground.png'
 import { PACKAGE } from '../../package'
-import { exportUtilityModel } from '../../systems/utilityModelExporter'
+import { exportUtilityModel } from '../../systems/utilityModel/exporter'
 import { createAction } from '../../util/moddingTools'
 import { translate } from '../../util/translation'
 

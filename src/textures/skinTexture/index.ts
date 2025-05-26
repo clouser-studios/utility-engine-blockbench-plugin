@@ -1,6 +1,6 @@
 import PACKAGE from '../../../package.json'
 import SteveSkin from '../../assets/steve.png'
-import { UTILITY_MODEL_FORMAT } from '../../formats/utilityModel'
+import { UTILITY_MODEL_FORMAT } from '../../formats/utilityProject'
 import { createAction, createBlockbenchMod } from '../../util/moddingTools'
 import { Syncable } from '../../util/stores'
 import { SvelteDialog } from '../../util/svelteDialog'

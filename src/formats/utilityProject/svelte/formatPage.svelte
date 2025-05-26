@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { UTILITY_MODEL_FORMAT } from '..'
 	import Icon from '../../../assets/icons/icon.png'
-	import { UTILITY_MODEL_FORMAT } from '../'
 	import { translate } from '../../../util/translation'
 
 	function createModel() {

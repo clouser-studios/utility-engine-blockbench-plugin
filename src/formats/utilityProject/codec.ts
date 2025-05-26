@@ -1,47 +1,15 @@
 import { UTILITY_MODEL_FORMAT } from '.'
 import { PACKAGE } from '../../package'
-import { SkinTexture, type ISkinTextureData } from '../../textures/skinTexture'
+import { SkinTexture } from '../../textures/skinTexture'
 import { resetAllConsoleGroups } from '../../util/misc'
 import { translate } from '../../util/translation'
-import { updateUtilityModel } from './dfu'
+import { updateUtilityProject } from './dfu'
+import { type v0_0_5 as UtilityProject } from './versions/0.0.5'
 
 declare global {
 	interface ModelProject {
-		utility_model: IUtilityModelSettings
+		utility_model: UtilityProject.IUtilityProjectSettings
 	}
-}
-
-export interface IUtilityModelSettings {
-	model_identifier: string
-}
-
-export interface IUtilityModelJSON {
-	meta: {
-		format: `${typeof PACKAGE.name}:utility_model`
-		format_version: string
-		uuid: string
-		box_uv?: boolean
-		backup?: boolean
-		save_location?: string
-		export_path?: string
-	}
-	options: IUtilityModelSettings
-
-	resolution: {
-		width: number
-		height: number
-	}
-
-	elements: any[]
-	outliner: any[]
-	textures: Array<TextureData | ISkinTextureData>
-	animations: AnimationOptions[]
-	animation_controllers?: AnimationControllerOptions[]
-	animation_variable_placeholders: string
-	backgrounds?: Record<string, any>
-	collections?: CollectionOptions[]
-	texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
-	display_settings?: ModelProject['display_settings']
 }
 
 export function addProjectToRecentProjects(file: FileResult) {
@@ -64,18 +32,18 @@ export function addProjectToRecentProjects(file: FileResult) {
 
 export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility_model`, {
 	name: 'Utility Model',
-	extension: 'utilitymodel',
+	extension: 'utilityproject',
 	remember: true,
 	load_filter: {
-		extensions: ['utilitymodel'],
+		extensions: ['utilityproject'],
 		type: 'json',
 	},
 
 	// region > load
-	load(model: IUtilityModelJSON, file) {
+	load(model: UtilityProject.IUtilityProjectJSON, file) {
 		console.log(`Loading Utility Model from '${file.name}'...`)
 		try {
-			model = updateUtilityModel(model)
+			model = updateUtilityProject(model)
 		} catch (e: any) {
 			resetAllConsoleGroups()
 			console.error('Failed to upgrade Utility Model:', e)
@@ -100,7 +68,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 	// region > parse
 	// Takes the model file and injects it's data into the global Project
-	parse(model: IUtilityModelJSON, path) {
+	parse(model: UtilityProject.IUtilityProjectJSON, path) {
 		console.log(`Parsing Utility Model from '${path}'...`)
 		if (!Project) throw new Error('No project to parse into')
 
@@ -257,8 +225,8 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 		const model = {
 			meta: {
-				format: UTILITY_MODEL_FORMAT.id,
-				format_version: PACKAGE.version,
+				format: UTILITY_MODEL_FORMAT.id as any,
+				format_version: PACKAGE.version as any,
 				uuid: Project.uuid,
 				save_location: Project.save_path,
 				export_path: Project!.export_path,
@@ -268,7 +236,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 				width: Project.texture_width || 16,
 				height: Project.texture_height || 16,
 			},
-		} as IUtilityModelJSON
+		} as UtilityProject.IUtilityProjectJSON
 
 		for (const key in ModelProject.properties) {
 			if (ModelProject.properties[key].export)
@@ -387,7 +355,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		if (!Project) throw new Error('No project to export.')
 		Blockbench.export({
 			resource_id: 'utility_model.export',
-			name: (Project.name || 'unnamed') + '.utilitymodel',
+			name: (Project.name || 'unnamed') + '.utilityproject',
 			startpath: Project.save_path,
 			type: 'json',
 			extensions: [UTILITY_MODEL_CODEC.extension],
@@ -417,7 +385,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 	// ANCHOR - Codec:fileName
 	fileName() {
-		if (!Project?.name) return 'unnamed_project.utilitymodel'
-		return `${Project.name}.utilitymodel'`
+		if (!Project?.name) return 'unnamed_project.utilityproject'
+		return `${Project.name}.utilityproject'`
 	},
 })

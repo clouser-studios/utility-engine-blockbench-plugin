@@ -1,10 +1,10 @@
 import PACKAGE from '../../package.json'
 import UtilityIcon from '../assets/icons/icon.png'
-import { UTILITY_MODEL_FORMAT } from '../formats/utilityModel'
+import { UTILITY_MODEL_FORMAT } from '../formats/utilityProject'
 import {
 	EXPORT_UTILITY_MODEL_ACTION,
 	EXPORT_UTILITY_MODEL_AS_ACTION,
-} from '../formats/utilityModel/export'
+} from '../formats/utilityProject/export'
 import { createBarMenu, type NamespacedString } from '../util/moddingTools'
 
 function createIconImg() {

@@ -7,7 +7,7 @@ import './util/moddingTools'
 //-------------------------------
 
 // Formats
-import './formats/utilityModel'
+import './formats/utilityProject'
 
 // Mods
 import './mods'

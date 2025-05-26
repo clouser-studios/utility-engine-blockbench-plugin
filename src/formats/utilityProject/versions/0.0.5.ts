@@ -1,21 +1,21 @@
-import type { PACKAGE } from '../../../package'
 import type { ISkinTextureData } from '../../../textures/skinTexture'
 
-namespace v0_0_5 {
-	interface IUtilityModelSettings {
+export namespace v0_0_5 {
+	export interface IUtilityProjectSettings {
 		model_identifier: string
 	}
 
-	export interface IUtilityModelJSON {
+	export interface IUtilityProjectJSON {
 		meta: {
-			format: `${typeof PACKAGE.name}:utility_model`
+			format: `utility-engine:utility_model`
 			format_version: '0.0.5'
 			uuid: string
 			box_uv?: boolean
 			backup?: boolean
 			save_location?: string
+			export_path?: string
 		}
-		options: IUtilityModelSettings
+		options: IUtilityProjectSettings
 
 		resolution: {
 			width: number
@@ -31,11 +31,12 @@ namespace v0_0_5 {
 		backgrounds?: Record<string, any>
 		collections?: CollectionOptions[]
 		texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
+		display_settings?: ModelProject['display_settings']
 	}
 }
 
 export default {
-	upgrade(model: any): v0_0_5.IUtilityModelJSON {
+	upgrade(model: any): v0_0_5.IUtilityProjectJSON {
 		console.groupCollapsed('Updating utility model to 0.0.5')
 
 		// As this is the first version the DFU knows of, there is nothing to upgrade.
@@ -43,6 +44,6 @@ export default {
 		model.meta.format_version = '0.0.5'
 
 		console.groupEnd()
-		return model as v0_0_5.IUtilityModelJSON
+		return model as v0_0_5.IUtilityProjectJSON
 	},
 }
