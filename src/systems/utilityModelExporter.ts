@@ -370,13 +370,14 @@ export function exportUtilityModel(path?: string) {
 			{
 				// FIXME: This should enforce the `.utility.json` extension
 				resource_id: 'utility_model.export',
-				name: Project!.name + '.utility.json',
+				name: Project!.name + '.utility',
 				type: 'json',
 				extensions: ['json'],
 				startpath: Project!.export_path,
 				content: autoStringify(model),
 			},
 			chosenPath => {
+				console.log('chosenPath:', chosenPath)
 				Project!.export_path = chosenPath
 				Blockbench.showQuickMessage(translate('message.exported'))
 			}
