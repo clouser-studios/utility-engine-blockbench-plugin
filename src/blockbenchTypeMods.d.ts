@@ -18,4 +18,16 @@ declare global {
 		| 'stopped_being_used'
 		| 'used'
 		| 'custom'
+
+	interface ModelProject {
+		default_backface_culling_mode?: 'no_culling' | 'cull_backfaces'
+	}
+
+	interface Cube {
+		enableBackfaceCulling?: boolean
+	}
+
+	interface Mesh {
+		enableBackfaceCulling?: boolean
+	}
 }

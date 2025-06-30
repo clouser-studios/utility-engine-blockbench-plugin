@@ -326,7 +326,10 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 		}, true)
 	}
 
-	return subscribables
+	return subscribables as [
+		Subscribable<{ storage: Storage<Value>; value: Value }>,
+		Subscribable<{ storage: Storage<Value>; newValue: Value }>,
+	]
 }
 
 // export function overwriteFunction<Target extends Record<string, any>, Key extends string>(

@@ -114,6 +114,15 @@ model_format:
       [Check out the docs](URL-GOES-HERE) for more information on how to use this model format.
     project_settings:
       model_identifier: Model Identifier
+      default_backface_culling_mode:
+        title: Default Backface Culling Mode
+        options:
+          no_culling: No Culling
+          cull_backfaces: Cull Backfaces
+
+    element_settings:
+      use_default_backface_culling: Use Default Backface Culling
+      backface_culling: Backface Culling
 
 format_category:
   utility: Utility Engine

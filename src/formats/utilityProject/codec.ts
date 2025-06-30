@@ -1,3 +1,4 @@
+import EVENTS from '@utility/util/events'
 import { UTILITY_MODEL_FORMAT } from '.'
 import { PACKAGE } from '../../package'
 import { SkinTexture } from '../../textures/skinTexture'
@@ -388,4 +389,9 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		if (!Project?.name) return 'unnamed_project.utilityproject'
 		return `${Project.name}.utilityproject'`
 	},
+})
+
+EVENTS.UPDATE_PROJECT_SETTINGS.subscribe(formResult => {
+	console.log('Updating project settings:', formResult)
+	Canvas.updateAll()
 })

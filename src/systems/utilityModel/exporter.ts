@@ -38,6 +38,8 @@ function renderCube(cube: Cube) {
 	element.from = [...cube.from]
 	element.to = [...cube.to]
 
+	element.enableBackfaceCulling = cube.enableBackfaceCulling
+
 	if (cube.inflate) {
 		element.from.V3_subtract(cube.inflate, cube.inflate, cube.inflate)
 		element.to.V3_add(cube.inflate, cube.inflate, cube.inflate)
@@ -97,6 +99,7 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 		},
 		vertices: saveCopy.vertices,
 		faces: saveCopy.faces,
+		enableBackfaceCulling: mesh.enableBackfaceCulling,
 	}
 }
 

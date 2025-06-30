@@ -45,6 +45,10 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	category: 'utility',
 	target: 'Minecraft: Java Edition',
 	confidential: false,
+	convertTo() {
+		console.log('Converting to Utility Model format')
+		console.log(Blockbench.Animation)
+	},
 	condition: () => true,
 	show_on_start_screen: true,
 	format_page: {
@@ -107,6 +111,7 @@ createBlockbenchMod(
 	`${PACKAGE.name}:utility_model_model_format_properties`,
 	{
 		modelIdentifierProperty: undefined as ContextProperty<'string'>,
+		defaultBackfaceCullingModeProperty: undefined as ContextProperty<'string'>,
 	},
 	context => {
 		context.modelIdentifierProperty = new Property(ModelProject, 'string', 'model_identifier', {
@@ -115,9 +120,32 @@ createBlockbenchMod(
 				formats: [UTILITY_MODEL_FORMAT.id],
 			},
 		})
+		context.defaultBackfaceCullingModeProperty = new Property(
+			ModelProject,
+			'string',
+			'default_backface_culling_mode',
+			{
+				label: translate(
+					'model_format.utility_model.project_settings.default_backface_culling_mode.title'
+				),
+				condition: {
+					formats: [UTILITY_MODEL_FORMAT.id],
+				},
+				options: {
+					no_culling: translate(
+						'model_format.utility_model.project_settings.default_backface_culling_mode.options.no_culling'
+					),
+					cull_backfaces: translate(
+						'model_format.utility_model.project_settings.default_backface_culling_mode.options.cull_backfaces'
+					),
+				},
+				default: false,
+			}
+		)
 		return context
 	},
 	context => {
 		context.modelIdentifierProperty?.delete()
+		context.defaultBackfaceCullingModeProperty?.delete()
 	}
 )

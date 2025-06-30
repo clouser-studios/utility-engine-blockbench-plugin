@@ -32,6 +32,7 @@ export namespace v0_0_1 {
 			origin: ArrayVector3
 		}
 		faces?: Record<string, IElementFace>
+		enableBackfaceCulling?: boolean
 	}
 
 	export interface IMeshFace {
@@ -49,6 +50,7 @@ export namespace v0_0_1 {
 		}
 		vertices: Record<string, ArrayVector3>
 		faces: Record<string, IMeshFaceSaveCopy>
+		enableBackfaceCulling?: boolean
 	}
 
 	export interface IAnimationBone {
