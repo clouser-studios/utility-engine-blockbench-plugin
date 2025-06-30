@@ -79,15 +79,19 @@ function renderCube(cube: Cube) {
 function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 	const saveCopy = mesh.getSaveCopy!(true) as UtilityModel.IMeshSaveCopy
 
+	for (const [key, face] of Object.entries(mesh.faces)) {
+		saveCopy.faces[key].vertices = face.getSortedVertices().slice()
+	}
+
 	for (const face of Object.values(saveCopy.faces)) {
 		face.texture = '#' + face.texture
 
 		// Re-order vertices to match Minecraft's winding order
-		if (face.vertices.length === 4) {
-			const vertex3 = face.vertices[2]
-			face.vertices[2] = face.vertices[3]
-			face.vertices[3] = vertex3
-		}
+		// if (face.vertices.length === 4) {
+		// 	const vertex3 = face.vertices[2]
+		// 	face.vertices[2] = face.vertices[3]
+		// 	face.vertices[3] = vertex3
+		// }
 	}
 
 	return {
