@@ -139,9 +139,13 @@ message:
 export:
   error:
     texture_not_saved: The texture {0} is not saved to disk!
-    invalid_resource_pack_path: |-
-      Texture {0} is not saved inside of a valid resource pack!
-      Path: {1}
+    invalid_resource_pack_path:
+      title: Texture Not Saved in Resource Pack
+      description: |-
+        Texture "{0}" is not saved inside of a valid resource pack!
+        In order for Utility Engine to use this texture, it must be saved inside of a resource pack.
+        Please save the texture to a valid resource pack before exporting for use in Utility Engine.
+        Texture Save Path: {1}
 
 error:
   utility_model_format:

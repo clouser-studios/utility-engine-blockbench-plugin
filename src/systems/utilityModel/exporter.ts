@@ -17,15 +17,18 @@ function validateTextures() {
 		// Skin textures are always internal
 		if (texture instanceof SkinTexture) continue
 		if (texture.path === undefined || texture.path === '') {
-			throw new ExportError('export.error.texture_not_saved', texture.name)
+			texture.save()
 		}
-		const parsed = parseResourcePackPath(texture.path)
+		const parsed = parseResourcePackPath(texture.path!)
 		if (parsed === undefined) {
-			throw new ExportError(
-				'export.error.invalid_resource_pack_path',
-				texture.name,
-				texture.path
-			)
+			Blockbench.showMessageBox({
+				title: translate('export.error.invalid_resource_pack_path.title'),
+				message: translate(
+					'export.error.invalid_resource_pack_path.description',
+					texture.name,
+					texture.path!
+				),
+			})
 		}
 	}
 }
@@ -174,8 +177,12 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 			continue
 		}
 		// Path and Parsed should always be defined after validating textures.
-		const parsed = parseResourcePackPath(texture.path!)!
-		model.textures[texture.id] = parsed.resourceLocation
+		const parsed = parseResourcePackPath(texture.path!)
+		if (parsed === undefined) {
+			model.textures[texture.id] = texture.name
+		} else {
+			model.textures[texture.id] = parsed.resourceLocation
+		}
 	}
 
 	model.structure = recurseStructure(model, Outliner.root)
