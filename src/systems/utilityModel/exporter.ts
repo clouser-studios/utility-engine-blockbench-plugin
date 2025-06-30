@@ -183,7 +183,7 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 			name: animation.name,
 			animation_length: bedrock.animation_length,
 			loop_mode: animation.loop,
-			loop_delay: animation.loop_delay,
+			loop_delay: !animation.loop_delay ? '0' : animation.loop_delay,
 			bones: bedrock.bones,
 		})
 	}
