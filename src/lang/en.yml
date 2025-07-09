@@ -11,6 +11,7 @@ action:
   export_utility_model_as.label: Export Utility Model As
   import_utility_model.label: Import Utility Model
   delete_animation_folder.label: Delete Animation Folder
+  open_utility_model_settings.label: Project Settings
 
 menu:
   skin_texture:

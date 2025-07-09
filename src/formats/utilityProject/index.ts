@@ -12,6 +12,7 @@ export { UTILITY_MODEL_CODEC } from './codec'
 
 import './export'
 import './import'
+import './settings'
 
 // Hide the default format page title
 const INTERVAL = setInterval(() => {

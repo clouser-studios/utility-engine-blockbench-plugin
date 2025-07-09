@@ -1,3 +1,4 @@
+import { OPEN_UTILITY_MODEL_SETTINGS_ACTION } from '@utility/formats/utilityProject/settings'
 import PACKAGE from '../../package.json'
 import UtilityIcon from '../assets/icons/icon.png'
 import { UTILITY_MODEL_FORMAT } from '../formats/utilityProject'
@@ -33,5 +34,6 @@ MENU.label.innerHTML = 'Utility'
 MENU.label.prepend(createIconImg())
 BLOCKBENCH_MENU_BAR.appendChild(MENU.label)
 
+MenuBar.addAction(OPEN_UTILITY_MODEL_SETTINGS_ACTION, MENU.id)
 MenuBar.addAction(EXPORT_UTILITY_MODEL_ACTION, MENU.id)
 MenuBar.addAction(EXPORT_UTILITY_MODEL_AS_ACTION, MENU.id)
