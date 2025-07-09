@@ -80,14 +80,19 @@ function renderCube(cube: Cube) {
 }
 
 function renderMesh(mesh: Mesh): UtilityModel.IMesh {
-	const saveCopy = mesh.getSaveCopy!(true) as UtilityModel.IMeshSaveCopy
+	const saveCopy = mesh.getSaveCopy!() as UtilityModel.IMeshSaveCopy
 
 	for (const [key, face] of Object.entries(mesh.faces)) {
 		saveCopy.faces[key].vertices = face.getSortedVertices().slice()
 	}
 
 	for (const face of Object.values(saveCopy.faces)) {
-		face.texture = '#' + face.texture
+		console.log('Rendering face:', face)
+		const texture = Texture.all.find(t => t.uuid === face.texture)
+		if (!texture) {
+			throw new ExportError('export.error.texture_not_found', face.texture)
+		}
+		face.texture = '#' + texture.id
 
 		// Re-order vertices to match Minecraft's winding order
 		// if (face.vertices.length === 4) {
