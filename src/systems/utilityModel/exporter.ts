@@ -87,7 +87,6 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 	}
 
 	for (const face of Object.values(saveCopy.faces)) {
-		console.log('Rendering face:', face)
 		const texture = Texture.all.find(t => t.uuid === face.texture)
 		if (!texture) {
 			throw new ExportError('export.error.texture_not_found', face.texture)
