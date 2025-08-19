@@ -239,21 +239,25 @@ export function exportUtilityModel(path?: string) {
 				return
 			} catch {} // Ignore errors and continue with the file picker
 		}
-		Blockbench.export(
-			{
-				resource_id: 'utility_model.export',
-				name: Project!.name + '.utility',
-				type: 'json',
-				extensions: ['json'],
-				startpath: Project!.export_path,
-				content: autoStringify(model),
-			},
-			chosenPath => {
+		Blockbench.export({
+			resource_id: 'utility_model.export',
+			name: Project!.name,
+			type: 'json',
+			extensions: ['utility.json'],
+			startpath: Project!.export_path,
+			content: autoStringify(model),
+			custom_writer: (content, chosenPath) => {
 				console.log('chosenPath:', chosenPath)
+				if (!chosenPath.endsWith('.utility.json')) {
+					chosenPath += '.utility.json'
+				}
+				// Patch stupid bug with Blockbench exporter
+				chosenPath = chosenPath.replace(/\.utility\.json\.utility\.json$/, '.utility.json')
 				Project!.export_path = chosenPath
+				fs.writeFileSync(chosenPath, content.toString())
 				Blockbench.showQuickMessage(translate('message.exported'))
-			}
-		)
+			},
+		})
 	} catch (e: any) {
 		console.error(e)
 		if (e instanceof ExportError) {
