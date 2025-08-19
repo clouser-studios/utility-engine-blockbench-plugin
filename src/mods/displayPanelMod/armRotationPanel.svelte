@@ -1,10 +1,12 @@
 <script lang="ts">
+	import EVENTS from '@utility/util/events'
 	import { Syncable, SyncableArrayVector } from '../../util/stores'
 	import { translate } from '../../util/translation'
 	import DisplaySectionToolbar from './displaySectionToolbar.svelte'
 	import Slider from './slider.svelte'
 
-	const OVERWRITE_ARM_ROTATION = new Syncable(false)
+	const CUSTOM_LEFT_ARM_ROTATION = new Syncable(false)
+	const CUSTOM_RIGHT_ARM_ROTATION = new Syncable(false)
 	const LEFT_ROTATION = new SyncableArrayVector([0, 0, 0])
 	const RIGHT_ROTATION = new SyncableArrayVector([0, 0, 0])
 
@@ -12,6 +14,27 @@
 		return !!(
 			displayReferenceObjects.active?.name === displayReferenceObjects.refmodels.player.name
 		)
+	}
+
+	function switchDisplayMode() {
+		if (!display_mode) return
+		console.log('switchDisplayMode')
+		const leftArmRotation = Project!.display_settings[display_slot].left_arm
+		if (leftArmRotation != undefined) {
+			$CUSTOM_LEFT_ARM_ROTATION = true
+			LEFT_ROTATION.fromGenericArray(leftArmRotation)
+		} else {
+			$CUSTOM_LEFT_ARM_ROTATION = false
+			LEFT_ROTATION.fromGenericArray([0, 0, 0])
+		}
+		const rightArmRotation = Project!.display_settings[display_slot].right_arm
+		if (rightArmRotation != undefined) {
+			$CUSTOM_RIGHT_ARM_ROTATION = true
+			RIGHT_ROTATION.fromGenericArray(rightArmRotation)
+		} else {
+			$CUSTOM_RIGHT_ARM_ROTATION = false
+			RIGHT_ROTATION.fromGenericArray([0, 0, 0])
+		}
 	}
 
 	function updateModel() {
@@ -25,7 +48,7 @@
 		if (!refModel) return
 		display_area.removeFromParent()
 
-		if (!$OVERWRITE_ARM_ROTATION) {
+		if (!$CUSTOM_LEFT_ARM_ROTATION) {
 			refModel.updateBasePosition()
 			scene.add(display_area)
 			return
@@ -86,19 +109,43 @@
 		}
 	}
 
-	OVERWRITE_ARM_ROTATION.subscribe(() => {
+	function updateProject() {
+		if (!display_mode) return
+		// Update the project with the new arm rotation values
+		if ($CUSTOM_LEFT_ARM_ROTATION) {
+			debugger
+			console.log('Custom left arm rotation', LEFT_ROTATION.toArrayVector())
+			Project!.display_settings[display_slot].left_arm = LEFT_ROTATION.toArrayVector()
+		} else {
+			delete Project!.display_settings[display_slot].left_arm
+		}
+
+		if ($CUSTOM_RIGHT_ARM_ROTATION) {
+			console.log('Custom right arm rotation', RIGHT_ROTATION.toArrayVector())
+			Project!.display_settings[display_slot].right_arm = RIGHT_ROTATION.toArrayVector()
+		} else {
+			delete Project!.display_settings[display_slot].right_arm
+		}
+	}
+
+	CUSTOM_LEFT_ARM_ROTATION.subscribe(() => {
+		updateProject()
 		updateModel()
 	})
-
+	CUSTOM_RIGHT_ARM_ROTATION.subscribe(() => {
+		updateProject()
+		updateModel()
+	})
 	LEFT_ROTATION.subscribe(() => {
+		updateProject()
 		updateModel()
 	})
-
 	RIGHT_ROTATION.subscribe(() => {
+		updateProject()
 		updateModel()
 	})
 
-	Blockbench.on<EventName>('select_mode', ({ mode }: { mode: Mode }) => {
+	EVENTS.SELECT_MODE.subscribe(({ mode }: { mode: Mode }) => {
 		if (mode.id === Modes.options.display.id) {
 			requestAnimationFrame(() => {
 				updateModel()
@@ -108,7 +155,10 @@
 
 	addEventListener('input', event => {
 		if (event.target instanceof HTMLInputElement && event.target?.name === 'display') {
-			updateModel()
+			requestAnimationFrame(() => {
+				switchDisplayMode()
+				updateModel()
+			})
 		}
 	})
 
@@ -121,75 +171,91 @@
 	}
 </script>
 
+<DisplaySectionToolbar
+	label={translate('panel.arm_rotation.left_rotation.label')}
+	onReset={resetRightRotation}
+/>
+
 <div class="bar checkbox-bar">
 	<input
 		type="checkbox"
 		class="focusable_input"
-		id="overwrite_arm_rotation"
-		bind:checked={$OVERWRITE_ARM_ROTATION}
+		id="custom_left_arm_rotation"
+		bind:checked={$CUSTOM_LEFT_ARM_ROTATION}
 	/>
-	<label for="overwrite_arm_rotation"
-		>{translate('panel.arm_rotation.overwrite_arm_rotation.label')}</label
+	<label for="custom_left_arm_rotation"
+		>{translate('panel.arm_rotation.custom_left_arm_rotation.label')}</label
 	>
 </div>
 
-<DisplaySectionToolbar
-	label={translate('panel.arm_rotation.right_rotation.label')}
-	onReset={resetRightRotation}
-/>
-<Slider
-	max={180}
-	min={-180}
-	numberSliderStep={0.5}
-	step={1}
-	thumbColor={'var(--color-axis-x)'}
-	value={RIGHT_ROTATION.getXSyncable()}
-/>
-<Slider
-	max={180}
-	min={-180}
-	numberSliderStep={0.5}
-	step={1}
-	thumbColor={'var(--color-axis-y)'}
-	value={RIGHT_ROTATION.getYSyncable()}
-/>
-<Slider
-	max={180}
-	min={-180}
-	numberSliderStep={0.5}
-	step={1}
-	thumbColor={'var(--color-axis-z)'}
-	value={RIGHT_ROTATION.getZSyncable()}
-/>
+{#if $CUSTOM_LEFT_ARM_ROTATION}
+	<Slider
+		max={180}
+		min={-180}
+		numberSliderStep={0.5}
+		step={1}
+		thumbColor={'var(--color-axis-x)'}
+		value={RIGHT_ROTATION.getXSyncable()}
+	/>
+	<Slider
+		max={180}
+		min={-180}
+		numberSliderStep={0.5}
+		step={1}
+		thumbColor={'var(--color-axis-y)'}
+		value={RIGHT_ROTATION.getYSyncable()}
+	/>
+	<Slider
+		max={180}
+		min={-180}
+		numberSliderStep={0.5}
+		step={1}
+		thumbColor={'var(--color-axis-z)'}
+		value={RIGHT_ROTATION.getZSyncable()}
+	/>
+{/if}
 
 <DisplaySectionToolbar
-	label={translate('panel.arm_rotation.left_rotation.label')}
+	label={translate('panel.arm_rotation.right_rotation.label')}
 	onReset={resetLeftRotation}
 />
-<Slider
-	max={180}
-	min={-180}
-	numberSliderStep={0.5}
-	step={1}
-	thumbColor={'var(--color-axis-x)'}
-	value={LEFT_ROTATION.getXSyncable()}
-/>
-<Slider
-	max={180}
-	min={-180}
-	numberSliderStep={0.5}
-	step={1}
-	thumbColor={'var(--color-axis-y)'}
-	value={LEFT_ROTATION.getYSyncable()}
-/>
-<Slider
-	max={180}
-	min={-180}
-	numberSliderStep={0.5}
-	step={1}
-	thumbColor={'var(--color-axis-z)'}
-	value={LEFT_ROTATION.getZSyncable()}
-/>
+<div class="bar checkbox-bar">
+	<input
+		type="checkbox"
+		class="focusable_input"
+		id="custom_right_arm_rotation"
+		bind:checked={$CUSTOM_RIGHT_ARM_ROTATION}
+	/>
+	<label for="custom_right_arm_rotation"
+		>{translate('panel.arm_rotation.custom_right_arm_rotation.label')}</label
+	>
+</div>
+{#if $CUSTOM_RIGHT_ARM_ROTATION}
+	<Slider
+		max={180}
+		min={-180}
+		numberSliderStep={0.5}
+		step={1}
+		thumbColor={'var(--color-axis-x)'}
+		value={LEFT_ROTATION.getXSyncable()}
+	/>
+	<Slider
+		max={180}
+		min={-180}
+		numberSliderStep={0.5}
+		step={1}
+		thumbColor={'var(--color-axis-y)'}
+		value={LEFT_ROTATION.getYSyncable()}
+	/>
+	<Slider
+		max={180}
+		min={-180}
+		numberSliderStep={0.5}
+		step={1}
+		thumbColor={'var(--color-axis-z)'}
+		value={LEFT_ROTATION.getZSyncable()}
+	/>
+{/if}
 
 <style>
 	:global(#panel_display .panel_vue_wrapper #display_sliders :nth-child(n + 13)) {

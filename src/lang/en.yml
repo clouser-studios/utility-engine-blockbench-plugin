@@ -26,11 +26,14 @@ panel:
   arm_rotation:
     title: Arm Rotation
 
-    overwrite_arm_rotation:
-      label: Overwrite Arm Rotation
+    custom_left_arm_rotation:
+      label: Custom Left Arm Rotation
 
     left_rotation:
       label: Left Arm Rotation
+
+    custom_right_arm_rotation:
+      label: Custom Right Arm Rotation
 
     right_rotation:
       label: Right Arm Rotation

@@ -23,6 +23,8 @@ const EVENTS = {
 	UNSELECT_PROJECT: new PluginEvent<ModelProject>('deselectProject'),
 
 	UPDATE_PROJECT_SETTINGS: new PluginEvent<Record<string, any>>('updateProjectSettings'),
+
+	SELECT_MODE: new PluginEvent<{ mode: Mode }>('selectMode'),
 }
 export default EVENTS
 
@@ -51,4 +53,7 @@ Blockbench.on<EventName>('unselect_project', ({ project }: { project: ModelProje
 })
 Blockbench.on<EventName>('update_project_settings', formResult => {
 	EVENTS.UPDATE_PROJECT_SETTINGS.dispatch(formResult)
+})
+Blockbench.on<EventName>('select_mode', ({ mode }: { mode: Mode }) => {
+	EVENTS.SELECT_MODE.dispatch({ mode })
 })

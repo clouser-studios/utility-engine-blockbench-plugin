@@ -58,7 +58,10 @@ export class SyncableArrayVector<
 		this.valueValidator = (value: V) => {
 			if (value.length !== this.length) {
 				throw new Error(
-					'Syncable expected vector of length ' + this.length + ' but got ' + value.length
+					'Syncable expected vector of length ' +
+						this.length +
+						' but got one of length ' +
+						value.length
 				)
 			}
 			return value
@@ -71,7 +74,7 @@ export class SyncableArrayVector<
 		store.subscribe(v => {
 			const vector = this.get()
 			vector[0] = v
-			this.set(vector)
+			this.set(vector.slice() as V)
 		})
 		return store
 	}
@@ -82,7 +85,7 @@ export class SyncableArrayVector<
 		store.subscribe(v => {
 			const vector = this.get()
 			vector[1] = v
-			this.set(vector)
+			this.set(vector.slice() as V)
 		})
 		return store
 	}
@@ -96,7 +99,7 @@ export class SyncableArrayVector<
 		store.subscribe(v => {
 			const vector = this.get()
 			vector[2] = v
-			this.set(vector)
+			this.set(vector.slice() as V)
 		})
 		return store
 	}
@@ -110,7 +113,7 @@ export class SyncableArrayVector<
 		store.subscribe(v => {
 			const vector = this.get()
 			vector[3] = v
-			this.set(vector)
+			this.set(vector.slice() as V)
 		})
 		return store
 	}
@@ -121,7 +124,7 @@ export class SyncableArrayVector<
 	set x(value) {
 		const vector = this.get()
 		vector[0] = value
-		this.set(vector)
+		this.set(vector.slice() as V)
 	}
 
 	get y() {
@@ -130,7 +133,7 @@ export class SyncableArrayVector<
 	set y(value) {
 		const vector = this.get()
 		vector[1] = value
-		this.set(vector)
+		this.set(vector.slice() as V)
 	}
 
 	get z() {
@@ -145,7 +148,7 @@ export class SyncableArrayVector<
 		}
 		const vector = this.get()
 		vector[2] = value
-		this.set(vector)
+		this.set(vector.slice() as V)
 	}
 
 	get w() {
@@ -160,16 +163,20 @@ export class SyncableArrayVector<
 		}
 		const vector = this.get()
 		vector[3] = value
-		this.set(vector)
+		this.set(vector.slice() as V)
 	}
 
-	fromGenericArray(array: number[]) {
-		this.set(array as V)
-		return this
+	toArrayVector() {
+		return this.get().slice() as V
 	}
 
 	toGenericArray() {
-		return this.get() as number[]
+		return this.get().slice()
+	}
+
+	fromGenericArray(array: number[]) {
+		this.set(array.slice() as V)
+		return this
 	}
 
 	fromThreeVector(vector: THREE.Vector2 | THREE.Vector3 | THREE.Vector4) {

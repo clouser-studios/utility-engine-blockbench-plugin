@@ -1,4 +1,5 @@
 import v0_0_5 from './versions/0.0.5'
+import v0_0_6 from './versions/0.0.6'
 
 /**
  * Takes a utility model and returns a new utility model that has been upgraded to the latest version of the utility model format.
@@ -11,8 +12,8 @@ export function updateUtilityProject(model: any): any {
 	switch (true) {
 		case compareVersions('0.0.5', modelVersion):
 			v0_0_5.upgrade(newModel)
-		// case compareVersions('0.0.6', modelVersion):
-		// 	v0_0_6.updateTo(newModel)
+		case compareVersions('0.0.6', modelVersion):
+			v0_0_6.upgrade(newModel)
 	}
 
 	return newModel

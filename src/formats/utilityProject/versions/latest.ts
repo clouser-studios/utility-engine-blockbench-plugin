@@ -1,1 +1,1 @@
-export { default, type v0_0_5 as latest } from './0.0.5'
+export { default, type v0_0_6 as latest } from './0.0.6'
