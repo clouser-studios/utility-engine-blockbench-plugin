@@ -12,7 +12,7 @@ createBlockbenchMod(
 		context.action.click = (event: Event) => {
 			if (!Project || !Format) return
 			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
-				const path = Project.save_path || Project.export_path
+				const path = Project?.save_path
 				if (path) {
 					if (fs.existsSync(PathModule.dirname(path))) {
 						Project.save_path = path

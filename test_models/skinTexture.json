@@ -150,7 +150,7 @@
 						"2Fpl": [17, 18]
 					},
 					"vertices": ["2Fpl", "xMXn", "jqAy", "OIiy"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"Br0LSX2z": {
 					"uv": {
@@ -160,7 +160,7 @@
 						"veBO": [16, 0]
 					},
 					"vertices": ["veBO", "xMXn", "2Fpl", "4KmA"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"ElXT0JmV": {
 					"uv": {
@@ -170,7 +170,7 @@
 						"jqAy": [17, 8]
 					},
 					"vertices": ["jqAy", "xMXn", "veBO", "pT93"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"TPd7p2qc": {
 					"uv": {
@@ -180,7 +180,7 @@
 						"4KmA": [17, 9]
 					},
 					"vertices": ["4KmA", "2Fpl", "OIiy", "BM1x"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"d0gwCVc4": {
 					"uv": {
@@ -190,7 +190,7 @@
 						"pT93": [17, 35]
 					},
 					"vertices": ["pT93", "veBO", "4KmA", "BM1x"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"qjTgUYY2": {
 					"uv": {
@@ -200,7 +200,7 @@
 						"OIiy": [0, 17]
 					},
 					"vertices": ["OIiy", "jqAy", "pT93", "BM1x"],
-					"texture": "#0"
+					"texture": "#1"
 				}
 			}
 		},
@@ -230,7 +230,7 @@
 						"xMXn": [33, 18]
 					},
 					"vertices": ["jqAy", "xMXn", "2Fpl", "OIiy"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"Br0LSX2z": {
 					"uv": {
@@ -240,7 +240,7 @@
 						"xMXn": [16, 16]
 					},
 					"vertices": ["2Fpl", "xMXn", "veBO", "4KmA"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"ElXT0JmV": {
 					"uv": {
@@ -250,7 +250,7 @@
 						"xMXn": [17, 0]
 					},
 					"vertices": ["veBO", "xMXn", "jqAy", "pT93"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"TPd7p2qc": {
 					"uv": {
@@ -260,7 +260,7 @@
 						"2Fpl": [33, 9]
 					},
 					"vertices": ["OIiy", "2Fpl", "4KmA", "BM1x"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"d0gwCVc4": {
 					"uv": {
@@ -270,7 +270,7 @@
 						"veBO": [17, 27]
 					},
 					"vertices": ["4KmA", "veBO", "pT93", "BM1x"],
-					"texture": "#0"
+					"texture": "#1"
 				},
 				"qjTgUYY2": {
 					"uv": {
@@ -280,7 +280,7 @@
 						"jqAy": [16, 17]
 					},
 					"vertices": ["pT93", "jqAy", "OIiy", "BM1x"],
-					"texture": "#0"
+					"texture": "#1"
 				}
 			}
 		}
