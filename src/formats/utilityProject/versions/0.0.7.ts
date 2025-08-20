@@ -1,6 +1,8 @@
+import type { UtilityModelAnimationOptions } from '@utility/mods/utilityModelAnimationMod'
 import type { ISkinTextureData } from '../../../textures/skinTexture'
+import type { v0_0_5 } from './0.0.5'
 
-export namespace v0_0_6 {
+export namespace v0_0_7 {
 	export interface IUtilityProjectSettings {
 		model_identifier: string
 	}
@@ -18,11 +20,11 @@ export namespace v0_0_6 {
 	export interface IUtilityProjectJSON {
 		meta: {
 			format: `utility-engine:utility_model`
-			format_version: '0.0.6'
+			format_version: '0.0.7'
 			uuid: string
 			box_uv?: boolean
 			backup?: boolean
-			save_location?: string
+			project_save_path?: string
 			export_path?: string
 		}
 		options: IUtilityProjectSettings
@@ -35,24 +37,25 @@ export namespace v0_0_6 {
 		elements: any[]
 		outliner: any[]
 		textures: Array<TextureData | ISkinTextureData>
-		animations: AnimationOptions[]
+		animations: UtilityModelAnimationOptions[]
 		animation_controllers?: AnimationControllerOptions[]
 		animation_variable_placeholders: string
 		backgrounds?: Record<string, any>
 		collections?: CollectionOptions[]
 		texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
-		display_settings?: Record<DisplaySlotNames, IDisplaySetting>
+		display_settings?: Record<DisplaySlotName, IDisplaySetting>
 	}
 }
 
 export default {
-	upgrade(model: any): v0_0_6.IUtilityProjectJSON {
-		console.groupCollapsed('Updating utility model to 0.0.6')
+	upgrade(model: v0_0_5.IUtilityProjectJSON): v0_0_7.IUtilityProjectJSON {
+		console.groupCollapsed('Updating utility model to 0.0.7')
+		const fixed = JSON.parse(JSON.stringify(model)) as v0_0_7.IUtilityProjectJSON
 
-		// Nothing to do here.
-		model.meta.format_version = '0.0.6'
+		fixed.meta.project_save_path = model.meta.save_location
 
+		fixed.meta.format_version = '0.0.7'
 		console.groupEnd()
-		return model as v0_0_6.IUtilityProjectJSON
+		return fixed
 	},
 }

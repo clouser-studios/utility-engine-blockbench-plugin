@@ -5,7 +5,7 @@ import { SkinTexture } from '../../textures/skinTexture'
 import { resetAllConsoleGroups } from '../../util/misc'
 import { translate } from '../../util/translation'
 import { updateUtilityProject } from './dfu'
-import { type v0_0_5 as UtilityProject } from './versions/0.0.5'
+import { type latest as UtilityProject } from './versions/latest'
 
 declare global {
 	interface ModelProject {
@@ -226,10 +226,10 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 		const model = {
 			meta: {
-				format: UTILITY_MODEL_FORMAT.id as any,
-				format_version: PACKAGE.version as any,
+				format: UTILITY_MODEL_FORMAT.id,
+				format_version: PACKAGE.version,
 				uuid: Project.uuid,
-				save_location: Project.save_path,
+				project_save_path: Project.save_path,
 				export_path: Project!.export_path,
 			},
 			options: Project.utility_model,

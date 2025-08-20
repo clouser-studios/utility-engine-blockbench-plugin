@@ -38,12 +38,13 @@ export namespace v0_0_5 {
 export default {
 	upgrade(model: any): v0_0_5.IUtilityProjectJSON {
 		console.groupCollapsed('Updating utility model to 0.0.5')
+		const fixed = JSON.parse(JSON.stringify(model)) as v0_0_5.IUtilityProjectJSON
 
 		// As this is the first version the DFU knows of, there is nothing to upgrade.
 		// However, we should make sure the format version is correct.
-		model.meta.format_version = '0.0.5'
+		fixed.meta.format_version = '0.0.5'
 
 		console.groupEnd()
-		return model as v0_0_5.IUtilityProjectJSON
+		return fixed
 	},
 }

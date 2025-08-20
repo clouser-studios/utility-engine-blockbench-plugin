@@ -1,10 +1,10 @@
 {
 	"meta": {
 		"format": "utility-engine:utility_model",
-		"format_version": "0.0.6.4",
+		"format_version": "0.0.7",
 		"uuid": "929a162f-73ab-2f10-ea44-49c3d9564b2a",
-		"save_location": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utilityproject",
-		"export_path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.json"
+		"project_save_path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utilityproject",
+		"export_path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test_models\\skinTexture.utility.json"
 	},
 	"resolution": {
 		"width": 64,
@@ -206,8 +206,8 @@
 					"uv": {
 						"OIiy": [17, 26],
 						"jqAy": [33, 26],
-						"xMXn": [33, 18],
-						"2Fpl": [17, 18]
+						"2Fpl": [17, 18],
+						"xMXn": [33, 18]
 					},
 					"vertices": ["xMXn", "2Fpl", "jqAy", "OIiy"],
 					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
@@ -216,8 +216,8 @@
 					"uv": {
 						"4KmA": [0, 0],
 						"2Fpl": [0, 16],
-						"xMXn": [16, 16],
-						"veBO": [16, 0]
+						"veBO": [16, 0],
+						"xMXn": [16, 16]
 					},
 					"vertices": ["xMXn", "veBO", "2Fpl", "4KmA"],
 					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
@@ -226,8 +226,8 @@
 					"uv": {
 						"pT93": [33, 8],
 						"veBO": [33, 0],
-						"xMXn": [17, 0],
-						"jqAy": [17, 8]
+						"jqAy": [17, 8],
+						"xMXn": [17, 0]
 					},
 					"vertices": ["xMXn", "jqAy", "veBO", "pT93"],
 					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
@@ -236,8 +236,8 @@
 					"uv": {
 						"BM1x": [17, 17],
 						"OIiy": [33, 17],
-						"2Fpl": [33, 9],
-						"4KmA": [17, 9]
+						"4KmA": [17, 9],
+						"2Fpl": [33, 9]
 					},
 					"vertices": ["2Fpl", "4KmA", "OIiy", "BM1x"],
 					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
@@ -246,8 +246,8 @@
 					"uv": {
 						"BM1x": [33, 35],
 						"4KmA": [33, 27],
-						"veBO": [17, 27],
-						"pT93": [17, 35]
+						"pT93": [17, 35],
+						"veBO": [17, 27]
 					},
 					"vertices": ["veBO", "pT93", "4KmA", "BM1x"],
 					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
@@ -256,8 +256,8 @@
 					"uv": {
 						"BM1x": [0, 33],
 						"pT93": [16, 33],
-						"jqAy": [16, 17],
-						"OIiy": [0, 17]
+						"OIiy": [0, 17],
+						"jqAy": [16, 17]
 					},
 					"vertices": ["jqAy", "OIiy", "pT93", "BM1x"],
 					"texture": "36c832fe-aee8-a1b7-72d5-b465f7e38c22"
@@ -376,7 +376,7 @@
 	"animations": [
 		{
 			"uuid": "1692c60a-94ca-54e4-6b82-a3ddca57619c",
-			"name": "utility.main_loop",
+			"name": "main_loop",
 			"loop": "loop",
 			"override": false,
 			"length": 0.5,
@@ -539,6 +539,21 @@
 					]
 				}
 			}
+		},
+		{
+			"uuid": "a3c191cd-3595-6fe9-7e89-e7758cfe8751",
+			"name": "test",
+			"loop": "once",
+			"override": false,
+			"length": 0,
+			"snapping": 24,
+			"selected": false,
+			"saved": true,
+			"path": "custom",
+			"anim_time_update": "",
+			"blend_weight": "",
+			"start_delay": "",
+			"loop_delay": "0"
 		}
 	],
 	"animation_controllers": [],
