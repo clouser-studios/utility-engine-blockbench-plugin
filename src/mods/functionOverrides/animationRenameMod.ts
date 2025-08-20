@@ -14,14 +14,15 @@ createBlockbenchMod(
 	},
 	context => {
 		context.newCondition = () => {
-			if (!UTILITY_MODEL_FORMAT.isCurrentFormat())
-				return context.originalCondition?.() ?? true
+			if (!UTILITY_MODEL_FORMAT.isCurrentFormat()) {
+				return Condition(context.originalCondition)
+			}
 			// @ts-expect-error
-			if (Prop.active_panel == 'animations' && AnimationItem.selected) {
-				if (AnimationItem.selected.name === 'utility.custom') {
+			if (Prop.active_panel === 'animations' && AnimationItem.selected) {
+				if (AnimationItem.selected.utility_model_animation_type === 'custom') {
 					return true
 				} else {
-					Blockbench.showQuickMessage('Only "custom" animations can be renamed')
+					Blockbench.showQuickMessage('Only animations of type "custom" can be renamed')
 				}
 			}
 			return false

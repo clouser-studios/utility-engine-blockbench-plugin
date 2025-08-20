@@ -13,7 +13,10 @@ createBlockbenchMod(
 			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
 				return false
 			}
-			return originalCondition.call(this)
+			if (typeof originalCondition === 'function') {
+				return originalCondition.apply(this, arguments as any)
+			}
+			return Condition(originalCondition)
 		}
 		return { ...context, originalCondition }
 	},

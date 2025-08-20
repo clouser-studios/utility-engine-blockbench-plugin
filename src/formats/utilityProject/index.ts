@@ -35,6 +35,7 @@ injectSvelteCompomponentMod({
 
 export function saveUtilityModelProject() {
 	if (!Project || UTILITY_MODEL_FORMAT.isCurrentFormat()) return
+	Animator.exportAnimationFile('')
 	UTILITY_MODEL_CODEC.write(UTILITY_MODEL_CODEC.compile(), Project.save_path)
 }
 
