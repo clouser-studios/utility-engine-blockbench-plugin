@@ -244,7 +244,7 @@ export function exportUtilityModel(path?: string) {
 			name: Project!.name,
 			type: 'json',
 			extensions: ['utility.json'],
-			startpath: Project!.export_path,
+			startpath: Project!.export_path.replace(/\.utility\.json$/, ''),
 			content: autoStringify(model),
 			custom_writer: (content, chosenPath) => {
 				console.log('chosenPath:', chosenPath)

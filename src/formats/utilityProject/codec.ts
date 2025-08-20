@@ -384,6 +384,21 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 		})
 	},
 
+	afterSave(path) {
+		const name = pathToName(path, true)
+		Settings.updateSettingsInProfiles()
+		if (this.remember) {
+			addRecentProject({
+				name,
+				path: path,
+				icon: UTILITY_MODEL_FORMAT.icon,
+			})
+			updateRecentProjectThumbnail()
+		}
+		Project!.saved = true
+		Blockbench.showQuickMessage(tl('message.save_file', [name]))
+	},
+
 	// ANCHOR - Codec:fileName
 	fileName() {
 		if (!Project?.name) return 'unnamed_project.utilityproject'
