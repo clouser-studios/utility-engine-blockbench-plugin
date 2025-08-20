@@ -144,9 +144,6 @@ const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility_engine_use_default_back
 		}
 		Canvas.updateAll()
 	},
-	click: () => {
-		//
-	},
 	condition: () => {
 		return UTILITY_MODEL_FORMAT.isCurrentFormat()
 	},
@@ -167,9 +164,6 @@ const BACKFACE_CULLING_TOGGLE = new Toggle('utility_engine_backface_culling_togg
 			}
 		}
 		Canvas.updateAll()
-	},
-	click: () => {
-		//
 	},
 	condition: () => {
 		return UTILITY_MODEL_FORMAT.isCurrentFormat()

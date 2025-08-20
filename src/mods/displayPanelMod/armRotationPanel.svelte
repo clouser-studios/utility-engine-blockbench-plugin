@@ -12,7 +12,8 @@
 
 	function isPlayerRef() {
 		return !!(
-			displayReferenceObjects.active?.name === displayReferenceObjects.refmodels.player.name
+			typeof displayReferenceObjects.active !== 'string' && // refModel isn't globally available, so we have to check for a string instead
+			displayReferenceObjects.active.name === displayReferenceObjects.refmodels.player.name
 		)
 	}
 

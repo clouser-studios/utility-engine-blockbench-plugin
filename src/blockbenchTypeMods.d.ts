@@ -25,7 +25,7 @@ declare global {
 
 	interface ModelProject {
 		default_backface_culling_mode?: 'no_culling' | 'cull_backfaces'
-		display_settings: Record<DisplaySlotNames, latest.IDisplaySetting>
+		display_settings: Record<DisplaySlotName, latest.IDisplaySetting>
 	}
 
 	interface Cube {
