@@ -3,8 +3,8 @@
 import svelteEslint from 'eslint-plugin-svelte'
 import svelteParser from 'svelte-eslint-parser'
 import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
+import type { NamingConventionRule } from './.scripts/tslintNamingConventionRule'
 import svelteConfig from './svelte.config'
-import type { NamingConventionRule } from './tools/tslintNamingConventionRule'
 
 console.log(`[${new Date().toLocaleTimeString()}] Loading ESLint config`)
 

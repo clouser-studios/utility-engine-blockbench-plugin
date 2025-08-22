@@ -1,5 +1,5 @@
-import { PACKAGE } from '../package'
-import { createBlockbenchMod } from '../util/moddingTools'
+import { createBlockbenchMod } from '@blockbench-tools'
+import { PACKAGE } from '@package'
 import { translate } from '../util/translation'
 
 // Modifies the format category sorting order to insert Utility directly below General

@@ -1,5 +1,5 @@
+import { PACKAGE } from '@package'
 import type { ComponentConstructorOptions, SvelteComponentDev } from 'svelte/internal'
-import PACKAGE from '../../package.json'
 import type { SvelteComponentConstructor } from './misc'
 import { createBlockbenchMod } from './moddingTools'
 import { pollPromise } from './promises'

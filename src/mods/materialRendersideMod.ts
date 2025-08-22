@@ -1,7 +1,16 @@
-import { UTILITY_MODEL_FORMAT } from '@utility/formats/utilityProject'
+import { createBlockbenchMod, createPropertySubscribable } from '@blockbench-tools'
+import { PACKAGE } from '@package'
+import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
 import { translate } from '@utility/util/translation'
-import { PACKAGE } from '../package'
-import { createBlockbenchMod, createPropertySubscribable } from '../util/moddingTools'
+
+declare global {
+	interface Cube {
+		enableBackfaceCulling?: boolean
+	}
+	interface Mesh {
+		enableBackfaceCulling?: boolean
+	}
+}
 
 createBlockbenchMod(
 	`${PACKAGE.name}:cube_material_renderside`,

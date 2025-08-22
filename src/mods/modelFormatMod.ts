@@ -1,5 +1,5 @@
-import { PACKAGE } from '../package'
-import { createBlockbenchMod } from '../util/moddingTools'
+import { createBlockbenchMod } from '@blockbench-tools'
+import { PACKAGE } from '@package'
 
 declare global {
 	interface ModelFormat {

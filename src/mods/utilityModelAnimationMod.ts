@@ -1,4 +1,4 @@
-import { UTILITY_MODEL_FORMAT } from '@utility/formats/utilityProject'
+import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
 import { translate } from '@utility/util/translation'
 
 export const ANIMATION_TYPES = {

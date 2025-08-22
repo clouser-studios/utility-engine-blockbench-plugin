@@ -1,12 +1,12 @@
-import { OPEN_UTILITY_MODEL_SETTINGS_ACTION } from '@utility/formats/utilityProject/settings'
-import PACKAGE from '../../package.json'
-import UtilityIcon from '../assets/icons/icon.png'
-import { UTILITY_MODEL_FORMAT } from '../formats/utilityProject'
+import UtilityIcon from '@assets/icons/icon.png'
+import { createBarMenu, type NamespacedString } from '@blockbench-tools'
+import { PACKAGE } from '@package'
+import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
 import {
 	EXPORT_UTILITY_MODEL_ACTION,
 	EXPORT_UTILITY_MODEL_AS_ACTION,
-} from '../formats/utilityProject/export'
-import { createBarMenu, type NamespacedString } from '../util/moddingTools'
+} from '@utility/formats/utility-model-project/export'
+import { OPEN_UTILITY_MODEL_SETTINGS_ACTION } from '@utility/formats/utility-model-project/settings'
 
 function createIconImg() {
 	const img = document.createElement('img')

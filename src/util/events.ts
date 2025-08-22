@@ -1,4 +1,4 @@
-import { PACKAGE } from '../package'
+import { PACKAGE } from '@package'
 import { Subscribable } from './subscribable'
 
 export class PluginEvent<EventData = void> extends Subscribable<EventData> {

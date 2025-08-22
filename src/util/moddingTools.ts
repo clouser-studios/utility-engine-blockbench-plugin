@@ -1,4 +1,4 @@
-import EVENTS from './events'
+import EVENTS from '@events'
 import { resetAllConsoleGroups } from './misc'
 import { Subscribable } from './subscribable'
 

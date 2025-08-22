@@ -1,5 +1,5 @@
 {
-	"include": ["./src/**/*", "./tools/esbuild.ts", "./eslint.config.ts"],
+	"include": ["src/**/*", ".scripts/esbuild.ts", "eslint.config.ts"],
 	"exclude": ["**/node_modules/**"],
 	"compilerOptions": {
 		"outDir": "./dist/",
@@ -18,10 +18,13 @@
 		"verbatimModuleSyntax": true,
 		"isolatedModules": true,
 		"alwaysStrict": true,
+		"baseUrl": ".",
 		"paths": {
+			"@package": ["./src/package"],
 			"@utility/*": ["./src/*"],
-			"@utilityProject/*": ["./src/formats/utilityProject/*"],
-			"@utilityModel/*": ["./src/systems/utilityModel/*"]
+			"@assets/*": ["./src/assets/*"],
+			"@events": ["./src/util/events"],
+			"@blockbench-tools": ["./src/util/moddingTools"]
 		}
 	}
 }

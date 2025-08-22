@@ -1,5 +1,5 @@
+import { PACKAGE } from '@package'
 import type { ComponentConstructorOptions, SvelteComponent } from 'svelte'
-import { PACKAGE } from '../package'
 import { pollPromise } from '../util/promises'
 import type { SvelteComponentConstructor } from './misc'
 
