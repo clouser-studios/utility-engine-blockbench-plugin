@@ -141,15 +141,6 @@ const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility_engine_use_default_back
 			for (const mesh of Mesh.selected) {
 				mesh.enableBackfaceCulling = undefined
 			}
-		} else {
-			for (const cube of Cube.selected) {
-				cube.enableBackfaceCulling =
-					Project!.default_backface_culling_mode === 'cull_backfaces' ? true : false
-			}
-			for (const mesh of Mesh.selected) {
-				mesh.enableBackfaceCulling =
-					Project!.default_backface_culling_mode === 'cull_backfaces' ? true : false
-			}
 		}
 		Canvas.updateAll()
 	},
