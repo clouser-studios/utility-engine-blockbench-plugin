@@ -102,7 +102,7 @@ const plugin: Plugin = {
 			return {
 				namespace: 'import-folder',
 				path: fullPath,
-				pluginData: { recursive: args.path.endsWith('//') },
+				pluginData: { recursive: args.path.endsWith('//'), importer: args.importer },
 			}
 		})
 
@@ -124,10 +124,7 @@ const plugin: Plugin = {
 				.join('\n')
 
 			console.log(
-				'📃 Created virtual index for ./' +
-					normalizePathToPosix(pathjs.relative(process.cwd(), args.path)) +
-					':\n   ' +
-					contents.split('\n').join('\n   ')
+				`📃 ${normalizePathToPosix(pathjs.relative(process.cwd(), args.pluginData.importer))} imports folder ./${normalizePathToPosix(pathjs.relative(process.cwd(), args.path))} ${args.pluginData.recursive ? 'recursively' : ''}.`
 			)
 
 			return {
