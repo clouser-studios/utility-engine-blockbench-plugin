@@ -1,6 +1,6 @@
 import { createBlockbenchMod } from '@blockbench-tools'
 import { PACKAGE } from '@package'
-import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 
 createBlockbenchMod(
 	`${PACKAGE.name}:saveAllAnimationsActionMod`,
@@ -10,7 +10,7 @@ createBlockbenchMod(
 	context => {
 		const originalCondition = context.action.condition!
 		context.action.condition = function (this: Action) {
-			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
+			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				return false
 			}
 			if (typeof originalCondition === 'function') {

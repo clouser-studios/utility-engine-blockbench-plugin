@@ -1,6 +1,6 @@
 import { createBlockbenchMod } from '@blockbench-tools'
 import { PACKAGE } from '@package'
-import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 
 createBlockbenchMod(
 	`${PACKAGE.name}:animationFileOverrides`,
@@ -9,7 +9,7 @@ createBlockbenchMod(
 	},
 	context => {
 		Animator.exportAnimationFile = function (path: string) {
-			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
+			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				for (const anim of Blockbench.Animation.all) {
 					anim.saved = true
 				}

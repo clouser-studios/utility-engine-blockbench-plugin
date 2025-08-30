@@ -5,13 +5,11 @@ import {
 	injectSvelteCompomponentMod,
 } from '@utility/util/injectSvelteComponent'
 import { translate } from '@utility/util/translation'
-import { UTILITY_MODEL_CODEC } from './codec'
+import { UTILITY_MODEL_PROJECT_CODEC } from './codec'
 import FormatPage from './svelte/formatPage.svelte'
 import Icon from './svelte/icon.svelte'
-export { UTILITY_MODEL_CODEC } from './codec'
+export { UTILITY_MODEL_PROJECT_CODEC as UTILITY_MODEL_CODEC } from './codec'
 
-import './export'
-import './import'
 import './settings'
 
 // Hide the default format page title
@@ -34,13 +32,13 @@ injectSvelteCompomponentMod({
 })
 
 export function saveUtilityModelProject() {
-	if (!Project || UTILITY_MODEL_FORMAT.isCurrentFormat()) return
+	if (!Project || UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) return
 	Animator.exportAnimationFile('')
-	UTILITY_MODEL_CODEC.write(UTILITY_MODEL_CODEC.compile(), Project.save_path)
+	UTILITY_MODEL_PROJECT_CODEC.write(UTILITY_MODEL_PROJECT_CODEC.compile(), Project.save_path)
 }
 
 // region > Format
-export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
+export const UTILITY_MODEL_PROJECT_FORMAT = new Blockbench.ModelFormat({
 	id: `${PACKAGE.name}:utility_model`,
 	name: translate('model_format.utility_model.name'),
 	icon: 'fa-gear',
@@ -106,8 +104,8 @@ export const UTILITY_MODEL_FORMAT = new Blockbench.ModelFormat({
 	vertex_color_ambient_occlusion: true,
 })
 
-UTILITY_MODEL_FORMAT.codec = UTILITY_MODEL_CODEC
-UTILITY_MODEL_CODEC.format = UTILITY_MODEL_FORMAT
+UTILITY_MODEL_PROJECT_FORMAT.codec = UTILITY_MODEL_PROJECT_CODEC
+UTILITY_MODEL_PROJECT_CODEC.format = UTILITY_MODEL_PROJECT_FORMAT
 
 createBlockbenchMod(
 	`${PACKAGE.name}:utility_model_model_format_properties`,
@@ -119,7 +117,7 @@ createBlockbenchMod(
 		context.modelIdentifierProperty = new Property(ModelProject, 'string', 'model_identifier', {
 			label: translate('model_format.utility_model.project_settings.model_identifier'),
 			condition: {
-				formats: [UTILITY_MODEL_FORMAT.id],
+				formats: [UTILITY_MODEL_PROJECT_FORMAT.id],
 			},
 		})
 		context.defaultBackfaceCullingModeProperty = new Property(
@@ -131,7 +129,7 @@ createBlockbenchMod(
 					'model_format.utility_model.project_settings.default_backface_culling_mode.title'
 				),
 				condition: {
-					formats: [UTILITY_MODEL_FORMAT.id],
+					formats: [UTILITY_MODEL_PROJECT_FORMAT.id],
 				},
 				options: {
 					no_culling: translate(

@@ -1,6 +1,9 @@
 import { createBlockbenchMod } from '@blockbench-tools'
 import { PACKAGE } from '@package'
-import { UTILITY_MODEL_CODEC, UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
+import {
+	UTILITY_MODEL_CODEC,
+	UTILITY_MODEL_PROJECT_FORMAT,
+} from '@utility/formats/utility-model-project'
 
 createBlockbenchMod(
 	`${PACKAGE.name}:exportOverAction`,
@@ -11,7 +14,7 @@ createBlockbenchMod(
 	context => {
 		context.action.click = (event: Event) => {
 			if (!Project || !Format) return
-			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
+			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				const path = Project?.save_path
 				if (path) {
 					if (fs.existsSync(PathModule.dirname(path))) {

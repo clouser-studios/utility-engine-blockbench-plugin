@@ -1,7 +1,7 @@
 import { createBlockbenchMod } from '@blockbench-tools'
 import { PACKAGE } from '@package'
 import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties'
-import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 
 createBlockbenchMod(
 	`${PACKAGE.name}:animationPropertiesAction`,
@@ -10,7 +10,7 @@ createBlockbenchMod(
 	},
 	context => {
 		Blockbench.Animation.prototype.propertiesDialog = function (this: _Animation) {
-			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
+			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				if (!Blockbench.Animation.selected) {
 					Blockbench.showQuickMessage('No animation selected')
 					return

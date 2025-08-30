@@ -7,6 +7,7 @@ export namespace v0_0_1 {
 
 	export interface IMeshSaveCopy {
 		name: string
+		uuid: string
 		rotation: ArrayVector3
 		origin: ArrayVector3
 		vertices: Record<string, ArrayVector3>

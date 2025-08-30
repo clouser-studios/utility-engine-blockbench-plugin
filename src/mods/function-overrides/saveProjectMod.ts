@@ -2,7 +2,7 @@ import { createBlockbenchMod } from '@blockbench-tools'
 import { PACKAGE } from '@package'
 import {
 	saveUtilityModelProject,
-	UTILITY_MODEL_FORMAT,
+	UTILITY_MODEL_PROJECT_FORMAT,
 } from '@utility/formats/utility-model-project'
 
 createBlockbenchMod(
@@ -14,7 +14,7 @@ createBlockbenchMod(
 	context => {
 		context.action.click = (event: Event) => {
 			if (!Project || !Format) return
-			if (UTILITY_MODEL_FORMAT.isCurrentFormat()) {
+			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				saveUtilityModelProject()
 			} else {
 				context.originalClick.call(context.action, event)

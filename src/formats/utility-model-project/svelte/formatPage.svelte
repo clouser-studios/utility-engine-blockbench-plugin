@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Icon from '@utility/assets/icons/icon.png'
 	import { translate } from '@utility/util/translation'
-	import { UTILITY_MODEL_FORMAT } from '..'
+	import { UTILITY_MODEL_PROJECT_FORMAT } from '..'
 
 	function createModel() {
-		newProject(UTILITY_MODEL_FORMAT)
+		newProject(UTILITY_MODEL_PROJECT_FORMAT)
 		requestAnimationFrame(() => {
 			Project!.openSettings()
 		})

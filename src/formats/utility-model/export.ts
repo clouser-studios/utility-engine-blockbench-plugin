@@ -1,5 +1,9 @@
+import Icon from '@assets/icons/nobackground.png'
+import { createAction } from '@blockbench-tools'
+import { PACKAGE } from '@package'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
-import { parseResourcePackPath } from '@utility/util/minecraftUtil'
+import { parsePackPath } from '@utility/util/minecraftUtil'
 import { translate } from '@utility/util/translation'
 import { type v0_0_1 as UtilityModel } from './versions/0.0.1'
 
@@ -19,7 +23,7 @@ function validateTextures() {
 		if (texture.path === undefined || texture.path === '') {
 			texture.save()
 		}
-		const parsed = parseResourcePackPath(texture.path!)
+		const parsed = parsePackPath('assets', texture.path!, true)
 		if (parsed === undefined) {
 			Blockbench.showMessageBox({
 				title: translate('export.error.invalid_resource_pack_path.title'),
@@ -92,13 +96,6 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 			throw new ExportError('export.error.texture_not_found', face.texture)
 		}
 		face.texture = '#' + texture.id
-
-		// Re-order vertices to match Minecraft's winding order
-		// if (face.vertices.length === 4) {
-		// 	const vertex3 = face.vertices[2]
-		// 	face.vertices[2] = face.vertices[3]
-		// 	face.vertices[3] = vertex3
-		// }
 	}
 
 	return {
@@ -172,7 +169,7 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 	const particleTexture = Texture.all.find(v => v.particle)
 	if (particleTexture) {
 		// Path and Parsed should always be defined after validating textures.
-		const parsed = parseResourcePackPath(particleTexture.path!)!
+		const parsed = parsePackPath('assets', particleTexture.path!, true)!
 		model.textures.particle = parsed.resourceLocation
 	}
 	for (const texture of Texture.all) {
@@ -181,7 +178,7 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 			continue
 		}
 		// Path and Parsed should always be defined after validating textures.
-		const parsed = parseResourcePackPath(texture.path!)
+		const parsed = parsePackPath('assets', texture.path!, true)
 		if (parsed === undefined) {
 			model.textures[texture.id] = texture.name
 		} else {
@@ -275,3 +272,28 @@ export function exportUtilityModel(path?: string) {
 		}
 	}
 }
+
+export const EXPORT_UTILITY_MODEL_AS_ACTION = createAction(`${PACKAGE.name}:exportUtilityModel`, {
+	name: translate('action.export_utility_model_as.label'),
+	icon: Icon,
+	condition() {
+		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
+	},
+	click() {
+		exportUtilityModel()
+	},
+})
+
+export const EXPORT_UTILITY_MODEL_ACTION = createAction(`${PACKAGE.name}:exportUtilityModel`, {
+	name: translate('action.export_utility_model.label'),
+	icon: Icon,
+	condition() {
+		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
+	},
+	click() {
+		exportUtilityModel(Project!.export_path)
+	},
+})
+
+MenuBar.addAction(EXPORT_UTILITY_MODEL_ACTION, 'file.export.0')
+MenuBar.addAction(EXPORT_UTILITY_MODEL_AS_ACTION, 'file.export.1')

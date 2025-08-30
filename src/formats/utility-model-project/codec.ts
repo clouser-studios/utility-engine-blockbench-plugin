@@ -3,7 +3,7 @@ import { PACKAGE } from '@package'
 import { SkinTexture } from '@utility/textures/skin-texture'
 import { resetAllConsoleGroups } from '@utility/util/misc'
 import { translate } from '@utility/util/translation'
-import { UTILITY_MODEL_FORMAT } from '.'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '.'
 import { updateUtilityProject } from './dfu'
 import { type latest as UtilityProject } from './versions/latest'
 
@@ -17,7 +17,7 @@ export function addProjectToRecentProjects(file: FileResult) {
 		addRecentProject({
 			name,
 			path: file.path,
-			icon: UTILITY_MODEL_FORMAT.icon,
+			icon: UTILITY_MODEL_PROJECT_FORMAT.icon,
 		})
 		setTimeout(() => {
 			if (Project === project) void updateRecentProjectThumbnail()
@@ -25,7 +25,7 @@ export function addProjectToRecentProjects(file: FileResult) {
 	}
 }
 
-export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility_model`, {
+export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility_model`, {
 	name: 'Utility Model',
 	extension: 'utilityproject',
 	remember: true,
@@ -50,12 +50,12 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 				),
 			})
 		}
-		setupProject(UTILITY_MODEL_FORMAT, model.meta.uuid)
+		setupProject(UTILITY_MODEL_PROJECT_FORMAT, model.meta.uuid)
 		if (!Project) {
 			throw new Error('Failed to load Utility Model')
 		}
 		addProjectToRecentProjects(file)
-		UTILITY_MODEL_CODEC.parse!(model, file.path)
+		UTILITY_MODEL_PROJECT_CODEC.parse!(model, file.path)
 		console.log(
 			`Successfully loaded Utility Model\n\tProject: ${Project.name}\n\t${Project.uuid}`
 		)
@@ -209,7 +209,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 		Canvas.updateAll()
 		Validator.validate()
-		UTILITY_MODEL_CODEC.dispatchEvent('parsed', { model })
+		UTILITY_MODEL_PROJECT_CODEC.dispatchEvent('parsed', { model })
 	},
 
 	// region > compile
@@ -220,7 +220,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 
 		const model = {
 			meta: {
-				format: UTILITY_MODEL_FORMAT.id,
+				format: UTILITY_MODEL_PROJECT_FORMAT.id,
 				format_version: PACKAGE.version,
 				uuid: Project.uuid,
 				project_save_path: Project.save_path,
@@ -353,13 +353,13 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 			name: (Project.name || 'unnamed') + '.utilityproject',
 			startpath: Project.save_path,
 			type: 'json',
-			extensions: [UTILITY_MODEL_CODEC.extension],
-			content: UTILITY_MODEL_CODEC.compile(),
+			extensions: [UTILITY_MODEL_PROJECT_CODEC.extension],
+			content: UTILITY_MODEL_PROJECT_CODEC.compile(),
 			// eslint-disable-next-line @typescript-eslint/naming-convention
 			custom_writer: (content, path) => {
 				if (fs.existsSync(PathModule.dirname(path))) {
 					Project!.save_path = path
-					UTILITY_MODEL_CODEC.write(content, path)
+					UTILITY_MODEL_PROJECT_CODEC.write(content, path)
 				} else {
 					console.error(
 						`Failed to export Utility Model, file location '${path}' does not exist!`
@@ -385,7 +385,7 @@ export const UTILITY_MODEL_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility
 			addRecentProject({
 				name,
 				path: path,
-				icon: UTILITY_MODEL_FORMAT.icon,
+				icon: UTILITY_MODEL_PROJECT_FORMAT.icon,
 			})
 			updateRecentProjectThumbnail()
 		}

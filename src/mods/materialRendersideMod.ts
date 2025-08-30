@@ -1,6 +1,6 @@
 import { createBlockbenchMod, createPropertySubscribable } from '@blockbench-tools'
 import { PACKAGE } from '@package'
-import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 import { translate } from '@utility/util/translation'
 
 declare global {
@@ -56,8 +56,13 @@ createBlockbenchMod(
 		Cube.prototype.menu!.open = function (this: Cube, ...args) {
 			console.log('Cube menu open called with args:', args)
 			const result = ctx.openCubeMenu.apply(this, args)
+			if (!UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+				return result
+			}
 			const cube = Cube.selected.at(0)
 			if (!cube) return result
+
+			console.log('test', cube.enableBackfaceCulling)
 
 			if (cube.enableBackfaceCulling === undefined) {
 				USE_DEFAULT_BACKFACE_CULLING.set(true)
@@ -107,6 +112,9 @@ createBlockbenchMod(
 		Mesh.prototype.menu!.open = function (this: Mesh, ...args) {
 			console.log('Mesh menu open called with args:', args)
 			const result = ctx.openMeshMenu.apply(this, args)
+			if (!UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+				return result
+			}
 			const mesh = Mesh.selected.at(0)
 			if (!mesh) return result
 
@@ -145,7 +153,7 @@ const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility_engine_use_default_back
 		Canvas.updateAll()
 	},
 	condition: () => {
-		return UTILITY_MODEL_FORMAT.isCurrentFormat()
+		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
 	},
 })
 
@@ -166,7 +174,7 @@ const BACKFACE_CULLING_TOGGLE = new Toggle('utility_engine_backface_culling_togg
 		Canvas.updateAll()
 	},
 	condition: () => {
-		return UTILITY_MODEL_FORMAT.isCurrentFormat()
+		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
 	},
 })
 

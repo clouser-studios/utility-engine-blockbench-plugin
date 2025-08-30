@@ -1,7 +1,7 @@
 import SteveSkin from '@assets/steve.png'
 import { createAction, createBlockbenchMod } from '@blockbench-tools'
 import { PACKAGE } from '@package'
-import { UTILITY_MODEL_FORMAT } from '@utility/formats/utility-model-project'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 import { Syncable } from '@utility/util/stores'
 import { SvelteDialog } from '@utility/util/svelteDialog'
 import { translate } from '@utility/util/translation'
@@ -71,7 +71,7 @@ export const CREATE_SKIN_TEXTURE_ACTION = createAction(`${PACKAGE.name}:create_s
 	icon: 'portrait',
 	condition() {
 		return (
-			UTILITY_MODEL_FORMAT.isCurrentFormat() &&
+			UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat() &&
 			// Project can only have one skin texture
 			!Texture.all.some(v => v instanceof SkinTexture)
 		)
