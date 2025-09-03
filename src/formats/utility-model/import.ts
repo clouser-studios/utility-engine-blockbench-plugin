@@ -200,6 +200,85 @@ function importTextures(textures: UtilityModel.IUtilityModelJSON['textures'], pr
 	}
 }
 
+function processBoneKeyframe(
+	time: string,
+	data: UtilityModel.KeyframeData,
+	channel: 'position' | 'rotation' | 'scale'
+) {
+	const keyframe: KeyframeOptions = {
+		channel: channel,
+		time: parseFloat(time),
+		data_points: [],
+	}
+	if (Array.isArray(data)) {
+		keyframe.data_points.push({
+			x: data[0],
+			y: data[1],
+			z: data[2],
+		})
+	} else {
+		keyframe.data_points.push({
+			x: data.pre[0],
+			y: data.pre[1],
+			z: data.pre[2],
+		})
+		if (!data.pre.equals(data.post)) {
+			keyframe.data_points.push({
+				x: data.post[0],
+				y: data.post[1],
+				z: data.post[2],
+			})
+		}
+		keyframe.interpolation = data.lerp_mode
+	}
+	return keyframe
+}
+
+function processBoneKeyframes(bone: UtilityModel.IAnimationBone) {
+	const keyframes: KeyframeOptions[] = []
+	for (const [time, data] of Object.entries(bone.position)) {
+		keyframes.push(processBoneKeyframe(time, data, 'position'))
+	}
+	for (const [time, data] of Object.entries(bone.rotation)) {
+		keyframes.push(processBoneKeyframe(time, data, 'rotation'))
+	}
+	for (const [time, data] of Object.entries(bone.scale)) {
+		keyframes.push(processBoneKeyframe(time, data, 'scale'))
+	}
+	return keyframes
+}
+
+function importAnimations(animations: UtilityModel.IUtilityModelJSON['animations']) {
+	for (const animation of animations ?? []) {
+		console.log(`Importing animation: ${animation.name}`)
+
+		const saveCopy: AnimationOptions = {
+			name: animation.name,
+			loop: animation.loop_mode,
+			animators: {},
+			length: animation.animation_length,
+		}
+
+		for (const [name, bone] of Object.entries(animation.bones ?? {})) {
+			const animator = {
+				name: name,
+				type: 'bone',
+				keyframes: [] as KeyframeOptions[],
+			}
+			animator.keyframes = processBoneKeyframes(bone)
+			const group = Group.all.find(g => g.name === name)
+			if (!group) {
+				console.warn(`Unknown group ${name} in animation: ${animation.name}`)
+				continue
+			}
+			saveCopy.animators[group.uuid] = animator
+		}
+
+		const anim = new Blockbench.Animation().extend(saveCopy).add()
+		anim.loop_delay = animation.loop_delay.toString()
+	}
+}
+
 export function createUtilityModelProjectFromUtilityModel(
 	model: UtilityModel.IUtilityModelJSON,
 	projectPath = ''
@@ -218,11 +297,19 @@ export function createUtilityModelProjectFromUtilityModel(
 	}
 
 	importTextures(model.textures, projectPath)
-
 	buildOutliner(model.structure, model.elements, model.meshes)
+	importAnimations(model.animations)
 
-	// if (model.animations) {
-	// }
+	if (model.display) {
+		for (const [name, settings] of Object.entries(model.display)) {
+			const displaySlot = { ...settings }
+			delete displaySlot.left_arm_rotation
+			delete displaySlot.right_arm_rotation
+			Project!.display_settings[name as DisplaySlotName] = displaySlot
+		}
+	}
+
+	Canvas.updateAll()
 }
 
 export function importUtilityModel() {

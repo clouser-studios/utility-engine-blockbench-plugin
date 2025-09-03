@@ -288,7 +288,7 @@
 	"animations": [
 		{
 			"name": "main_loop",
-			"animation_length": 0.5,
+			"animation_length": 1,
 			"loop_mode": "loop",
 			"loop_delay": "0",
 			"bones": {
@@ -301,8 +301,14 @@
 					},
 					"position": {
 						"0.0": [0, 0, 0],
-						"0.25": [0, 10, 0],
-						"0.5": [0, 0, 0]
+						"0.25": {
+							"pre": [0, 10, 0],
+							"post": [0, 10, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.5": [0, 0, 0],
+						"0.75": {"pre": [0, 0, 0], "post": [0, 10, 0]},
+						"1.0": [0, 0, 0]
 					},
 					"scale": {
 						"0.0": [1, 1, 1],

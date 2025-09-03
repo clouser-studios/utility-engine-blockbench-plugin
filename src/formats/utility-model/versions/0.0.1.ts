@@ -54,10 +54,18 @@ export namespace v0_0_1 {
 		enableBackfaceCulling?: boolean
 	}
 
+	export type KeyframeData =
+		| ArrayVector3
+		| {
+				pre: ArrayVector3
+				post: ArrayVector3
+				lerp_mode: string
+		  }
+
 	export interface IAnimationBone {
-		position: Record<string | number, ArrayVector3>
-		rotation: Record<string | number, ArrayVector3>
-		scale: Record<string | number, ArrayVector3>
+		position: Record<string | number, KeyframeData>
+		rotation: Record<string | number, KeyframeData>
+		scale: Record<string | number, KeyframeData>
 	}
 
 	export interface IAnimation {
