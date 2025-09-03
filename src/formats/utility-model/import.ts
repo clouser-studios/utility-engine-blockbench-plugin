@@ -23,7 +23,7 @@ function buildOutliner(
 	elements?: UtilityModel.IElement[],
 	meshes?: UtilityModel.IMesh[]
 ) {
-	function importElement(element: UtilityModel.IElement, parent?: Group) {
+	function importCube(element: UtilityModel.IElement, parent?: Group) {
 		// Logic to import a single element
 		console.log(`Importing element: ${element.uuid}`)
 
@@ -31,7 +31,20 @@ function buildOutliner(
 			...element,
 			type: 'cube',
 		}
-		const newElement = OutlinerElement.fromSave(saveCopy)
+		for (const [name, face] of Object.entries(saveCopy.faces ?? {}) as [
+			string,
+			Omit<UtilityModel.IElementFace, 'texture'> & { texture: string | Texture },
+		][]) {
+			if (face.texture === undefined) continue
+			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
+			if (!texture) {
+				console.warn(`Texture not found for face: ${name} in element ${element.uuid}`)
+				continue
+			}
+			face.texture = texture
+			face.uv = face.uv.map((v, i) => (v / 16) * UVEditor.getResolution(i % 2))
+		}
+		const newElement = OutlinerElement.fromSave(saveCopy).init() as Cube
 
 		newElement.addTo(parent)
 	}
@@ -49,7 +62,21 @@ function buildOutliner(
 			vertices: mesh.vertices,
 			faces: mesh.faces,
 		}
-		const newMesh = OutlinerElement.fromSave(saveCopy) as Mesh
+
+		for (const [name, face] of Object.entries(saveCopy.faces) as [
+			string,
+			Omit<UtilityModel.IMeshFace, 'texture'> & { texture: string | Texture },
+		][]) {
+			if (face.texture === undefined) continue
+			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
+			if (!texture) {
+				console.warn(`Texture not found for face: ${name} in mesh ${mesh.uuid}`)
+				continue
+			}
+			face.texture = texture
+		}
+
+		const newMesh = OutlinerElement.fromSave(saveCopy).init() as Mesh
 		newMesh.enableBackfaceCulling = mesh.enableBackfaceCulling
 
 		newMesh.addTo(parent)
@@ -62,7 +89,7 @@ function buildOutliner(
 				console.warn(`Element not found: ${uuid}`)
 				continue
 			}
-			importElement(element, parent)
+			importCube(element, parent)
 		}
 
 		for (const uuid of struct.meshes ?? []) {
@@ -87,7 +114,7 @@ function buildOutliner(
 			name: bone.name,
 			rotation: bone.rotation?.euler,
 			origin: bone.rotation?.origin,
-		})
+		}).init()
 		group.addTo(parent)
 
 		importStructure(bone.children, group)
