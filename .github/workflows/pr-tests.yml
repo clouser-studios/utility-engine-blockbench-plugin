@@ -50,9 +50,6 @@ jobs:
         with:
           node-version: 22.x
 
-      - name: Install Yarn
-        run: npm install -g yarn@stable
-
       - name: Enable Corepack
         run: corepack enable
 
