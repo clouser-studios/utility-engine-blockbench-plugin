@@ -1,5 +1,5 @@
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
-import { translate } from '@utility/util/translation'
+import { localize } from '@utility/util/lang'
 
 export const ANIMATION_TYPES = {
 	custom: 'loop',
@@ -120,7 +120,7 @@ class UtilityModelAnimation extends Blockbench.Animation {
 
 UtilityModelAnimation.prototype.file_menu = new Menu([
 	{
-		name: translate('action.delete_animation_folder.label'),
+		name: localize('action.delete_animation_folder.label'),
 		icon: 'delete',
 		click(folderName: string) {
 			Undo.initEdit({ animations: Animator.animations })

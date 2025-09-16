@@ -1,4 +1,4 @@
-import { PACKAGE } from '@package'
+import PACKAGE from '@package'
 import v0_0_5 from './versions/0.0.5'
 import v0_0_7 from './versions/0.0.7'
 

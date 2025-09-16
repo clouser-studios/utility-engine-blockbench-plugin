@@ -1,7 +1,6 @@
 import { createBlockbenchMod, createPropertySubscribable } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
-import { translate } from '@utility/util/translation'
+import { localize } from '@utility/util/lang'
 
 declare global {
 	interface Cube {
@@ -12,15 +11,15 @@ declare global {
 	}
 }
 
-createBlockbenchMod(
-	`${PACKAGE.name}:cube_material_renderside`,
-	{
+createBlockbenchMod({
+	id: `utility-engine:cube/material-renderside`,
+	collectContext: () => ({
 		cubeInit: Cube.prototype.init,
 		openCubeMenu: Cube.prototype.menu!.open,
 		meshInit: Mesh.prototype.init,
 		openMeshMenu: Mesh.prototype.menu!.open,
-	},
-	ctx => {
+	}),
+	apply: ctx => {
 		Cube.prototype.init = function (this: Cube, ...args) {
 			console.log('Cube init called with args:', args)
 			const result = ctx.cubeInit.apply(this, args)
@@ -133,13 +132,13 @@ createBlockbenchMod(
 
 		return ctx
 	},
-	ctx => {
+	revert: ctx => {
 		Cube.prototype.init = ctx.cubeInit
-	}
-)
+	},
+})
 
-const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility_engine_use_default_backface_culling', {
-	name: translate('model_format.utility_model.element_settings.use_default_backface_culling'),
+const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
+	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
 	onChange: (value: boolean) => {
 		console.log('Toggling default backface culling mode:', value)
 		if (value) {
@@ -157,8 +156,8 @@ const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility_engine_use_default_back
 	},
 })
 
-const BACKFACE_CULLING_TOGGLE = new Toggle('utility_engine_backface_culling_toggle', {
-	name: translate('model_format.utility_model.element_settings.backface_culling'),
+const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-toggle', {
+	name: localize('model_format.utility_model.element_settings.backface_culling'),
 	onChange: (value: boolean) => {
 		console.log('Toggling backface culling for selected cubes & meshes', value)
 		if (Cube.selected.length !== 0) {

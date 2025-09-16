@@ -1,14 +1,13 @@
 import { createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod(
-	`${PACKAGE.name}:animationPropertiesAction`,
-	{
+createBlockbenchMod({
+	id: `utility-engine:animation-properties-action`,
+	collectContext: () => ({
 		originalOpen: Blockbench.Animation.prototype.propertiesDialog,
-	},
-	context => {
+	}),
+	apply: ctx => {
 		Blockbench.Animation.prototype.propertiesDialog = function (this: _Animation) {
 			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				if (!Blockbench.Animation.selected) {
@@ -17,12 +16,12 @@ createBlockbenchMod(
 				}
 				openAnimationPropertiesDialog(Blockbench.Animation.selected)
 			} else {
-				context.originalOpen.call(this)
+				ctx.originalOpen.call(this)
 			}
 		}
-		return context
+		return ctx
 	},
-	context => {
-		Blockbench.Animation.prototype.propertiesDialog = context.originalOpen
-	}
-)
+	revert: ctx => {
+		Blockbench.Animation.prototype.propertiesDialog = ctx.originalOpen
+	},
+})

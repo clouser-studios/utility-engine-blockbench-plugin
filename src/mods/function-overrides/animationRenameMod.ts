@@ -1,21 +1,26 @@
 import { createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 
 const ANIMATION_RENAME_ACTION_CONTENT =
 	"() => Prop.active_panel == 'animations' && AnimationItem.selected"
 
-createBlockbenchMod(
-	`${PACKAGE.name}:animationRenameAction`,
-	{
+declare global {
+	interface _Animation {
+		utility_model_animation_type?: string
+	}
+}
+
+createBlockbenchMod({
+	id: `utility-engine:animation-rename-action`,
+	collectContext: () => ({
 		action: undefined as (typeof SharedActions.actions.rename)[0] | undefined,
 		originalCondition: undefined as unknown as () => boolean,
 		newCondition: undefined as unknown as () => boolean,
-	},
-	context => {
-		context.newCondition = () => {
+	}),
+	apply: ctx => {
+		ctx.newCondition = () => {
 			if (!UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
-				return Condition(context.originalCondition)
+				return Condition(ctx.originalCondition)
 			}
 			// @ts-expect-error
 			if (Prop.active_panel === 'animations' && AnimationItem.selected) {
@@ -29,20 +34,20 @@ createBlockbenchMod(
 		}
 
 		const interval = setInterval(() => {
-			context.action = SharedActions.actions.rename.find(
+			ctx.action = SharedActions.actions.rename.find(
 				v => v.condition?.toString() === ANIMATION_RENAME_ACTION_CONTENT
 			)
-			if (!context.action) return
-			context.action.condition = context.newCondition
+			if (!ctx.action) return
+			ctx.action.condition = ctx.newCondition
 			clearInterval(interval)
 		}, 16)
-		return context
+		return ctx
 	},
-	context => {
+	revert: ctx => {
 		const action = SharedActions.actions.rename.find(
-			v => v.toString() === context.newCondition.toString()
+			v => v.toString() === ctx.newCondition.toString()
 		)
 		if (!action) return
-		action.condition = context.originalCondition
-	}
-)
+		action.condition = ctx.originalCondition
+	},
+})

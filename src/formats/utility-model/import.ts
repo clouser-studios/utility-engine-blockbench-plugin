@@ -1,16 +1,16 @@
 import Icon from '@assets/icons/nobackground.png'
 import { createAction } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
+import { localize } from '@utility/util/lang'
 import { parsePackPath } from '@utility/util/minecraftUtil'
-import { translate } from '@utility/util/translation'
+import { pickKeys } from '@utility/util/objUtils'
 import { updateUtilityModel } from './dfu'
 import { type latest as UtilityModel } from './versions/latest'
 
 export class ImportError extends Error {
 	constructor(key: string, ...args: string[]) {
-		super(translate(key, ...args))
+		super(localize(key, ...args))
 		this.name = 'ExportError'
 	}
 }
@@ -301,11 +301,25 @@ export function createUtilityModelProjectFromUtilityModel(
 	importAnimations(model.animations)
 
 	if (model.display) {
-		for (const [name, settings] of Object.entries(model.display)) {
-			const displaySlot = { ...settings }
-			delete displaySlot.left_arm_rotation
-			delete displaySlot.right_arm_rotation
-			Project!.display_settings[name as DisplaySlotName] = displaySlot
+		// @ts-expect-error
+		DisplayMode.loadJSON(model.display)
+		// Load any utility model specific display settings into the project settings
+		for (const [key, settings] of Object.entries(model.display)) {
+			if (
+				settings.left_arm_rotation ||
+				settings.right_arm_rotation ||
+				settings.left_arm_rotation_when_offhand_occupied ||
+				settings.right_arm_rotation_when_offhand_occupied
+			) {
+				Project!.utility_display_settings[key as keyof UtilityModel.DisplayContainer] = {
+					...pickKeys(settings, [
+						'left_arm_rotation',
+						'right_arm_rotation',
+						'left_arm_rotation_when_offhand_occupied',
+						'right_arm_rotation_when_offhand_occupied',
+					]),
+				}
+			}
 		}
 	}
 
@@ -332,8 +346,8 @@ export function importUtilityModel() {
 	)
 }
 
-export const IMPORT_UTILITY_MODEL_ACTION = createAction(`${PACKAGE.name}:importUtilityModel`, {
-	name: translate('action.import_utility_model.label'),
+export const IMPORT_UTILITY_MODEL_ACTION = createAction(`utility-engine:import-utility-model`, {
+	name: localize('action.import_utility_model.label'),
 	icon: Icon,
 	click() {
 		importUtilityModel()

@@ -117,10 +117,11 @@
 	},
 	"display": {
 		"thirdperson_righthand": {
-			"translation": [0, 0, 0],
-			"rotation": [67, 0, 0],
-			"scale": [1, 1, 1],
-			"mirror": [false, false, false]
+			"rotation": [50, 0, 0],
+			"right_arm_rotation": [76, 0, 0]
+		},
+		"thirdperson_lefthand": {
+			"left_arm_rotation": [-50, 41, -34]
 		}
 	},
 	"meshes": [

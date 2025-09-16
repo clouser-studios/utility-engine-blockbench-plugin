@@ -1,6 +1,6 @@
 import '@blockbench-tools'
 import EVENTS from '@events'
-import { PACKAGE } from '@package'
+import PACKAGE from '@package'
 
 //-------------------------------
 // Import your source files here
@@ -38,15 +38,15 @@ BBPlugin.register(PACKAGE.name, {
 	min_version: PACKAGE.min_blockbench_version,
 	tags: PACKAGE.tags as [string, string, string],
 	onload() {
-		EVENTS.LOAD.dispatch()
+		EVENTS.LOAD.publish()
 	},
 	onunload() {
-		EVENTS.UNLOAD.dispatch()
+		EVENTS.UNLOAD.publish()
 	},
 	oninstall() {
-		EVENTS.INSTALL.dispatch()
+		EVENTS.INSTALL.publish()
 	},
 	onuninstall() {
-		EVENTS.UNINSTALL.dispatch()
+		EVENTS.UNINSTALL.publish()
 	},
 })

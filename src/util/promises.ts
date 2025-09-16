@@ -1,15 +1,14 @@
 /**
- * Returns a promise that resolves when the given resolver function returns a non-null value
- * @param resolver A function that returns a value or null
- * @param interval The interval in milliseconds to check the resolver function
+ * Polls a function until it returns a non-null/undefined value, then resolves the promise with that value.
  */
-export function pollPromise<T = any>(resolver: () => T | undefined | null, interval?: 250) {
-	return new Promise<T>(resolve => {
-		const id = setInterval(() => {
-			const result = resolver()
-			if (result === null || result === undefined) return
-			clearInterval(id)
-			resolve(result)
+export function awaitResult<T>(fn: () => T | undefined | null, interval = 100): Promise<T> {
+	return new Promise(resolve => {
+		const handle = setInterval(() => {
+			const result = fn()
+			if (result !== undefined && result !== null) {
+				clearInterval(handle)
+				resolve(result)
+			}
 		}, interval)
 	})
 }

@@ -1,17 +1,17 @@
 import Icon from '@assets/icons/nobackground.png'
 import { createAction } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
+import { localize } from '@utility/util/lang'
 import { parsePackPath } from '@utility/util/minecraftUtil'
-import { translate } from '@utility/util/translation'
+import { scrubUndefined } from '@utility/util/objUtils'
 import { type v0_0_1 as UtilityModel } from './versions/0.0.1'
 
 const FORMAT_VERSION = '0.0.1'
 
 export class ExportError extends Error {
 	constructor(key: string, ...args: string[]) {
-		super(translate(key, ...args))
+		super(localize(key, ...args))
 		this.name = 'ExportError'
 	}
 }
@@ -26,9 +26,9 @@ function validateTextures() {
 		const parsed = parsePackPath('assets', texture.path!, true)
 		if (parsed === undefined) {
 			Blockbench.showMessageBox({
-				title: translate('export.error.invalid_resource_pack_path.title'),
-				message: translate(
-					'export.error.invalid_resource_pack_path.description',
+				title: localize('export.error.invalid_resource_pack_path.title'),
+				message: localize(
+					'export.error.invalid-resource-pack-path.description',
 					texture.name,
 					texture.path!
 				),
@@ -203,22 +203,32 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 
 	const display: UtilityModel.DisplayContainer = {}
 	for (const [key, settings] of Object.entries(Project!.display_settings)) {
-		if (
-			settings.rotation.allAre(v => v === 0) &&
-			settings.scale.allAre(v => v === 1) &&
-			settings.translation.allAre(v => v === 0) &&
-			settings.mirror.allAre(v => v === false)
-		) {
-			// Ignore default display settings
-			continue
+		const reducedSettings: UtilityModel.IDisplay = {}
+		if (!settings.rotation.allAre(v => v === 0)) {
+			reducedSettings.rotation = [...settings.rotation]
 		}
-		display[key as keyof UtilityModel.DisplayContainer] = {
-			translation: settings.translation,
-			rotation: settings.rotation,
-			scale: settings.scale,
-			mirror: settings.mirror,
+		if (!settings.scale.allAre(v => v === 1)) {
+			reducedSettings.scale = [...settings.scale]
 		}
+		if (!settings.translation.allAre(v => v === 0)) {
+			reducedSettings.translation = [...settings.translation]
+		}
+		if (!settings.mirror.allAre(v => v === false)) {
+			reducedSettings.mirror = [...settings.mirror]
+		}
+
+		Object.assign(
+			reducedSettings,
+			scrubUndefined(
+				Project!.utility_display_settings[key as keyof UtilityModel.DisplayContainer]
+			)
+		)
+
+		if (Object.keys(reducedSettings).length === 0) continue
+
+		display[key as keyof UtilityModel.DisplayContainer] = reducedSettings
 	}
+
 	if (Object.keys(display).length) model.display = display
 
 	return model
@@ -232,7 +242,7 @@ export function exportUtilityModel(path?: string) {
 		if (path) {
 			try {
 				fs.writeFileSync(path, autoStringify(model))
-				Blockbench.showQuickMessage(translate('message.exported'))
+				Blockbench.showQuickMessage(localize('message.exported'))
 				return
 			} catch {} // Ignore errors and continue with the file picker
 		}
@@ -252,40 +262,43 @@ export function exportUtilityModel(path?: string) {
 				chosenPath = chosenPath.replace(/\.utility\.json\.utility\.json$/, '.utility.json')
 				Project!.export_path = chosenPath
 				fs.writeFileSync(chosenPath, content.toString())
-				Blockbench.showQuickMessage(translate('message.exported'))
+				Blockbench.showQuickMessage(localize('message.exported'))
 			},
 		})
 	} catch (e: any) {
 		console.error(e)
 		if (e instanceof ExportError) {
 			Blockbench.showMessageBox({
-				title: translate('message.failed_to_export.title'),
+				title: localize('message.failed_to_export.title'),
 				message: e.message,
 				icon: 'error',
 			})
 		} else {
 			Blockbench.showMessageBox({
-				title: translate('message.failed_to_export.title'),
-				message: translate('message.failed_to_export.message', e.message as string),
+				title: localize('message.failed_to_export.title'),
+				message: localize('message.failed_to_export.message', e.message as string),
 				icon: 'error',
 			})
 		}
 	}
 }
 
-export const EXPORT_UTILITY_MODEL_AS_ACTION = createAction(`${PACKAGE.name}:exportUtilityModel`, {
-	name: translate('action.export_utility_model_as.label'),
-	icon: Icon,
-	condition() {
-		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
-	},
-	click() {
-		exportUtilityModel()
-	},
-})
+export const EXPORT_UTILITY_MODEL_AS_ACTION = createAction(
+	`utility-engine:export-utility-model-as`,
+	{
+		name: localize('action.export_utility_model_as.label'),
+		icon: Icon,
+		condition() {
+			return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
+		},
+		click() {
+			exportUtilityModel()
+		},
+	}
+)
 
-export const EXPORT_UTILITY_MODEL_ACTION = createAction(`${PACKAGE.name}:exportUtilityModel`, {
-	name: translate('action.export_utility_model.label'),
+export const EXPORT_UTILITY_MODEL_ACTION = createAction(`utility-engine:export-utility-model`, {
+	name: localize('action.export_utility_model.label'),
 	icon: Icon,
 	condition() {
 		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()

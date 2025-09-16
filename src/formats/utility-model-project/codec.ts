@@ -1,8 +1,8 @@
 import EVENTS from '@events'
-import { PACKAGE } from '@package'
+import PACKAGE from '@package'
 import { SkinTexture } from '@utility/textures/skin-texture'
+import { localize } from '@utility/util/lang'
 import { resetAllConsoleGroups } from '@utility/util/misc'
-import { translate } from '@utility/util/translation'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '.'
 import { updateUtilityProject } from './dfu'
 import { type latest as UtilityProject } from './versions/latest'
@@ -25,7 +25,7 @@ export function addProjectToRecentProjects(file: FileResult) {
 	}
 }
 
-export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}:utility_model`, {
+export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`utility-engine:utility_model`, {
 	name: 'Utility Model',
 	extension: 'utilityproject',
 	remember: true,
@@ -35,7 +35,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}
 	},
 
 	// region > load
-	load(model: UtilityProject.IUtilityProjectJSON, file) {
+	load(model: UtilityProject.UtilityProjectJSON, file) {
 		console.log(`Loading Utility Model from '${file.name}'...`)
 		try {
 			model = updateUtilityProject(model)
@@ -43,9 +43,9 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}
 			resetAllConsoleGroups()
 			console.error('Failed to upgrade Utility Model:', e)
 			Blockbench.showMessageBox({
-				title: translate('error.utility_model_format.failed_to_upgrade_project.title'),
-				message: translate(
-					'error.utility_model_format.failed_to_upgrade_project.description',
+				title: localize('error.utility_model_format.failed_to_upgrade_project.title'),
+				message: localize(
+					'error.utility-model-format.failed-to-upgrade-project.description',
 					e.message as string
 				),
 			})
@@ -63,7 +63,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}
 
 	// region > parse
 	// Takes the model file and injects it's data into the global Project
-	parse(model: UtilityProject.IUtilityProjectJSON, path) {
+	parse(model: UtilityProject.UtilityProjectJSON, path) {
 		console.log(`Parsing Utility Model from '${path}'...`)
 		if (!Project) throw new Error('No project to parse into')
 
@@ -174,7 +174,12 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}
 		}
 
 		if (model.display_settings) {
-			Project.display_settings = model.display_settings
+			// @ts-expect-error
+			DisplayMode.loadJSON(model.display_settings)
+		}
+
+		if (model.utility_display_settings) {
+			Project.utility_display_settings = model.utility_display_settings
 		}
 
 		if (model.backgrounds) {
@@ -231,7 +236,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}
 				width: Project.texture_width || 16,
 				height: Project.texture_height || 16,
 			},
-		} as UtilityProject.IUtilityProjectJSON
+		} as UtilityProject.UtilityProjectJSON
 
 		for (const key in ModelProject.properties) {
 			if (ModelProject.properties[key].export)
@@ -328,6 +333,10 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}
 			model.display_settings = Project.display_settings
 		}
 
+		if (Object.keys(Project.utility_display_settings).length > 0) {
+			model.utility_display_settings = Project.utility_display_settings
+		}
+
 		if (!options.backup) {
 			const backgrounds: Record<string, any> = {}
 			for (const key in Project.backgrounds) {
@@ -365,12 +374,12 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`${PACKAGE.name}
 						`Failed to export Utility Model, file location '${path}' does not exist!`
 					)
 					Blockbench.showMessageBox({
-						title: translate(
-							'error.utility_model_format.failed_to_export_project.title'
+						title: localize(
+							'error.utility-model-format.failed-to-export-project.title'
 						),
-						message: translate(
-							'error.utility_model_format.failed_to_export_project.description',
-							translate('error.utility_model_format.invalid_export_path')
+						message: localize(
+							'error.utility-model-format.failed-to-export-project.description',
+							localize('error.utility_model_format.invalid_export_path')
 						),
 					})
 				}

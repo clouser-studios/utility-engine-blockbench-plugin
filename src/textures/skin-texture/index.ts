@@ -1,10 +1,9 @@
 import SteveSkin from '@assets/steve.png'
 import { createAction, createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
-import { Syncable } from '@utility/util/stores'
-import { SvelteDialog } from '@utility/util/svelteDialog'
-import { translate } from '@utility/util/translation'
+import { SvelteDialog } from '@utility/svelte/dialog'
+import { localize } from '@utility/util/lang'
+import { syncable } from '@utility/util/stores'
 import UsernamePrompt from './usernamePrompt.svelte'
 
 const SKIN_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
@@ -52,10 +51,10 @@ async function autoUpdateSkinFormat(skinUrl: string) {
 }
 
 async function promptForUsername() {
-	const username = new Syncable<string | undefined>('')
+	const username = syncable<string | undefined>('')
 	return new Promise<string | undefined>(resolve => {
 		new SvelteDialog({
-			id: `${PACKAGE.name}:username_prompt`,
+			id: `utility-engine:username-prompt`,
 			title: '',
 			component: UsernamePrompt,
 			props: { username },
@@ -66,8 +65,8 @@ async function promptForUsername() {
 	})
 }
 
-export const CREATE_SKIN_TEXTURE_ACTION = createAction(`${PACKAGE.name}:create_skin_texture`, {
-	name: translate('action.create_skin_texture.label'),
+export const CREATE_SKIN_TEXTURE_ACTION = createAction(`utility-engine:create-skin-texture`, {
+	name: localize('action.create_skin_texture.label'),
 	icon: 'portrait',
 	condition() {
 		return (
@@ -105,22 +104,21 @@ class OverrideTexture extends Texture {
 	}
 }
 
-createBlockbenchMod(
-	`${PACKAGE.name}:texture_constructor`,
-	{
+createBlockbenchMod({
+	id: `utility-engine:skin-texture/override-texture-class`,
+	collectContext: () => ({
 		original: Texture,
-	},
-	context => {
+	}),
+	apply: ctx => {
 		// @ts-expect-error
 		Texture = OverrideTexture
-
-		return context
+		return ctx
 	},
-	context => {
+	revert: ctx => {
 		// @ts-expect-error
-		Texture = context.original
-	}
-)
+		Texture = ctx.original
+	},
+})
 
 export class SkinTexture extends OverrideTexture {
 	public isSkinTexture = true
@@ -158,7 +156,7 @@ export class SkinTexture extends OverrideTexture {
 		requestAnimationFrame(() => {
 			const e = $(`li.texture[texid="${this.uuid}"]`)[0]
 			const icon = document.createElement('i')
-			icon.title = translate('texture.skin')
+			icon.title = localize('texture.skin')
 			icon.className = 'material-icons texture_particle_icon'
 			icon.textContent = 'portrait'
 			e.insertBefore(icon, e.lastChild)
@@ -201,18 +199,18 @@ SkinTexture.prototype.menu = new Menu([
 	{
 		id: '',
 		icon: 'portrait',
-		name: translate('menu.skin_texture.change_preview_skin.label'),
+		name: localize('menu.skin_texture.change_preview_skin.label'),
 		children: [
 			{
 				icon: 'image',
-				name: translate('menu.skin_texture.change_preview_skin.from_file'),
+				name: localize('menu.skin_texture.change_preview_skin.from_file'),
 				click(texture: Texture) {
 					texture.reopen(true)
 				},
 			},
 			{
 				icon: 'person',
-				name: translate('menu.skin_texture.change_preview_skin.from_username'),
+				name: localize('menu.skin_texture.change_preview_skin.from_username'),
 				click(texture: SkinTexture) {
 					void promptForUsername().then(async username => {
 						if (!username) return
@@ -232,7 +230,7 @@ SkinTexture.prototype.menu = new Menu([
 	},
 	{
 		icon: 'close',
-		name: translate('menu.skin_texture.remove_preview_skin'),
+		name: localize('menu.skin_texture.remove_preview_skin'),
 		condition(texture: SkinTexture) {
 			return texture.source !== SteveSkin
 		},

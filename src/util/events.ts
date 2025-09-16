@@ -1,42 +1,36 @@
-import { PACKAGE } from '@package'
-import { Subscribable } from './subscribable'
-
-export class PluginEvent<EventData = void> extends Subscribable<EventData> {
-	protected static events: Record<string, PluginEvent<any>> = {}
-	constructor(public name: string) {
-		super()
-		PluginEvent.events[name] = this
-	}
-}
+import PACKAGE from '@package'
+import { subscribable } from './subscribable'
 
 // Plugin Events
 const EVENTS = {
-	LOAD: new PluginEvent('load'),
-	UNLOAD: new PluginEvent('unload'),
-	INSTALL: new PluginEvent('install'),
-	UNINSTALL: new PluginEvent('uninstall'),
+	LOAD: subscribable<void>(),
+	UNLOAD: subscribable<void>(),
+	INSTALL: subscribable<void>(),
+	UNINSTALL: subscribable<void>(),
 
-	INJECT_MODS: new PluginEvent('injectMods'),
-	EXTRACT_MODS: new PluginEvent('extractMods'),
+	INSTALL_MODS: subscribable<void>(),
+	UNINSTALL_MODS: subscribable<void>(),
 
-	SELECT_PROJECT: new PluginEvent<ModelProject>('selectProject'),
-	UNSELECT_PROJECT: new PluginEvent<ModelProject>('deselectProject'),
+	SELECT_PROJECT: subscribable<ModelProject>(),
+	UNSELECT_PROJECT: subscribable<ModelProject>(),
 
-	UPDATE_PROJECT_SETTINGS: new PluginEvent<Record<string, any>>('updateProjectSettings'),
+	UPDATE_PROJECT_SETTINGS: subscribable<Record<string, any>>(),
 
-	SELECT_MODE: new PluginEvent<{ mode: Mode }>('selectMode'),
+	SELECT_MODE: subscribable<{ mode: Mode }>(),
+
+	DISPLAY_SLOT_CHANGED: subscribable<{ slot: DisplaySlotName; previous: DisplaySlotName }>(),
 }
 export default EVENTS
 
 function injectionHandler() {
 	console.groupCollapsed(`Injecting BlockbenchMods added by '${PACKAGE.name}'`)
-	EVENTS.INJECT_MODS.dispatch()
+	EVENTS.INSTALL_MODS.publish()
 	console.groupEnd()
 }
 
 function extractionHandler() {
 	console.groupCollapsed(`Extracting BlockbenchMods added by '${PACKAGE.name}'`)
-	EVENTS.EXTRACT_MODS.dispatch()
+	EVENTS.UNINSTALL_MODS.publish()
 	console.groupEnd()
 }
 
@@ -46,14 +40,14 @@ EVENTS.INSTALL.subscribe(injectionHandler)
 EVENTS.UNINSTALL.subscribe(extractionHandler)
 
 Blockbench.on<EventName>('select_project', ({ project }: { project: ModelProject }) => {
-	EVENTS.SELECT_PROJECT.dispatch(project)
+	EVENTS.SELECT_PROJECT.publish(project)
 })
 Blockbench.on<EventName>('unselect_project', ({ project }: { project: ModelProject }) => {
-	EVENTS.UNSELECT_PROJECT.dispatch(project)
+	EVENTS.UNSELECT_PROJECT.publish(project)
 })
 Blockbench.on<EventName>('update_project_settings', formResult => {
-	EVENTS.UPDATE_PROJECT_SETTINGS.dispatch(formResult)
+	EVENTS.UPDATE_PROJECT_SETTINGS.publish(formResult)
 })
 Blockbench.on<EventName>('select_mode', ({ mode }: { mode: Mode }) => {
-	EVENTS.SELECT_MODE.dispatch({ mode })
+	EVENTS.SELECT_MODE.publish({ mode })
 })

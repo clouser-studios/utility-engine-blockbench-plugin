@@ -1,30 +1,28 @@
 import { createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
-import { translate } from '../util/translation'
+import { localize } from '@utility/util/lang'
+
+const UTILITY_CATEGORY_QUERY = 'li.format_category:has(li[format="utility-engine:utility_model"])'
+const GENERAL_CATEGORY_QUERY = `li.format_category:has(li[format="free"])`
+
+Language.data['format_category.utility-engine'] = localize('format_category.utility_engine')
 
 // Modifies the format category sorting order to insert Utility directly below General
-createBlockbenchMod(
-	`${PACKAGE.name}:format_category`,
-	undefined,
-	() => {
+createBlockbenchMod({
+	id: `utility-engine:format-category`,
+	apply: () => {
 		const interval = setInterval(() => {
-			const label = $("li.format_category > label:contains('format_category.utility')")
-			const utilityContainer = label.first().parent()
-			if (utilityContainer.children().length === 0) return
+			const utilityCategory = $(UTILITY_CATEGORY_QUERY).first()
+			if (utilityCategory.length === 0) return
 
-			label.html(translate('format_category.utility'))
+			const generalCategory = $(GENERAL_CATEGORY_QUERY).first()
+			if (generalCategory.length === 0) return
 
-			const generalContainer = $(
-				`li.format_category > label:contains('${tl('format_category.general')}')`
-			)
-				.first()
-				.parent()
-			generalContainer.after(utilityContainer)
+			utilityCategory.insertAfter(generalCategory)
 
 			clearInterval(interval)
 		}, 16)
 	},
-	() => {
+	revert: () => {
 		//
-	}
-)
+	},
+})

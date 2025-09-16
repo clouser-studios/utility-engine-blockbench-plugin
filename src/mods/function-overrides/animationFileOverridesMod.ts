@@ -1,13 +1,12 @@
 import { createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod(
-	`${PACKAGE.name}:animationFileOverrides`,
-	{
+createBlockbenchMod({
+	id: `utility-engine:animation/export-animation-file`,
+	collectContext: () => ({
 		exportAnimationFile: Animator.exportAnimationFile,
-	},
-	context => {
+	}),
+	apply: ctx => {
 		Animator.exportAnimationFile = function (path: string) {
 			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				for (const anim of Blockbench.Animation.all) {
@@ -15,12 +14,12 @@ createBlockbenchMod(
 				}
 				return
 			}
-			return context.exportAnimationFile(path)
+			return ctx.exportAnimationFile(path)
 		}
 
-		return context
+		return ctx
 	},
-	context => {
-		Animator.exportAnimationFile = context.exportAnimationFile
-	}
-)
+	revert: ctx => {
+		Animator.exportAnimationFile = ctx.exportAnimationFile
+	},
+})

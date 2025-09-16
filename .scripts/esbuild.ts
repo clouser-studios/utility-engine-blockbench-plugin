@@ -10,15 +10,14 @@ import ESBuild from 'esbuild'
 import ImportGlobPlugin from 'esbuild-plugin-import-glob'
 import InlineImage from 'esbuild-plugin-inline-image'
 import * as fs from 'fs'
-import { readFile } from 'fs-extra'
-import { load } from 'js-yaml'
 import ProblemsPatchPlugin from 'node-modules-vscode-problems-patch'
-import { isAbsolute, join } from 'path'
-import { TextDecoder } from 'util'
-import SvelteConfig from '../svelte.config.js'
-import importFolderPlugin from './plugins/importFolderPlugin'
-import PackagerPlugin from './plugins/packagePlugin'
-import SveltePlugin from './plugins/sveltePlugin'
+import PACKAGE from '../package.json'
+import SvelteConfig from '../svelte.config'
+import ImportFolderPlugin from './esbuild-plugins/importFolder'
+import LangPlugin from './esbuild-plugins/lang'
+import PackagePlugin from './esbuild-plugins/package'
+import SveltePlugin from './esbuild-plugins/svelte'
+import YamlPlugin from './esbuild-plugins/yaml'
 
 try {
 	const hooks = fs.readdirSync('./.githooks/')
@@ -29,8 +28,6 @@ try {
 	console.error('Failed to copy git hooks:')
 	console.error(error)
 }
-
-const PACKAGE = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 
 const INFO_PLUGIN: ESBuild.Plugin = {
 	name: 'infoPlugin',
@@ -56,15 +53,15 @@ const INFO_PLUGIN: ESBuild.Plugin = {
 function createBanner() {
 	const license = fs.readFileSync('./LICENSE').toString()
 	let lines: string[] = [
-		`v${PACKAGE.version as string}`,
-		``,
+		`${PACKAGE.title} v${PACKAGE.version}`,
 		PACKAGE.description,
 		``,
-		`Created by ${PACKAGE.author.name as string}`,
-		`(${PACKAGE.author.email as string}) [${PACKAGE.author.url as string}]`,
+		`[ AUTHOR ]`,
+		`${PACKAGE.author.name}`,
+		`(${PACKAGE.author.email}) [${PACKAGE.author.url}]`,
 		``,
 		`[ SOURCE ]`,
-		`${PACKAGE.repository.url as string}`,
+		`${PACKAGE.repository.url}`,
 		``,
 		`[ LICENSE ]`,
 		...license.split('\n').map(v => v.trim()),
@@ -98,86 +95,47 @@ Object.entries(process.env).forEach(([key, value]) => {
 	DEFINES[`process.env.${key}`] = JSON.stringify(value)
 })
 
-const yamlPlugin: (opts: {
-	loadOptions?: jsyaml.LoadOptions
-	transform?: any
-}) => ESBuild.Plugin = options => ({
-	name: 'yaml',
-	setup(build) {
-		build.onResolve({ filter: /\.(yml|yaml)$/ }, args => {
-			if (args.resolveDir === '') return
-			return {
-				path: isAbsolute(args.path) ? args.path : join(args.resolveDir, args.path),
-				namespace: 'yaml',
-			}
-		})
-		build.onLoad({ filter: /.*/, namespace: 'yaml' }, async args => {
-			const yamlContent = await readFile(args.path)
-			let parsed = load(new TextDecoder().decode(yamlContent), options?.loadOptions)
-			if (options?.transform && options.transform(parsed, args.path) !== void 0)
-				parsed = options.transform(parsed, args.path)
-			return {
-				contents: JSON.stringify(parsed),
-				loader: 'json',
-				watchFiles: [args.path],
-			}
-		})
-	},
-})
+const COMMON_CONFIG: ESBuild.BuildOptions = {
+	entryPoints: ['./src/index.ts'],
+	outfile: `./dist/${PACKAGE.name}.js`,
+	bundle: true,
+	platform: 'browser',
+	loader: { '.svg': 'dataurl', '.ttf': 'binary' },
+	plugins: [
+		ProblemsPatchPlugin(),
+		LangPlugin({ languageFolder: './src/lang' }),
+		InlineImage({
+			limit: -1,
+		}),
+		ImportFolderPlugin,
+		ImportGlobPlugin(),
+		INFO_PLUGIN,
+		SveltePlugin(SvelteConfig),
+		YamlPlugin({}),
+		PackagePlugin(),
+	],
+	banner: createBanner(),
+	format: 'iife',
+	define: DEFINES,
+}
 
 async function buildDev() {
 	const ctx = await ESBuild.context({
-		banner: createBanner(),
-		entryPoints: ['./src/index.ts'],
-		outfile: `./dist/${PACKAGE.name as string}.js`,
-		bundle: true,
+		...COMMON_CONFIG,
 		minify: false,
-		platform: 'node',
+		platform: 'browser',
 		sourcemap: 'inline',
-		loader: { '.svg': 'dataurl', '.ttf': 'binary' },
-		plugins: [
-			ProblemsPatchPlugin(),
-			InlineImage({
-				limit: -1,
-			}),
-			importFolderPlugin,
-			ImportGlobPlugin(),
-			INFO_PLUGIN,
-			SveltePlugin(SvelteConfig),
-			yamlPlugin({}),
-			PackagerPlugin(),
-		],
-		format: 'iife',
-		define: DEFINES,
 	})
 	await ctx.watch()
 }
 
 function buildProd() {
 	ESBuild.build({
-		entryPoints: ['./src/index.ts'],
-		outfile: `./dist/${PACKAGE.name as string}.js`,
-		bundle: true,
-		minify: true,
-		platform: 'node',
-		loader: { '.svg': 'dataurl', '.ttf': 'binary' },
-		plugins: [
-			InlineImage({
-				limit: -1,
-			}),
-			importFolderPlugin,
-			ImportGlobPlugin(),
-			INFO_PLUGIN,
-			SveltePlugin(SvelteConfig),
-			yamlPlugin({}),
-			PackagerPlugin(),
-		],
+		...COMMON_CONFIG,
 		// Disabling this will reduce file size, but make bugs much harder to track down.
 		keepNames: true,
-		banner: createBanner(),
+		minify: true,
 		drop: ['debugger'],
-		format: 'iife',
-		define: DEFINES,
 	}).catch(() => process.exit(1))
 }
 

@@ -1,6 +1,5 @@
 import UtilityIcon from '@assets/icons/icon.png'
-import { createBarMenu, type NamespacedString } from '@blockbench-tools'
-import { PACKAGE } from '@package'
+import { createBarMenu } from '@blockbench-tools'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 import { OPEN_UTILITY_MODEL_SETTINGS_ACTION } from '@utility/formats/utility-model-project/settings'
 import {
@@ -25,7 +24,7 @@ function createIconImg() {
 	})
 	return img
 }
-const MENU_ID = `${PACKAGE.name}:menu` as NamespacedString
+const MENU_ID = `utility-engine:menu`
 const BLOCKBENCH_MENU_BAR = document.querySelector('#menu_bar')!
 export const MENU = createBarMenu(
 	MENU_ID,

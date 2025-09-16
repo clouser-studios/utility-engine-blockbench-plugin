@@ -1,16 +1,24 @@
-<script lang="ts">
+<script lang="ts" module>
 	import { ANIMATION_TYPES } from '@utility/mods/utilityModelAnimationMod'
-	import LineInput from '@utility/svelte/dialog-items/lineInput.svelte'
-	import NumberSlider from '@utility/svelte/dialog-items/numberSlider.svelte'
-	import Select from '@utility/svelte/dialog-items/select.svelte'
-	import { Syncable } from '@utility/util/stores'
-	import { translate } from '@utility/util/translation'
+	import LineInput from '@utility/svelte-components/dialog-items/lineInput.svelte'
+	import NumberSlider from '@utility/svelte-components/dialog-items/numberSlider.svelte'
+	import Select from '@utility/svelte-components/dialog-items/select.svelte'
+	import { createScopedTranslator } from '@utility/util/lang'
+	import { type Syncable } from '@utility/util/stores'
 
-	export let animationName: Syncable<string>
-	export let animationPath: Syncable<string>
-	export let animationType: Syncable<string>
-	export let loopMode: Syncable<string>
-	export let loopDelay: Syncable<number>
+	const localize = createScopedTranslator('dialog.animation_properties')
+</script>
+
+<script lang="ts">
+	interface Props {
+		animationName: Syncable<string>
+		animationPath: Syncable<string>
+		animationType: Syncable<string>
+		loopMode: Syncable<string>
+		loopDelay: Syncable<number>
+	}
+
+	const { animationName, animationPath, animationType, loopMode, loopDelay }: Props = $props()
 
 	animationType.subscribe(type => {
 		if (type === 'custom') {
@@ -32,7 +40,7 @@
 	const ANIMATION_TYPES_OPTIONS = Object.keys(ANIMATION_TYPES).reduce(
 		(acc: Record<string, string>, type) => {
 			if (type !== 'custom' && USED_TYPES.includes(type)) return acc
-			acc[type] = translate(`dialog.animation_properties.animation_type.options.${type}`)
+			acc[type] = localize(`animation_type.options.${type}`)
 			return acc
 		},
 		{}
@@ -42,19 +50,19 @@
 <div>
 	{#key $animationType}
 		<Select
-			label={translate('dialog.animation_properties.animation_type.label')}
-			tooltip={translate('dialog.animation_properties.animation_type.description')}
+			label={localize('animation_type.label')}
+			tooltip={localize('animation_type.description')}
 			options={ANIMATION_TYPES_OPTIONS}
 			defaultOption={'once'}
-			bind:value={animationType}
+			value={animationType}
 		/>
 	{/key}
 
 	{#key $animationName}
 		<LineInput
-			label={translate('dialog.animation_properties.animation_name.label')}
-			tooltip={translate('dialog.animation_properties.animation_name.description')}
-			bind:value={animationName}
+			label={localize('animation_name.label')}
+			tooltip={localize('animation_name.description')}
+			value={animationName}
 			defaultValue={'new_animation'}
 			disabled={$animationType !== 'custom'}
 		/>
@@ -62,23 +70,23 @@
 
 	{#if $animationType === 'custom'}
 		<Select
-			label={translate('dialog.animation_properties.loop_mode.label')}
-			tooltip={translate('dialog.animation_properties.loop_mode.description')}
+			label={localize('loop_mode.label')}
+			tooltip={localize('loop_mode.description')}
 			options={{
-				once: translate('dialog.animation_properties.loop_mode.options.once'),
-				hold: translate('dialog.animation_properties.loop_mode.options.hold'),
-				loop: translate('dialog.animation_properties.loop_mode.options.loop'),
+				once: localize('loop_mode.options.once'),
+				hold: localize('loop_mode.options.hold'),
+				loop: localize('loop_mode.options.loop'),
 			}}
 			defaultOption={'once'}
-			bind:value={loopMode}
+			value={loopMode}
 		/>
 	{/if}
 
 	<NumberSlider
-		label={translate('dialog.animation_properties.loop_delay.label')}
-		tooltip={translate('dialog.animation_properties.loop_delay.description')}
+		label={localize('loop_delay.label')}
+		tooltip={localize('loop_delay.description')}
 		min={0}
-		bind:value={loopDelay}
+		value={loopDelay}
 		defaultValue={0}
 	/>
 </div>

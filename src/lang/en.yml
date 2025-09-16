@@ -1,3 +1,6 @@
+# Most descriptions support Markdown formatting.
+#
+
 global:
   confirm: Confirm
   cancel: Cancel
@@ -25,18 +28,30 @@ menu:
 panel:
   arm_rotation:
     title: Arm Rotation
+    description: |-
+      Customize the arm rotations for when the player is holding this item in either hand.
 
-    custom_left_arm_rotation:
-      label: Custom Left Arm Rotation
+    left_arm:
+      label: Left Arm
 
-    left_rotation:
-      label: Left Arm Rotation
+    right_arm:
+      label: Right Arm
 
-    custom_right_arm_rotation:
-      label: Custom Right Arm Rotation
+    when_offhand_occupied:
+      title: Arm Rotation when Offhand Occupied
+      description: |-
+        Customize the arm rotations for when the player is holding this item, and has an item in their other hand.
 
-    right_rotation:
-      label: Right Arm Rotation
+    warning:
+      non_player_ref_model: |-
+        [Markdown]
+        Please set the reference model to 'Player' in order to preview custom arm rotations.
+
+      no_open_project: |-
+        [Markdown]
+        No project is currently open.
+
+        If you're seeing this, something has gone horribly wrong.
 
 dialog:
   reset: Reset
@@ -46,7 +61,7 @@ dialog:
     username.placeholder: Enter a Minecraft username
 
   animation_properties:
-    title: Animation Properties for {0}
+    title: Animation Properties (%s)
 
     animation_type:
       label: Animation Type
@@ -96,9 +111,9 @@ dialog:
       label: Loop Mode
       description: |-
         The loop mode of the animation.
-        - Once: The animation will play once, then reset to the first frame.
-        - Hold on Last Frame: The animation will play once, and stop on the last frame.
-        - Loop: The animation will loop indefinitely.
+        _ Once: The animation will play once, then reset to the first frame.
+        _ Hold on Last Frame: The animation will play once, and stop on the last frame.
+        _ Loop: The animation will loop indefinitely.
       options:
         once: Once
         hold: Hold on Last Frame
@@ -113,9 +128,10 @@ model_format:
     name: Utility Model
     description: The basic model format for Utility Engine.
     format_page: |-
+      [Markdown]
       ### Getting Started
 
-      [Check out the docs](URL-GOES-HERE) for more information on how to use this model format.
+      [Check out the docs](URL_GOES_HERE) for more information on how to use this model format.
     project_settings:
       model_identifier: Model Identifier
       default_backface_culling_mode:
@@ -129,48 +145,49 @@ model_format:
       backface_culling: Backface Culling
 
 format_category:
-  utility: Utility Engine
+  utility_engine: Utility Engine
 
 message:
   failed_to_export:
     title: Failed to Export
     message: |-
       An error occurred while exporting the model.
-      Error: {0}
+      Error: %s
 
   exported: Successfully exported!
 
 export:
   error:
-    texture_not_saved: The texture {0} is not saved to disk!
+    texture_not_saved: The texture %s is not saved to disk!
     invalid_resource_pack_path:
       title: Texture Not Saved in Resource Pack
       description: |-
-        Texture "{0}" is not saved inside of a valid resource pack!
+        Texture "%s" is not saved inside of a valid resource pack!
         In order for Utility Engine to use this texture, it must be saved inside of a resource pack.
         Please save the texture to a valid resource pack before exporting for use in Utility Engine.
-        Texture Save Path: {1}
+        Texture Save Path: %s
 
 error:
   utility_model_format:
     failed_to_upgrade_project:
       title: Failed to Upgrade Project!
-      # Uses Markdown formatting
       description: |-
+        [Markdown]
         An unexpected error occurred while upgrading the project:
 
         ```
-        {0}
+        %s
         ```
 
         Your model may be corrupted! Continue editing at your own risk!
 
     failed_to_export_project.title: Failed to export the project.
     failed_to_export_project.description: |-
+      [Markdown]
       An unexpected error occurred while exporting the project:
 
       ```
-      {0}
+      %s
       ```
 
     invalid_export_path: The export path is invalid!

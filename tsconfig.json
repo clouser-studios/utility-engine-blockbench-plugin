@@ -20,10 +20,12 @@
 		"alwaysStrict": true,
 		"baseUrl": ".",
 		"paths": {
-			"@package": ["./src/package"],
+			"@plugin-package/*": ["src/plugin-package/*"],
+			"@package": ["./package.json"],
 			"@utility/*": ["./src/*"],
 			"@assets/*": ["./src/assets/*"],
 			"@events": ["./src/util/events"],
+			"@components/*": ["./src/svelte-components/*"],
 			"@blockbench-tools": ["./src/util/moddingTools"]
 		}
 	}

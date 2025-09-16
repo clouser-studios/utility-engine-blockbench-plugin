@@ -1,13 +1,13 @@
 import { createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 
-createBlockbenchMod(
-	`${PACKAGE.name}:addAnimationAction`,
-	{
+createBlockbenchMod({
+	id: `utility-engine:add-animation/click`,
+	collectContext: () => ({
+		action: BarItems.add_animation as Action,
 		originalClick: (BarItems.add_animation as Action).click,
-	},
-	context => {
-		;(BarItems.add_animation as Action).click = function () {
+	}),
+	apply: ctx => {
+		ctx.action.click = function () {
 			const anim = new Blockbench.Animation({
 				name: 'new_animation',
 			}).add(true)
@@ -16,9 +16,9 @@ createBlockbenchMod(
 			Project!.saved = false
 		}
 
-		return context
+		return ctx
 	},
-	context => {
-		;(BarItems.add_animation as Action).click = context.originalClick
-	}
-)
+	revert: ctx => {
+		ctx.action.click = ctx.originalClick
+	},
+})

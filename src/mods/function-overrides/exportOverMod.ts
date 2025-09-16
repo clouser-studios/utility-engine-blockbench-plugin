@@ -1,18 +1,17 @@
 import { createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 import {
 	UTILITY_MODEL_CODEC,
 	UTILITY_MODEL_PROJECT_FORMAT,
 } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod(
-	`${PACKAGE.name}:exportOverAction`,
-	{
+createBlockbenchMod({
+	id: `utility-engine:export-over-mod`,
+	collectContext: () => ({
 		action: BarItems.export_over as Action,
 		originalClick: (BarItems.export_over as Action).click,
-	},
-	context => {
-		context.action.click = (event: Event) => {
+	}),
+	apply: ctx => {
+		ctx.action.click = (event: Event) => {
 			if (!Project || !Format) return
 			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				const path = Project?.save_path
@@ -30,12 +29,12 @@ createBlockbenchMod(
 					UTILITY_MODEL_CODEC.export()
 				}
 			} else {
-				context.originalClick.call(context.action, event)
+				ctx.originalClick.call(ctx.action, event)
 			}
 		}
-		return context
+		return ctx
 	},
-	context => {
-		context.action.click = context.originalClick
-	}
-)
+	revert: ctx => {
+		ctx.action.click = ctx.originalClick
+	},
+})

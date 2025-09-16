@@ -1,5 +1,4 @@
 import { createBlockbenchMod } from '@blockbench-tools'
-import { PACKAGE } from '@package'
 
 declare global {
 	interface ModelFormat {
@@ -7,16 +6,15 @@ declare global {
 	}
 }
 
-createBlockbenchMod(
-	`${PACKAGE.name}:model_format.is_current_format`,
-	undefined,
-	() => {
+createBlockbenchMod({
+	id: `utility-engine:model-format/is-current-format`,
+	apply: () => {
 		ModelFormat.prototype.isCurrentFormat = function (this) {
 			return Project?.format?.id === this.id
 		}
 	},
-	() => {
+	revert: () => {
 		// @ts-expect-error
 		ModelFormat.prototype.isCurrentFormat = undefined
-	}
-)
+	},
+})

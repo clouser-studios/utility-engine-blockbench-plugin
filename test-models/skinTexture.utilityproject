@@ -381,7 +381,7 @@
 			"override": false,
 			"length": 1,
 			"snapping": 24,
-			"selected": true,
+			"selected": false,
 			"saved": true,
 			"path": "utility",
 			"anim_time_update": "",
@@ -592,14 +592,32 @@
 	"animation_controllers": [],
 	"display_settings": {
 		"thirdperson_righthand": {
-			"fit_to_frame": false,
-			"mirror": [false, false, false],
-			"rotation": [67, 0, 0],
-			"rotation_pivot": [0, 0, 0],
-			"scale": [1, 1, 1],
-			"scale_pivot": [0, 0, 0],
 			"slot_id": "thirdperson_righthand",
-			"translation": [0, 0, 0]
+			"rotation": [50, 0, 0],
+			"translation": [0, 0, 0],
+			"scale": [1, 1, 1],
+			"rotation_pivot": [0, 0, 0],
+			"scale_pivot": [0, 0, 0],
+			"mirror": [false, false, false],
+			"fit_to_frame": false
+		},
+		"thirdperson_lefthand": {
+			"slot_id": "thirdperson_lefthand",
+			"rotation": [0, 0, 0],
+			"translation": [0, 0, 0],
+			"scale": [1, 1, 1],
+			"rotation_pivot": [0, 0, 0],
+			"scale_pivot": [0, 0, 0],
+			"mirror": [false, false, false],
+			"fit_to_frame": false
+		}
+	},
+	"utility_display_settings": {
+		"thirdperson_righthand": {
+			"right_arm_rotation": [76, 0, 0]
+		},
+		"thirdperson_lefthand": {
+			"left_arm_rotation": [-50, 41, -34]
 		}
 	}
 }

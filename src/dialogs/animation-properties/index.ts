@@ -1,21 +1,18 @@
-import { PACKAGE } from '@package'
-import { Syncable } from '@utility/util/stores'
-import { SvelteDialog } from '@utility/util/svelteDialog'
-import { translate } from '@utility/util/translation'
+import { SvelteDialog } from '@utility/svelte/dialog'
+import { localize } from '@utility/util/lang'
+import { syncable } from '@utility/util/stores'
 import AnimationProperties from './animationProperties.svelte'
 
-export const DIALOG_ID = `${PACKAGE.name}:animationPropertiesDialog`
-
 export function openAnimationPropertiesDialog(animation: _Animation) {
-	const animationName = new Syncable(animation.name ?? 'new_animation')
-	const animationPath = new Syncable(animation.path ?? 'custom')
-	const animationType = new Syncable(animation.utility_model_animation_type ?? 'custom')
-	const loopMode = new Syncable(animation.loop as string)
-	const loopDelay = new Syncable(Number(animation.loop_delay) ?? 0)
+	const animationName = syncable(animation.name ?? 'new_animation')
+	const animationPath = syncable(animation.path ?? 'custom')
+	const animationType = syncable(animation.utility_model_animation_type ?? 'custom')
+	const loopMode = syncable(animation.loop as string)
+	const loopDelay = syncable(Number(animation.loop_delay) ?? 0)
 
 	new SvelteDialog({
-		id: DIALOG_ID,
-		title: translate('dialog.animation_properties.title', animation.name),
+		id: `utility-engine:animation-properties-dialog`,
+		title: localize('dialog.animation_properties.title', animation.name),
 		width: 600,
 		component: AnimationProperties,
 		props: {
@@ -25,7 +22,7 @@ export function openAnimationPropertiesDialog(animation: _Animation) {
 			loopMode,
 			loopDelay,
 		},
-		preventKeybinds: true,
+		disableKeybinds: true,
 		onConfirm() {
 			animation.name = animationName.get()
 			animation.createUniqueName(Blockbench.Animation.all)

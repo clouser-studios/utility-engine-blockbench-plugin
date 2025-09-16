@@ -1,24 +1,26 @@
-import { PACKAGE } from '@package'
-import { SveltePanel } from '@utility/util/sveltePanel'
-import { translate } from '@utility/util/translation'
-import ArmRotationPanel from './armRotationPanel.svelte'
+import { injectComponent } from '@utility/svelte/injectComponent'
+import { createBlockbenchMod } from '@utility/util/moddingTools'
+import { unmount } from 'svelte'
+import Panel from './panel.svelte'
 
-export const UTILITY_MODEL_ARM_ROTATION_PANEL = new SveltePanel({
-	id: `${PACKAGE.name}:armRotationPanel`,
-	name: translate('panel.arm_rotation.title'),
-	icon: 'fa-rotate',
-	component: ArmRotationPanel,
-	props: {},
-	condition() {
-		return !!Modes.display
+createBlockbenchMod({
+	id: 'utility-engine:display-panel/arm-rotation',
+	collectContext: () => ({}),
+	apply: () => {
+		const component = injectComponent({
+			component: Panel,
+			elementSelector() {
+				return document.querySelector<HTMLDivElement>('#panel_display > .panel_vue_wrapper')
+			},
+			postMount(component, target) {
+				const parent = target.parentElement!
+				parent.style.overflowX = 'hidden'
+				parent.style.overflowY = 'auto'
+			},
+		})
+		return { component }
 	},
-	default_side: 'left',
-	expand_button: true,
-	default_position: {
-		folded: false,
-		float_position: [0, 0],
-		height: 400,
-		slot: 'left_bar',
-		float_size: [400, 400],
+	revert: async ctx => {
+		await unmount(await ctx.component)
 	},
 })

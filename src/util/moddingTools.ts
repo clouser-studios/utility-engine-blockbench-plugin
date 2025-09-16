@@ -1,8 +1,7 @@
 import EVENTS from '@events'
-import { resetAllConsoleGroups } from './misc'
-import { Subscribable } from './subscribable'
+import type { ValidateResourceLocation } from './resourceLocation'
+import { subscribable, type Subscribable } from './subscribable'
 
-export type NamespacedString = `${string}${string}:${string}${string}`
 // Useful for describing context variables that will become BlochBench class properties in the inject function.
 export type ContextProperty<Type extends keyof IPropertyType> = Property<Type> | undefined
 
@@ -14,86 +13,119 @@ class BlockbenchModInstallError extends Error {
 
 class BlockbenchModUninstallError extends Error {
 	constructor(id: string, err: Error) {
-		resetAllConsoleGroups()
 		super(
 			`Mod '${id}' failed to uninstall: ${err.message}` + (err.stack ? '\n' + err.stack : '')
 		)
 	}
 }
 
+interface BlockbenchMod {
+	applied: boolean
+	install: () => void
+	uninstall: () => void
+}
+
 /**
- * A simple helper function to make modifing Blockbench easier.
- * @param id A namespaced ID ('my-plugin-id:my-mod')
- * @param context The context of the mod. This is passed to the inject function.
- * @param inject The function that is called to install the mod.
- * @param extract The function that is called to uninstall the mod.
- * @template InjectContext The type of the context passed to the inject function.
- * @template ExtractContext The type of the context returned from the inject function and passed to the extract function.
+ * A framework for creating Blockbench mods that automatically handles installation and uninstallation on the appropriate Blockbench EVENTS.
  * @example
  * ```ts
- * createBlockbenchMod(
- * 	'my-plugin-id:my-mod',
- * 	{
+ * createBlockbenchMod({
+ * 	id: 'my-plugin-id:my-mod',
+ * 	collectContext: () => ({
  * 		original: Blockbench.Animation.prototype.select
- * 	},
- * 	context => {
- * 		// Inject code here
+ * 	}),
+ * 	apply: ctx => {
+ * 		// Apply changes
  * 		Blockbench.Animation.prototype.select = function(this: _Animation) {
  * 			if (Format.id === myFormat.id) {
  * 				// Do something here
  * 			}
- * 			return context.original.call(this)
+ * 			return ctx.original.call(this)
  * 		}
- * 		return context
- * 	})
- * 	context => {
- * 		// Extract code here
- * 		Blockbench.Animation.prototype.select = context.original
- * 	})
+ * 		return ctx
+ * 	},
+ * 	revert: ctx => {
+ * 		// Revert changes
+ * 		Blockbench.Animation.prototype.select = ctx.original
+ * 	}
+ * }
  * ```
  */
-export function createBlockbenchMod<InjectContext = any, ExtractContext = any>(
-	id: NamespacedString,
-	context: InjectContext,
-	inject: (context: InjectContext) => ExtractContext,
-	extract: (context: ExtractContext) => void
-) {
-	let installed = false
-	let extractContext: ExtractContext
+export function createBlockbenchMod<
+	ID extends string,
+	ApplyContext extends any,
+	RevertContext extends ApplyContext | void,
+>({
+	id,
+	collectContext,
+	apply,
+	revert,
+	autoInstall = true,
+}: {
+	id: ValidateResourceLocation<ID>
+	collectContext?: () => ApplyContext
+	apply: (ctx: ApplyContext) => RevertContext
+	revert: (ctx: RevertContext) => void
+	autoInstall?: boolean
+}) {
+	let applyContext: RevertContext
 
-	EVENTS.INJECT_MODS.subscribe(() => {
-		console.log(`Injecting BBMod '${id}'`)
-		try {
-			if (installed) new Error('Mod is already installed!')
-			extractContext = inject(context)
-			installed = true
-		} catch (err) {
-			throw new BlockbenchModInstallError(id, err as Error)
-		}
-	})
+	const handle: BlockbenchMod = {
+		applied: false,
+		install() {
+			try {
+				if (this.applied) throw new Error('Mod is already installed!')
+				const context = collectContext?.()!
+				applyContext = apply(context)
+				this.applied = true
+			} catch (err) {
+				throw new BlockbenchModInstallError(id, err as Error)
+			}
+		},
+		uninstall() {
+			try {
+				if (!this.applied) throw new Error('Mod is not installed!')
+				revert(applyContext)
+				this.applied = false
+			} catch (err) {
+				throw new BlockbenchModUninstallError(id, err as Error)
+			}
+		},
+	}
 
-	EVENTS.EXTRACT_MODS.subscribe(() => {
-		console.log(`Extracting BBMod '${id}'`)
-		try {
-			if (!installed) new Error('Mod is not installed!')
-			extract(extractContext)
-			installed = false
-		} catch (err) {
-			throw new BlockbenchModUninstallError(id, err as Error)
-		}
-	})
+	if (autoInstall) {
+		EVENTS.INSTALL_MODS.subscribe(handle.install.bind(handle))
+	}
+	EVENTS.UNINSTALL_MODS.subscribe(handle.uninstall.bind(handle))
+
+	return handle
 }
 
-/** Creates a new Blockbench.Action and automatically handles it's deletion on the plugin unload and uninstall events.
+type CreateActionOptions = ActionOptions & {
+	/**
+	 * @param path Path pointing to the location. Use the ID of each level of the menu, or index or group within a level, separated by a period. For example; `file.export.0` places the action at the top position of the Export submenu in the File menu.
+	 */
+	menu_path?: string
+}
+/** Creates a new Blockbench.Action and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
  * See https://www.blockbench.net/wiki/api/action for more information on the Blockbench.Action class.
  * @param id A namespaced ID ('my-plugin-id:my-action')
  * @param options The options for the action.
  * @returns The created action.
  */
-export function createAction(id: NamespacedString, options: ActionOptions) {
+export function createAction<ID extends string>(
+	id: ValidateResourceLocation<ID>,
+	options: CreateActionOptions
+) {
 	const action = new Action(id, options)
+	if (options.menu_path !== undefined) {
+		MenuBar.addAction(action, options.menu_path)
+	}
 
-	EVENTS.EXTRACT_MODS.subscribe(() => {
+	EVENTS.UNINSTALL_MODS.subscribe(() => {
+		if (options.menu_path !== undefined) {
+			MenuBar.removeAction(options.menu_path)
+		}
 		action.delete()
 	}, true)
 
@@ -101,108 +133,7 @@ export function createAction(id: NamespacedString, options: ActionOptions) {
 }
 
 /**
- * Creates a new Blockbench.NumSlider and automatically handles it's deletion on the plugin unload and uninstall events.
- * @param id A namespaced ID ('my-plugin-id:my-num-slider')
- * @param options The options for the num slider.
- * @returns The created num slider.
- */
-export function createNumSlider(id: NamespacedString, options: NumSliderOptions) {
-	const numSlider = new NumSlider(id, options)
-
-	EVENTS.EXTRACT_MODS.subscribe(() => {
-		numSlider.delete()
-	}, true)
-
-	return numSlider
-}
-
-/**
- * Creates a new Blockbench.BarSlider and automatically handles it's deletion on the plugin unload and uninstall events.
- * @param id A namespaced ID ('my-plugin-id:my-bar-slider')
- * @param options The options for the bar slider.
- * @returns The created bar slider.
- */
-export function createBarSlider(id: NamespacedString, options: NumSliderOptions) {
-	const barSlider = new BarSlider(id, options)
-
-	EVENTS.EXTRACT_MODS.subscribe(() => {
-		barSlider.delete()
-	}, true)
-
-	return barSlider
-}
-
-/**
- * Creates a new Blockbench.BarSelect and automatically handles it's deletion on the plugin unload and uninstall events.
- * @param id A namespaced ID ('my-plugin-id:my-bar-select')
- * @param options The options for the bar select.
- * @returns The created bar select.
- */
-export function createBarSelect<T>(id: NamespacedString, options: BarSelectOptions<T>) {
-	const barSelect = new BarSelect(id, options)
-
-	EVENTS.EXTRACT_MODS.subscribe(() => {
-		barSelect.delete()
-	}, true)
-
-	return barSelect
-}
-
-/**
- * Creates a new Blockbench.Toggle and automatically handles it's deletion on the plugin unload and uninstall events.
- * @param id A namespaced ID ('my-plugin-id:my-toggle')
- * @param options The options for the toggle.
- * @returns The created toggle.
- */
-export function createToggle(id: NamespacedString, options: ToggleOptions) {
-	const barSelect = new Toggle(id, options)
-
-	EVENTS.EXTRACT_MODS.subscribe(() => {
-		barSelect.delete()
-	}, true)
-
-	return barSelect
-}
-
-/**
- * Creates a new Blockbench.BarText and automatically handles it's deletion on the plugin unload and uninstall events.
- * @param id A namespaced ID ('my-plugin-id:my-BarText')
- * @param options The options for the BarText.
- * @returns The created BarText.
- */
-export function createBarText(
-	id: NamespacedString,
-	options: WidgetOptions & {
-		text: string
-	}
-) {
-	const barSelect = new BarText(id, options)
-
-	EVENTS.EXTRACT_MODS.subscribe(() => {
-		barSelect.delete()
-	}, true)
-
-	return barSelect
-}
-
-/**
- * Creates a new Blockbench.ColorPicker and automatically handles it's deletion on the plugin unload and uninstall events.
- * @param id A namespaced ID ('my-plugin-id:my-color-picker')
- * @param options The options for the color picker.
- * @returns The created color picker.
- */
-export function createColorPicker(id: NamespacedString, options: ColorPickerOptions) {
-	const barSelect = new ColorPicker(id, options)
-
-	EVENTS.EXTRACT_MODS.subscribe(() => {
-		barSelect.delete()
-	}, true)
-
-	return barSelect
-}
-
-/**
- * Creates a new Blockbench.ModelLoader and automatically handles it's deletion on the plugin unload and uninstall events.
+ * Creates a new Blockbench.ModelLoader and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
  * @param id A namespaced ID ('my-plugin-id:my-model-loader')
  * @param options The options for the model loader.
  * @returns The created model loader.
@@ -210,7 +141,7 @@ export function createColorPicker(id: NamespacedString, options: ColorPickerOpti
 export function createModelLoader(id: string, options: ModelLoaderOptions): ModelLoader {
 	const modelLoader = new ModelLoader(id, options)
 
-	EVENTS.EXTRACT_MODS.subscribe(() => {
+	EVENTS.UNINSTALL_MODS.subscribe(() => {
 		modelLoader.delete()
 	}, true)
 
@@ -218,7 +149,7 @@ export function createModelLoader(id: string, options: ModelLoaderOptions): Mode
 }
 
 /**
- * Creates a new Blockbench.Menu and automatically handles it's deletion on the plugin unload and uninstall events.
+ * Creates a new Blockbench.Menu and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
  * See https://www.blockbench.net/wiki/api/menu for more information on the Blockbench.Menu class.
  * @param template The menu template.
  * @param options The options for the menu.
@@ -227,7 +158,7 @@ export function createModelLoader(id: string, options: ModelLoaderOptions): Mode
 export function createMenu(template: MenuItem[], options?: MenuOptions) {
 	const menu = new Menu(template, options)
 
-	// events.EXTRACT_MODS.subscribe(() => {
+	// EVENTS.EXTRACT_MODS.subscribe(() => {
 	// 	menu.delete()
 	// }, true)
 
@@ -235,20 +166,20 @@ export function createMenu(template: MenuItem[], options?: MenuOptions) {
 }
 
 /**
- * Creates a new Blockbench.BarMenu and automatically handles it's deletion on the plugin unload and uninstall events.
+ * Creates a new Blockbench.BarMenu and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
  * @param id A namespaced ID ('my-plugin-id:my-menu')
  * @param structure The menu structure.
  * @param condition The condition for the menu to be visible.
  * @returns The created menu.
  */
-export function createBarMenu(
-	id: NamespacedString,
+export function createBarMenu<ID extends string>(
+	id: ValidateResourceLocation<ID>,
 	structure: MenuItem[],
 	condition: ConditionResolvable
 ) {
 	const menu = new BarMenu(id, structure, condition)
 
-	// events.EXTRACT_MODS.subscribe(() => {
+	// EVENTS.EXTRACT_MODS.subscribe(() => {
 	// 	menu.delete()
 	// }, true)
 
@@ -272,7 +203,7 @@ const SUBSCRIBABLES = new Map<
  * @param key The key of the property on the object.
  * @returns A tuple of {@link Subscribable | Subscribables} [onGet, onSet]
  * @example
- * Using the subscribables as simple events.
+ * Using the subscribables as simple EVENTS.
  * ```ts
  * const [onGet, onSet] = createPropertySubscribable(Blockbench, 'version')
  * onGet.subscribe(({ value }) => console.log('Blockbench version:', value))
@@ -296,27 +227,27 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 	const storage: Storage<Value> = { value: object[key] }
 
 	if (subscribables === undefined) {
-		const onGet = new Subscribable<{
+		const onGet = subscribable<{
 			storage: Storage<Value>
 			value: Value
 		}>()
-		const onSet = new Subscribable<{ storage: Storage<Value>; newValue: Value }>()
+		const onSet = subscribable<{ storage: Storage<Value>; newValue: Value }>()
 		subscribables = [onGet, onSet]
 		SUBSCRIBABLES.set(object, subscribables)
 
 		Object.defineProperty(object, key, {
 			get() {
-				onGet.dispatch({ storage, value: storage.value })
+				onGet.publish({ storage, value: storage.value })
 				return storage.value
 			},
 			set(newValue: Value) {
 				storage.value = newValue
-				onSet.dispatch({ storage, newValue })
+				onSet.publish({ storage, newValue })
 			},
 			configurable: true,
 		})
 
-		EVENTS.EXTRACT_MODS.subscribe(() => {
+		EVENTS.UNINSTALL_MODS.subscribe(() => {
 			const value = object[key]
 			delete object[key]
 			Object.defineProperty(object, key, {
@@ -326,10 +257,7 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 		}, true)
 	}
 
-	return subscribables as [
-		Subscribable<{ storage: Storage<Value>; value: Value }>,
-		Subscribable<{ storage: Storage<Value>; newValue: Value }>,
-	]
+	return subscribables
 }
 
 // export function overwriteFunction<Target extends Record<string, any>, Key extends string>(
@@ -352,3 +280,33 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 // ) {
 // 	//
 // }
+
+/**
+ * A wrapper for the Blockbench.Property class that deep-clones the property value when copying or merging.
+ */
+export class ObjectProperty extends Property<'object'> {
+	constructor(target: any, name: string, options: PropertyOptions) {
+		super(target, 'object', name, options)
+	}
+
+	copy(instance: any, target: any) {
+		if (instance[this.name] == undefined) {
+			target[this.name] = instance[this.name]
+		} else {
+			target[this.name] = JSON.parse(JSON.stringify(instance[this.name]))
+		}
+	}
+
+	merge(instance: any, data: any) {
+		if (data[this.name] == undefined) {
+			instance[this.name] = this.default
+		} else {
+			instance[this.name] = JSON.parse(JSON.stringify(data[this.name]))
+		}
+	}
+}
+
+export const fixClassPropertyInheritance: ClassDecorator = target => {
+	target.properties = { ...target.properties }
+	return target
+}

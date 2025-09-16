@@ -77,12 +77,14 @@ export namespace v0_0_1 {
 	}
 
 	export interface IDisplay {
-		translation: ArrayVector3
-		rotation: ArrayVector3
-		scale: ArrayVector3
-		mirror: [boolean, boolean, boolean]
+		translation?: ArrayVector3
+		rotation?: ArrayVector3
+		scale?: ArrayVector3
+		mirror?: [boolean, boolean, boolean]
 		left_arm_rotation?: ArrayVector3
+		left_arm_rotation_when_offhand_occupied?: ArrayVector3
 		right_arm_rotation?: ArrayVector3
+		right_arm_rotation_when_offhand_occupied?: ArrayVector3
 	}
 
 	export type DisplayContainer = {

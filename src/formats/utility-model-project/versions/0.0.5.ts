@@ -1,11 +1,11 @@
 import type { ISkinTextureData } from '@utility/textures/skin-texture'
 
 export namespace v0_0_5 {
-	export interface IUtilityProjectSettings {
+	export interface UtilityProjectSettings {
 		model_identifier: string
 	}
 
-	export interface IUtilityProjectJSON {
+	export interface UtilityProjectJSON {
 		meta: {
 			format: `utility-engine:utility_model`
 			format_version: '0.0.5'
@@ -15,7 +15,7 @@ export namespace v0_0_5 {
 			save_location?: string
 			export_path?: string
 		}
-		options: IUtilityProjectSettings
+		options: UtilityProjectSettings
 
 		resolution: {
 			width: number
@@ -36,9 +36,9 @@ export namespace v0_0_5 {
 }
 
 export default {
-	upgrade(model: any): v0_0_5.IUtilityProjectJSON {
+	upgrade(model: any): v0_0_5.UtilityProjectJSON {
 		console.groupCollapsed('Updating utility model to 0.0.5')
-		const fixed = JSON.parse(JSON.stringify(model)) as v0_0_5.IUtilityProjectJSON
+		const fixed = JSON.parse(JSON.stringify(model)) as v0_0_5.UtilityProjectJSON
 
 		// As this is the first version the DFU knows of, there is nothing to upgrade.
 		// However, we should make sure the format version is correct.
