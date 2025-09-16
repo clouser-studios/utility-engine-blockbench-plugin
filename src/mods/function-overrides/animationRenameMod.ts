@@ -5,6 +5,7 @@ const ANIMATION_RENAME_ACTION_CONTENT =
 	"() => Prop.active_panel == 'animations' && AnimationItem.selected"
 
 declare global {
+	// eslint-disable-next-line @typescript-eslint/naming-convention
 	interface _Animation {
 		utility_model_animation_type?: string
 	}

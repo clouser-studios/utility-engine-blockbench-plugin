@@ -87,9 +87,7 @@ export namespace v0_0_1 {
 		right_arm_rotation_when_offhand_occupied?: ArrayVector3
 	}
 
-	export type DisplayContainer = {
-		[key in DisplaySlotName]?: IDisplay
-	}
+	export type DisplayContainer = Record<DisplaySlotName, IDisplay>
 
 	export interface IBone {
 		name: string

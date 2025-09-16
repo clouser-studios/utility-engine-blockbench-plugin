@@ -8,12 +8,12 @@ createBlockbenchMod({
 	}),
 	apply: ctx => {
 		const originalCondition = ctx.action.condition!
-		ctx.action.condition = function (this: Action) {
+		ctx.action.condition = function (this: Action, context: any) {
 			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 				return false
 			}
 			if (typeof originalCondition === 'function') {
-				return originalCondition.apply(this, arguments as any)
+				return originalCondition.apply(this, [context])
 			}
 			return Condition(originalCondition)
 		}

@@ -75,8 +75,8 @@ export function parsePackPath(
 	if (result.isFile) {
 		const extensionlessResourcePath = result.resourcePath.replace(/\.[^/.]+$/, '')
 		result.resourceLocation = `${result.namespace}:${extensionlessResourcePath}`
-		result.name = fileName.split('.').slice(0, -1).join('.') || ''
-		result.ext = fileName.split('.').pop() || ''
+		result.name = fileName.split('.').slice(0, -1).join('.') ?? ''
+		result.ext = fileName.split('.').pop() ?? ''
 	}
 
 	return result

@@ -61,6 +61,7 @@ export interface UtilityModelAnimationOptions extends AnimationOptions {
 }
 
 class UtilityModelAnimation extends Blockbench.Animation {
+	// eslint-disable-next-line @typescript-eslint/naming-convention
 	utility_model_animation_type: AnimationType = 'custom'
 
 	constructor(data?: UtilityModelAnimationOptions) {
@@ -98,11 +99,11 @@ class UtilityModelAnimation extends Blockbench.Animation {
 		return this
 	}
 
-	remove(undo: boolean, remove_from_files = true) {
+	remove(undo: boolean, removeFromFiles = true) {
 		if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
 			return super.remove(undo, false)
 		} else {
-			return super.remove(undo, remove_from_files)
+			return super.remove(undo, removeFromFiles)
 		}
 	}
 

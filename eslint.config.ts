@@ -4,7 +4,7 @@ import svelteParser from 'svelte-eslint-parser'
 import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
 import type { NamingConventionRule } from './.scripts/tslintNamingConventionRule'
 
-console.log(`⚙️ Loading ESLint config...`)
+console.log('⚙️  Loading ESLint config...')
 
 const IGNORE_PATTERNS = [
 	'.DS_Store',

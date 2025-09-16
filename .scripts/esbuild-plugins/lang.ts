@@ -33,14 +33,14 @@ const langPlugin = ({ languageFolder }: LangPluginOptions) =>
 				throw new Error(`Language folder "${languageFolder}" does not exist.`)
 			}
 
-			build.onResolve({ filter: /LANGUAGES/ }, async args => {
+			build.onResolve({ filter: /LANGUAGES/ }, () => {
 				return {
 					path: languageFolder,
 					namespace: 'language-file',
 				}
 			})
 
-			build.onLoad({ filter: /.*/, namespace: 'language-file' }, async args => {
+			build.onLoad({ filter: /.*/, namespace: 'language-file' }, async () => {
 				const translations: Record<string, LanguageDefinition> = {}
 
 				const files = (await readdir(languageFolder)).filter(filterYamlFiles)

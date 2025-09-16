@@ -163,7 +163,6 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 		textures: {},
 		elements: [],
 		structure: {},
-		display: {},
 	}
 
 	const particleTexture = Texture.all.find(v => v.particle)
@@ -201,7 +200,7 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 	}
 	if (animations.length) model.animations = animations
 
-	const display: UtilityModel.DisplayContainer = {}
+	const display = {} as UtilityModel.DisplayContainer
 	for (const [key, settings] of Object.entries(Project!.display_settings)) {
 		const reducedSettings: UtilityModel.IDisplay = {}
 		if (!settings.rotation.allAre(v => v === 0)) {
@@ -253,6 +252,7 @@ export function exportUtilityModel(path?: string) {
 			extensions: ['utility.json'],
 			startpath: Project!.export_path.replace(/\.utility\.json$/, ''),
 			content: autoStringify(model),
+			// eslint-disable-next-line @typescript-eslint/naming-convention
 			custom_writer: (content, chosenPath) => {
 				console.log('chosenPath:', chosenPath)
 				if (!chosenPath.endsWith('.utility.json')) {

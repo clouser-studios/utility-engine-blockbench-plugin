@@ -13,9 +13,7 @@ interface LanguageDefinition {
 }
 
 declare module 'LANGUAGES' {
-	export const LANGUAGES: {
-		[key: string]: LanguageDefinition
-	}
+	export const LANGUAGES: Record<string, LanguageDefinition>
 	export function flattenStructuredLanguageFile(
 		file: StructuredLanguageFile
 	): Record<string, string>

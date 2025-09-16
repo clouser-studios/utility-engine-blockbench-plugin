@@ -31,10 +31,9 @@ function buildOutliner(
 			...element,
 			type: 'cube',
 		}
-		for (const [name, face] of Object.entries(saveCopy.faces ?? {}) as [
-			string,
-			Omit<UtilityModel.IElementFace, 'texture'> & { texture: string | Texture },
-		][]) {
+		for (const [name, face] of Object.entries(saveCopy.faces ?? {}) as Array<
+			[string, Omit<UtilityModel.IElementFace, 'texture'> & { texture: string | Texture }]
+		>) {
 			if (face.texture === undefined) continue
 			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
 			if (!texture) {
@@ -63,10 +62,9 @@ function buildOutliner(
 			faces: mesh.faces,
 		}
 
-		for (const [name, face] of Object.entries(saveCopy.faces) as [
-			string,
-			Omit<UtilityModel.IMeshFace, 'texture'> & { texture: string | Texture },
-		][]) {
+		for (const [name, face] of Object.entries(saveCopy.faces) as Array<
+			[string, Omit<UtilityModel.IMeshFace, 'texture'> & { texture: string | Texture }]
+		>) {
 			if (face.texture === undefined) continue
 			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
 			if (!texture) {
@@ -124,7 +122,7 @@ function buildOutliner(
 }
 
 function importTextures(textures: UtilityModel.IUtilityModelJSON['textures'], projectPath = '') {
-	const particleResourceLocation = textures['particle'] ?? ''
+	const particleResourceLocation = textures.particle ?? ''
 
 	const duplicateParticleTextureId = Object.entries(textures).find(([id, resourceLocation]) => {
 		return id !== 'particle' && resourceLocation === particleResourceLocation

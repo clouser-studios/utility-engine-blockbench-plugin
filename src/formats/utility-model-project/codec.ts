@@ -396,7 +396,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = new Blockbench.Codec(`utility-engine:
 				path: path,
 				icon: UTILITY_MODEL_PROJECT_FORMAT.icon,
 			})
-			updateRecentProjectThumbnail()
+			void updateRecentProjectThumbnail()
 		}
 		Project!.saved = true
 		Blockbench.showQuickMessage(tl('message.save_file', [name]))

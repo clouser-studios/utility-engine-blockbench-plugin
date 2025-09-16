@@ -17,7 +17,7 @@ createBlockbenchMod({
 			prepend: true,
 		})
 	},
-	revert: unmountPromise => {
-		unmountPromise.then(unmount => unmount())
+	revert: async unmountPromise => {
+		await unmountPromise.then(unmount => unmount())
 	},
 })
