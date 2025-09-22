@@ -131,7 +131,7 @@ model_format:
       [Markdown]
       ### Getting Started
 
-      [Check out the docs](URL_GOES_HERE) for more information on how to use this model format.
+      Check out the [Utility Engine Docs](https://www.utility-engine.com) for more information on how to use this model format.
     project_settings:
       model_identifier: Model Identifier
       default_backface_culling_mode:
