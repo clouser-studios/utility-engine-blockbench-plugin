@@ -8,10 +8,6 @@ declare global {
 	interface ModelProject {
 		utility_model: UtilityModelProject.Settings
 		default_backface_culling_mode?: 'no_culling' | 'cull_backfaces'
-		utility_display_settings: Record<
-			DisplaySlotName,
-			UtilityModelProject.UtilityDisplaySettings
-		>
 	}
 }
 

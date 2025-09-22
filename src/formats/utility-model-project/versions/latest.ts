@@ -1,1 +1,1 @@
-export { default, type v0_0_7 as UtilityModelProject } from './0.0.7'
+export { default, type v0_0_8 as UtilityModelProject } from './0.0.8'

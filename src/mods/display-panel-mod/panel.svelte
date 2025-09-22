@@ -1,8 +1,9 @@
 <script lang="ts" module>
 	import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-	import { type UtilityModelProject } from '@utility/formats/utility-model-project/versions/latest'
 	import EVENTS from '@utility/util/events'
 	import { createScopedTranslator } from '@utility/util/lang'
+	import { log } from '@utility/util/log'
+	import type { PickValues } from '@utility/util/objUtils'
 	import { onMount } from 'svelte'
 	import ArmSliders from './armSliders.svelte'
 
@@ -10,10 +11,11 @@
 		side: 'left' | 'right',
 		primaryHand: 'left' | 'right'
 	): ArrayVector3 => {
+		const defaultX = displayReferenceObjects.refmodels.player.pose_angles[display_slot] ?? 22.5
 		if (side === 'left') {
-			return primaryHand === 'left' ? [22.5, 0, 0] : [0, 0, 0]
+			return primaryHand === 'left' ? [defaultX, 0, 0] : [0, 0, 0]
 		} else {
-			return primaryHand === 'right' ? [22.5, 0, 0] : [0, 0, 0]
+			return primaryHand === 'right' ? [defaultX, 0, 0] : [0, 0, 0]
 		}
 	}
 
@@ -21,13 +23,15 @@
 </script>
 
 <script lang="ts">
-	let hasOpenUtilityModelProject = $state(!!Project)
+	let openProjectIsUtilityModelProject = $state(!!Project)
+	let isDisplayModeActive = $state(false)
 	let isPlayerRefModel = $state(false)
-	let displaySlot = $state<DisplaySlotName>(display_slot ?? 'thirdperson_righthand')
+	let displaySlot = $state<DisplaySlot | undefined>(undefined)
 	let isThirdPersonSlot = $derived(
-		displaySlot === 'thirdperson_righthand' || displaySlot === 'thirdperson_lefthand'
+		displaySlot?.slot_id === 'thirdperson_righthand' ||
+			displaySlot?.slot_id === 'thirdperson_lefthand'
 	)
-	let previewingOffhand = $state(false)
+	let previewOffhand = $state(false)
 
 	const setArmRotation = (side: 'left' | 'right', rotation: ArrayVector3) => {
 		const refModel = displayReferenceObjects.active
@@ -55,135 +59,165 @@
 		Canvas.updateView({ elements: Outliner.elements })
 	}
 
-	const resetRefModel = (
-		refModel: typeof displayReferenceObjects.active,
-		visualUpdate = false
-	): refModel is '' => {
+	const resetReferenceModel = () => {
 		display_area.removeFromParent()
 		scene.add(display_area)
 
-		if (!isPlayerRefModel) return true
-		if (!refModel) return true
+		updateCanvas()
 
-		refModel.updateBasePosition()
-		const primaryHand = displaySlot === 'thirdperson_lefthand' ? 'left' : 'right'
+		const model = displayReferenceObjects.active
+		if (!(model && model.id === 'player')) {
+			log.warn('No player ref model to reset display area of')
+			return
+		}
+
+		model.updateBasePosition()
+		const primaryHand = displaySlot?.slot_id === 'thirdperson_lefthand' ? 'left' : 'right'
 		setArmRotation('left', getDefaultArmRotation('left', primaryHand))
 		setArmRotation('right', getDefaultArmRotation('right', primaryHand))
-		if (visualUpdate) updateCanvas()
-		return false
 	}
 
-	const updateRefModel = () => {
-		const refModel = displayReferenceObjects.active
-		if (resetRefModel(refModel)) return
+	const updatePreviewContainer = () => {
+		resetReferenceModel()
+
+		const model = displayReferenceObjects.active
+		if (!(model && model.id === 'player')) {
+			log.warn('No player ref model to attach display area to')
+			return
+		}
 
 		// Only arm objects are marked with r_model
-		const arms = refModel.model.children.filter(o => o.r_model === refModel.variant)
+		const arms = model.model.children.filter(o => o.r_model === model.variant)
 
 		const leftArm = arms.find(arm => arm.name === 'left_arm')
 		const rightArm = arms.find(arm => arm.name === 'right_arm')
 
-		if (displaySlot === 'thirdperson_lefthand' && leftArm) {
+		if (displaySlot?.slot_id === 'thirdperson_lefthand' && leftArm) {
 			display_area.removeFromParent()
-			const x = refModel.variant === 'alex' ? -1.5 : -2
+			const x = model.variant === 'alex' ? -1.5 : -2
 			DisplayMode.setBase(x, -10, -2, -90, 0, 0, 1, 1, 1)
 			leftArm.add(display_area)
-		} else if (displaySlot === 'thirdperson_righthand' && rightArm) {
+		} else if (displaySlot?.slot_id === 'thirdperson_righthand' && rightArm) {
 			display_area.removeFromParent()
-			const x = refModel.variant === 'alex' ? 1.5 : 2
+			const x = model.variant === 'alex' ? 1.5 : 2
 			DisplayMode.setBase(x, -10, -2, -90, 0, 0, 1, 1, 1)
 			rightArm.add(display_area)
 		}
 
-		const settings = Project!.utility_display_settings[displaySlot]
+		return model
+	}
+
+	const updatePreview = () => {
+		const model = updatePreviewContainer()
+		if (!model) {
+			log.warn('No ref model to update preview with')
+			return
+		}
+
+		if (!displaySlot) {
+			log.warn('No display slot data to update preview with')
+			return
+		}
 
 		let leftArmRotation: ArrayVector3 | undefined
 		let rightArmRotation: ArrayVector3 | undefined
 
-		if (previewingOffhand) {
-			leftArmRotation = settings?.left_arm_rotation_when_offhand_occupied
-			rightArmRotation = settings?.right_arm_rotation_when_offhand_occupied
+		if (previewOffhand) {
+			leftArmRotation = displaySlot.left_arm_rotation_when_offhand_occupied
+			rightArmRotation = displaySlot.right_arm_rotation_when_offhand_occupied
 		} else {
-			leftArmRotation = settings?.left_arm_rotation
-			rightArmRotation = settings?.right_arm_rotation
+			leftArmRotation = displaySlot.left_arm_rotation
+			rightArmRotation = displaySlot.right_arm_rotation
 		}
 
-		if (leftArmRotation) {
-			setArmRotation('left', leftArmRotation)
-		}
+		if (leftArmRotation) setArmRotation('left', leftArmRotation)
+		if (rightArmRotation) setArmRotation('right', rightArmRotation)
 
-		if (rightArmRotation) {
-			setArmRotation('right', rightArmRotation)
+		updateCanvas()
+		requestAnimationFrame(updateCanvas)
+	}
+
+	const onpreviewChange = (
+		channel: keyof PickValues<DisplaySlot, ArrayVector3 | undefined>,
+		rotation: ArrayVector3 | undefined
+	) => {
+		if (channel.endsWith('occupied') && !previewOffhand) return
+		if (channel.startsWith('left')) {
+			if (rotation) setArmRotation('left', rotation)
+			else setArmRotation('left', getDefaultArmRotation('left', 'right'))
+		} else if (channel.startsWith('right')) {
+			if (rotation) setArmRotation('right', rotation)
+			else setArmRotation('right', getDefaultArmRotation('right', 'right'))
 		}
 
 		updateCanvas()
 		requestAnimationFrame(updateCanvas)
 	}
 
-	const onchange = (
-		key: keyof UtilityModelProject.UtilityDisplaySettings,
-		overwrite: boolean,
-		rotation: ArrayVector3 | undefined
-	) => {
-		const settings = (Project!.utility_display_settings[displaySlot] ??= {})
-
-		if (overwrite) {
-			settings[key] = rotation
-		} else {
-			delete settings[key]
-			if (Object.keys(settings).length === 0) {
-				delete Project!.utility_display_settings[displaySlot]
-			}
-		}
-
-		// This was supposed to automatically toggle offhand previewing when editing arm rotations,
-		// but it appears to cause a recursive effect loop...
-		// previewingOffhand = !(key === 'left_arm_rotation' || key === 'right_arm_rotation')
-
-		updateRefModel()
-	}
-
 	const togglePreviewingOffhand = () => {
-		previewingOffhand = !previewingOffhand
+		previewOffhand = !previewOffhand
+		updatePreview()
 	}
 
 	onMount(() => {
 		const unsubs = [
+			EVENTS.DISPLAY_SETTINGS_UPDATED.subscribe(slot => {
+				console.log('DISPLAY_SETTINGS_UPDATED', slot.slot_id, displaySlot?.slot_id, slot)
+				if (!currentFormatIsUtilityModelProject()) return
+				if (slot !== displaySlot) return
+				log.info('DISPLAY_SETTINGS_UPDATED')
+				updatePreview()
+			}),
+
 			EVENTS.REF_MODEL_CHANGED.subscribe(({ refModel }) => {
 				if (!currentFormatIsUtilityModelProject()) return
 				isPlayerRefModel = !!(
 					refModel && refModel.id === displayReferenceObjects.refmodels.player.id
 				)
-				updateRefModel()
+				log.info('REF_MODEL_CHANGED')
+				updatePreview()
+				requestAnimationFrame(() => {
+					updatePreview()
+				})
 			}),
 
 			EVENTS.DISPLAY_SLOT_CHANGED.subscribe(({ slot }) => {
-				if (!currentFormatIsUtilityModelProject()) return
-				displaySlot = slot
+				displaySlot = Project?.display_settings[slot]
+				if (!currentFormatIsUtilityModelProject()) {
+					resetReferenceModel()
+					return
+				}
+				log.info('DISPLAY_SLOT_CHANGED')
+				updatePreview()
+				requestAnimationFrame(() => {
+					updatePreview()
+				})
 			}),
 
 			EVENTS.SELECT_MODE.subscribe(({ mode }) => {
 				if (!currentFormatIsUtilityModelProject()) return
-				if (mode?.id !== 'display') return
-				requestAnimationFrame(() => {
-					updateRefModel()
-				})
+				log.info('SELECT_MODE')
+				isDisplayModeActive = mode?.id === 'display'
 			}),
 
 			EVENTS.SELECT_PROJECT.subscribe(project => {
-				hasOpenUtilityModelProject = !!project && currentFormatIsUtilityModelProject()
-				resetRefModel(displayReferenceObjects.active, true)
+				openProjectIsUtilityModelProject = !!project && currentFormatIsUtilityModelProject()
+				log.info('SELECT_PROJECT')
+				resetReferenceModel()
 			}),
 
 			EVENTS.UNSELECT_PROJECT.subscribe(() => {
-				hasOpenUtilityModelProject = false
-				resetRefModel(displayReferenceObjects.active, true)
+				openProjectIsUtilityModelProject = false
+				isDisplayModeActive = false
+				isPlayerRefModel = false
+				previewOffhand = false
+				log.info('UNSELECT_PROJECT')
 			}),
 		]
 
 		return () => {
 			unsubs.forEach(unsub => unsub())
-			resetRefModel(displayReferenceObjects.active, true)
+			resetReferenceModel()
 		}
 	})
 </script>
@@ -204,11 +238,11 @@
 	</div>
 {/snippet}
 
-{#if hasOpenUtilityModelProject}
+{#if openProjectIsUtilityModelProject && isDisplayModeActive}
 	{#if isThirdPersonSlot}
 		<p class="bar display_slot_section_bar title" title={localize('description')}>
 			{localize('title')}
-			{@render visibilityButton(!previewingOffhand)}
+			{@render visibilityButton(!previewOffhand)}
 		</p>
 
 		{#if !isPlayerRefModel}
@@ -219,14 +253,14 @@
 
 		{#key displaySlot}
 			<ArmSliders
-				displaySettingsKey="left_arm_rotation"
+				displaySlotChannel="left_arm_rotation"
 				label={localize('left_arm.label')}
-				{onchange}
+				{onpreviewChange}
 			/>
 			<ArmSliders
-				displaySettingsKey="right_arm_rotation"
+				displaySlotChannel="right_arm_rotation"
 				label={localize('right_arm.label')}
-				{onchange}
+				{onpreviewChange}
 			/>
 
 			<p
@@ -234,18 +268,18 @@
 				title={localize('when_offhand_occupied.description')}
 			>
 				{localize('when_offhand_occupied.title')}
-				{@render visibilityButton(previewingOffhand)}
+				{@render visibilityButton(previewOffhand)}
 			</p>
 
 			<ArmSliders
-				displaySettingsKey="left_arm_rotation_when_offhand_occupied"
+				displaySlotChannel="left_arm_rotation_when_offhand_occupied"
 				label={localize('left_arm.label')}
-				{onchange}
+				{onpreviewChange}
 			/>
 			<ArmSliders
-				displaySettingsKey="right_arm_rotation_when_offhand_occupied"
+				displaySlotChannel="right_arm_rotation_when_offhand_occupied"
 				label={localize('right_arm.label')}
-				{onchange}
+				{onpreviewChange}
 			/>
 		{/key}
 	{/if}

@@ -5,7 +5,6 @@ import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
 import { localize } from '@utility/util/lang'
 import { log } from '@utility/util/log'
 import { parsePackPath } from '@utility/util/minecraftUtil'
-import { scrubUndefined } from '@utility/util/objUtils'
 import { type UtilityModel } from './versions/latest'
 
 const FORMAT_VERSION = '0.0.1'
@@ -220,13 +219,23 @@ function createUtilityModel(): UtilityModel.Json {
 		if (!settings.mirror.allAre(v => v === false)) {
 			reducedSettings.mirror = [...settings.mirror]
 		}
-
-		Object.assign(
-			reducedSettings,
-			scrubUndefined(
-				Project!.utility_display_settings[key as keyof UtilityModel.DisplayContainer]
-			)
-		)
+		// Custom utility model display settings
+		if (settings.left_arm_rotation) {
+			reducedSettings.left_arm_rotation = [...settings.left_arm_rotation]
+		}
+		if (settings.left_arm_rotation_when_offhand_occupied) {
+			reducedSettings.left_arm_rotation_when_offhand_occupied = [
+				...settings.left_arm_rotation_when_offhand_occupied,
+			]
+		}
+		if (settings.right_arm_rotation) {
+			reducedSettings.right_arm_rotation = [...settings.right_arm_rotation]
+		}
+		if (settings.right_arm_rotation_when_offhand_occupied) {
+			reducedSettings.right_arm_rotation_when_offhand_occupied = [
+				...settings.right_arm_rotation_when_offhand_occupied,
+			]
+		}
 
 		if (Object.keys(reducedSettings).length === 0) continue
 

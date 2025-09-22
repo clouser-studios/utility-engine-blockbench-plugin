@@ -75,7 +75,6 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerModelFormat(UTILITY_MODEL_PR
 
 	onActivation() {
 		console.log('Utility Model format activated')
-		Project!.utility_display_settings ??= {} as any
 	},
 
 	animated_textures: false,

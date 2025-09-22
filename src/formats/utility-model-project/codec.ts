@@ -184,12 +184,12 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 			}
 
 			if (model.display_settings) {
-				// @ts-expect-error
-				DisplayMode.loadJSON(model.display_settings)
-			}
-
-			if (model.utility_display_settings) {
-				Project.utility_display_settings = model.utility_display_settings
+				for (const slot of DisplayMode.slots) {
+					const settings = model.display_settings[slot]
+					if (!settings) continue
+					Project.display_settings[slot] = new DisplaySlot(slot, settings)
+				}
+				// DisplayMode.loadJSON(model.display_settings)
 			}
 
 			if (model.backgrounds) {
@@ -344,11 +344,14 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 			}
 
 			if (Object.keys(Project.display_settings).length > 0) {
-				model.display_settings = Project.display_settings
-			}
-
-			if (Object.keys(Project.utility_display_settings).length > 0) {
-				model.utility_display_settings = Project.utility_display_settings
+				const displaySettings: Record<string, any> = {}
+				for (const [slot, settings] of Object.entries(Project.display_settings)) {
+					displaySettings[slot] = settings.export()
+					console.log('Exported display settings for slot', slot, displaySettings[slot])
+				}
+				if (Object.keys(displaySettings).length > 0) {
+					model.display_settings = displaySettings
+				}
 			}
 
 			if (!options.backup) {

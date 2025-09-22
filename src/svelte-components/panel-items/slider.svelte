@@ -12,6 +12,7 @@
 		 */
 		thumbColor?: string
 		numberSliderStep?: number
+		onchangeFinished?: (value: number) => void
 	}
 
 	let {
@@ -22,6 +23,7 @@
 		enforceMinMax = true,
 		thumbColor = 'var(--color-axis-x)',
 		numberSliderStep = step,
+		onchangeFinished = undefined,
 	}: Props = $props()
 </script>
 
@@ -33,6 +35,7 @@
 		{min}
 		{step}
 		type="range"
+		onchange={() => onchangeFinished?.(value)}
 		bind:value
 	/>
 	<NumberSlider
@@ -42,6 +45,7 @@
 		{min}
 		precision={1 / numberSliderStep}
 		step={numberSliderStep}
+		{onchangeFinished}
 		bind:value
 	/>
 </div>

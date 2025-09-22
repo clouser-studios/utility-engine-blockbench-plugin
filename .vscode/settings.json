@@ -29,7 +29,7 @@
 		"a11y_no_static_element_interactions": "ignore"
 	},
 	"errorLens.excludePatterns": ["**/node_modules/**/*"],
-	"eslint.validate": ["javascript", "javascriptreact", "svelte"],
+	"eslint.validate": ["javascript", "svelte", "typescript"],
 	"eslint.useFlatConfig": true,
 	"eslint.problems.shortenToSingleLine": true
 }

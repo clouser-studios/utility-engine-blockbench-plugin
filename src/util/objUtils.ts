@@ -1,3 +1,11 @@
+export type OmitValues<T, O> = {
+	[K in keyof T as T[K] extends O ? never : K]: T[K]
+}
+
+export type PickValues<T, O> = {
+	[K in keyof T as T[K] extends O ? K : never]: T[K]
+}
+
 /**
  * Returns a copy of {@link obj} with the specified {@link keys} removed.
  */

@@ -4,7 +4,6 @@ import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-pro
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
 import { localize } from '@utility/util/lang'
 import { parsePackPath } from '@utility/util/minecraftUtil'
-import { pickKeys } from '@utility/util/objUtils'
 import { updateUtilityModel } from './dfu'
 import { type UtilityModel } from './versions/latest'
 
@@ -305,26 +304,7 @@ export function createUtilityModelProjectFromUtilityModel(
 	}
 
 	if (model.display) {
-		// @ts-expect-error
 		DisplayMode.loadJSON(model.display)
-		// Load any utility model specific display settings into the project settings
-		for (const [key, settings] of Object.entries(model.display)) {
-			if (
-				settings.left_arm_rotation ||
-				settings.right_arm_rotation ||
-				settings.left_arm_rotation_when_offhand_occupied ||
-				settings.right_arm_rotation_when_offhand_occupied
-			) {
-				Project!.utility_display_settings[key as keyof UtilityModel.DisplayContainer] = {
-					...pickKeys(settings, [
-						'left_arm_rotation',
-						'right_arm_rotation',
-						'left_arm_rotation_when_offhand_occupied',
-						'right_arm_rotation_when_offhand_occupied',
-					]),
-				}
-			}
-		}
 	}
 
 	Canvas.updateAll()

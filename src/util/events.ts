@@ -22,6 +22,10 @@ const EVENTS = {
 	REF_MODEL_CHANGED: subscribable<{
 		refModel: refModel<keyof typeof displayReferenceObjects.refmodels>
 	}>(),
+	DISPLAY_SETTINGS_UPDATED: subscribable<DisplaySlot>(),
+
+	UNDO: subscribable<UndoEntry>(),
+	REDO: subscribable<UndoEntry>(),
 }
 export default EVENTS
 
@@ -36,4 +40,10 @@ Blockbench.on<EventName>('update_project_settings', formResult => {
 })
 Blockbench.on<EventName>('select_mode', ({ mode }: { mode: Mode }) => {
 	EVENTS.SELECT_MODE.publish({ mode })
+})
+Blockbench.on<EventName>('undo', ({ entry }: { entry: UndoEntry }) => {
+	EVENTS.UNDO.publish(entry)
+})
+Blockbench.on<EventName>('redo', ({ entry }: { entry: UndoEntry }) => {
+	EVENTS.REDO.publish(entry)
 })
