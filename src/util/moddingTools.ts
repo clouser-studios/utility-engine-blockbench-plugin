@@ -1,104 +1,170 @@
 import EVENTS from '@events'
-import type { ValidateResourceLocation } from './resourceLocation'
+import type { ResourceLocation } from './resourceLocation'
 import { subscribable, type Subscribable } from './subscribable'
 
 // Useful for describing context variables that will become BlochBench class properties in the inject function.
 export type ContextProperty<Type extends keyof IPropertyType> = Property<Type> | undefined
 
-class BlockbenchModInstallError extends Error {
+class ModInstallError extends Error {
 	constructor(id: string, err: Error) {
-		super(`Mod '${id}' failed to install: ${err.message}` + (err.stack ? '\n' + err.stack : ''))
+		super(`'${id}' failed to install: ${err.message}` + (err.stack ? '\n' + err.stack : ''))
 	}
 }
 
-class BlockbenchModUninstallError extends Error {
+class ModUninstallError extends Error {
 	constructor(id: string, err: Error) {
-		super(
-			`Mod '${id}' failed to uninstall: ${err.message}` + (err.stack ? '\n' + err.stack : '')
-		)
+		super(`'${id}' failed to uninstall: ${err.message}` + (err.stack ? '\n' + err.stack : ''))
 	}
 }
 
-interface BlockbenchMod {
-	applied: boolean
-	install: () => void
-	uninstall: () => void
+interface ModHandle {
+	id: string
+	dependencies?: string[]
+	priority: number
+	isInstalled(): boolean
+	install: () => Promise<void>
+	uninstall: () => Promise<void>
+}
+
+const REGISTERED_MODS = new Map<string, ModHandle>()
+const MOD_INSTALL_ORDER: string[] = []
+
+EVENTS.LOAD.subscribe(async () => {
+	console.groupCollapsed(`Installing Mods...`)
+	try {
+		for (const modId of MOD_INSTALL_ORDER) {
+			const mod = REGISTERED_MODS.get(modId)!
+			if (mod.isInstalled()) continue
+			await mod.install()
+		}
+	} catch (e) {
+		console.groupEnd()
+		throw e
+	}
+	console.groupEnd()
+	EVENTS.FINISHED_LOADING.publish()
+})
+
+EVENTS.UNLOAD.subscribe(async () => {
+	console.groupCollapsed(`Uninstalling Mods...`)
+	try {
+		for (const modId of [...MOD_INSTALL_ORDER].reverse()) {
+			const mod = REGISTERED_MODS.get(modId)!
+			if (!mod.isInstalled()) continue
+			await mod.uninstall()
+		}
+	} catch (e) {
+		console.groupEnd()
+		throw e
+	}
+	console.groupEnd()
+	EVENTS.FINISHED_UNLOADING.publish()
+})
+
+interface ModOptions<ID extends string, RevertContext extends any | void> {
+	id: ResourceLocation.Validate<ID>
+	/** A list of mod IDs that this mod depends on */
+	dependencies?: string[]
+	priority?: number
+	/** A function that applies the mod. This function should return a context object that will be passed to the revert function. */
+	apply: () => Promise<RevertContext> | RevertContext
+	/**
+	 * A function that reverts the mod
+	 * @param ctx The context object returned by the apply function
+	 */
+	revert: (ctx: RevertContext) => Promise<void> | void
+}
+
+function updateModInstallOrder() {
+	MOD_INSTALL_ORDER.sort((a, b) => {
+		const modA = REGISTERED_MODS.get(a)!
+		const modB = REGISTERED_MODS.get(b)!
+		return modB.priority - modA.priority
+	})
+
+	// Ensure dependencies are installed before the mod that depends on them
+	for (const modId of MOD_INSTALL_ORDER) {
+		const mod = REGISTERED_MODS.get(modId)!
+		if (mod.dependencies === undefined) continue
+		for (const dependencyId of mod.dependencies) {
+			const dependencyIndex = MOD_INSTALL_ORDER.indexOf(dependencyId)
+			if (dependencyIndex === -1) {
+				throw new Error(`Mod '${modId}' depends on unknown mod '${dependencyId}'`)
+			}
+			const modIndex = MOD_INSTALL_ORDER.indexOf(modId)
+			if (dependencyIndex > modIndex) {
+				// Move the dependency before the mod
+				MOD_INSTALL_ORDER.splice(dependencyIndex, 1)
+				MOD_INSTALL_ORDER.splice(modIndex, 0, dependencyId)
+			}
+		}
+	}
 }
 
 /**
- * A framework for creating Blockbench mods that automatically handles installation and uninstallation on the appropriate Blockbench EVENTS.
- * @example
- * ```ts
- * createBlockbenchMod({
- * 	id: 'my-plugin-id:my-mod',
- * 	collectContext: () => ({
- * 		original: Blockbench.Animation.prototype.select
- * 	}),
- * 	apply: ctx => {
- * 		// Apply changes
- * 		Blockbench.Animation.prototype.select = function(this: _Animation) {
- * 			if (Format.id === myFormat.id) {
- * 				// Do something here
- * 			}
- * 			return ctx.original.call(this)
- * 		}
- * 		return ctx
- * 	},
- * 	revert: ctx => {
- * 		// Revert changes
- * 		Blockbench.Animation.prototype.select = ctx.original
- * 	}
- * }
- * ```
+ * Registers a new mod. Mods are changes that need to be applied when the plugin is loaded, and reverted when the plugin is unloaded.
+ *
+ * Mods can depend on other mods, and will be installed in the correct order.
+ *
+ * If a mod fails to install, an error will be thrown, and the plugin will fail to load.
  */
-export function createBlockbenchMod<
-	ID extends string,
-	ApplyContext extends any,
-	RevertContext extends ApplyContext | void,
->({
-	id,
-	collectContext,
-	apply,
-	revert,
-	autoInstall = true,
-}: {
-	id: ValidateResourceLocation<ID>
-	collectContext?: () => ApplyContext
-	apply: (ctx: ApplyContext) => RevertContext
-	revert: (ctx: RevertContext) => void
-	autoInstall?: boolean
-}) {
+export function registerMod<ID extends string, RevertContext extends any | void>(
+	options: ModOptions<ID, RevertContext>
+) {
 	let applyContext: RevertContext
+	let installed = false
 
-	const handle: BlockbenchMod = {
-		applied: false,
-		install() {
+	if (REGISTERED_MODS.has(options.id)) {
+		throw new Error(`A Mod with the ID '${options.id}' is already registered!`)
+	}
+
+	const handle: ModHandle = {
+		id: options.id,
+		dependencies: options.dependencies,
+		priority: options.priority ?? 0,
+		isInstalled() {
+			return installed
+		},
+		async install() {
+			console.log(`Installing '${options.id}'`)
 			try {
-				if (this.applied) throw new Error('Mod is already installed!')
-				const context = collectContext?.()!
-				applyContext = apply(context)
-				this.applied = true
+				if (installed)
+					throw new Error(
+						`Attempted to install '${options.id}' while it was already installed.`
+					)
+				applyContext = await options.apply()
+				installed = true
 			} catch (err) {
-				throw new BlockbenchModInstallError(id, err as Error)
+				throw new ModInstallError(options.id, err as Error)
 			}
 		},
-		uninstall() {
+		async uninstall() {
+			console.log(`Uninstalling '${options.id}'`)
 			try {
-				if (!this.applied) throw new Error('Mod is not installed!')
-				revert(applyContext)
-				this.applied = false
+				if (!installed)
+					throw new Error(
+						`Attempted to uninstall '${options.id}' before it was installed.`
+					)
+				await options.revert(applyContext)
+				installed = false
 			} catch (err) {
-				throw new BlockbenchModUninstallError(id, err as Error)
+				throw new ModUninstallError(options.id, err as Error)
 			}
 		},
 	}
 
-	if (autoInstall) {
-		EVENTS.INSTALL_MODS.subscribe(handle.install.bind(handle))
-	}
-	EVENTS.UNINSTALL_MODS.subscribe(handle.uninstall.bind(handle))
+	REGISTERED_MODS.set(options.id, handle)
+	MOD_INSTALL_ORDER.push(options.id)
+	updateModInstallOrder()
 
 	return handle
+}
+
+interface DeletableEventHandler<T> {
+	/** The current instance of this deletable */
+	get(): T | undefined
+	onCreated: Subscribable<T>['subscribe']
+	onDeleted: Subscribable<T>['subscribe']
 }
 
 type CreateActionOptions = ActionOptions & {
@@ -107,84 +173,85 @@ type CreateActionOptions = ActionOptions & {
 	 */
 	menu_path?: string
 }
-/** Creates a new Blockbench.Action and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
- * See https://www.blockbench.net/wiki/api/action for more information on the Blockbench.Action class.
- * @param id A namespaced ID ('my-plugin-id:my-action')
- * @param options The options for the action.
- * @returns The created action.
- */
-export function createAction<ID extends string>(
-	id: ValidateResourceLocation<ID>,
-	options: CreateActionOptions
-) {
-	const action = new Action(id, options)
-	if (options.menu_path !== undefined) {
-		MenuBar.addAction(action, options.menu_path)
-	}
 
-	EVENTS.UNINSTALL_MODS.subscribe(() => {
-		if (options.menu_path !== undefined) {
-			MenuBar.removeAction(options.menu_path)
+/**
+ * Defines a new deletable register function, that handles the creation and deletion of deletables on the appropriate Blockbench events.
+ */
+function registerDeletableFactory<T extends Deletable, A extends any[]>(
+	createInstance: (id: string, ...args: A) => T,
+	deleteInstance: (instance: T) => void
+) {
+	return function handler<ID extends string>(id: ResourceLocation.Validate<ID>, ...args: A) {
+		let activeInstance: T | undefined
+		const created = subscribable<T>()
+		const deleted = subscribable<T>()
+
+		const handle: DeletableEventHandler<T> = {
+			get: () => activeInstance,
+			onCreated: created.subscribe,
+			onDeleted: deleted.subscribe,
 		}
-		action.delete()
-	}, true)
 
-	return action
+		registerMod({
+			id,
+			apply: () => {
+				activeInstance = createInstance(id, ...args)
+				created.publish(activeInstance)
+				return activeInstance
+			},
+			revert: lastInstance => {
+				deleteInstance(lastInstance)
+				activeInstance = undefined
+				deleted.publish(lastInstance)
+			},
+		})
+
+		return handle
+	}
 }
 
 /**
- * Creates a new Blockbench.ModelLoader and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
- * @param id A namespaced ID ('my-plugin-id:my-model-loader')
- * @param options The options for the model loader.
- * @returns The created model loader.
+ * Defines a new Blockbench.Action, and handles it's creation and deletion on the appropriate Blockbench events.
+ *
+ * See https://www.blockbench.net/wiki/api/action for more information on the Blockbench.Action class.
  */
-export function createModelLoader(id: string, options: ModelLoaderOptions): ModelLoader {
-	const modelLoader = new ModelLoader(id, options)
-
-	EVENTS.UNINSTALL_MODS.subscribe(() => {
-		modelLoader.delete()
-	}, true)
-
-	return modelLoader
-}
+export const registerAction = registerDeletableFactory(
+	(id, options: CreateActionOptions) => new Action(id, options),
+	action => action.delete()
+)
 
 /**
- * Creates a new Blockbench.Menu and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
- * See https://www.blockbench.net/wiki/api/menu for more information on the Blockbench.Menu class.
- * @param template The menu template.
- * @param options The options for the menu.
- * @returns The created menu.
+ * Defines a new Blockbench.ModelFormat, and handles it's creation and deletion on the appropriate Blockbench events.
+ *
+ * See https://www.blockbench.net/wiki/api/modelformat for more information on the Blockbench.ModelFormat class.
  */
-export function createMenu(template: MenuItem[], options?: MenuOptions) {
-	const menu = new Menu(template, options)
-
-	// EVENTS.EXTRACT_MODS.subscribe(() => {
-	// 	menu.delete()
-	// }, true)
-
-	return menu
-}
+export const registerModelFormat = registerDeletableFactory(
+	(id, options: Omit<FormatOptions, 'id'>) => new ModelFormat({ ...options, id }),
+	format => format.delete()
+)
 
 /**
- * Creates a new Blockbench.BarMenu and automatically handles it's deletion on the plugin unload and uninstall EVENTS.
- * @param id A namespaced ID ('my-plugin-id:my-menu')
- * @param structure The menu structure.
- * @param condition The condition for the menu to be visible.
- * @returns The created menu.
+ * Defines a new Blockbench.Codec, and handles it's creation and deletion on the appropriate Blockbench events.
+ *
+ * See https://www.blockbench.net/wiki/api/codec for more information on the Blockbench.Codec class.
  */
-export function createBarMenu<ID extends string>(
-	id: ValidateResourceLocation<ID>,
-	structure: MenuItem[],
-	condition: ConditionResolvable
-) {
-	const menu = new BarMenu(id, structure, condition)
+export const registerCodec = registerDeletableFactory(
+	(id, options: CodecOptions) => new Codec(id, { ...options }),
+	codec => codec.delete()
+)
 
-	// EVENTS.EXTRACT_MODS.subscribe(() => {
-	// 	menu.delete()
-	// }, true)
-
-	return menu
-}
+export const registerBarMenu = registerDeletableFactory(
+	(id, structure: MenuItem[], options?: BarMenuOptions) => new BarMenu(id, structure, options),
+	menubar => {
+		// Swap over to this when Blockbench updates to 5.0
+		// menubar.delete()
+		// Temporary implementation of `menubar.delete()` from Blockbench 5.0
+		// @ts-expect-error
+		menubar.node.remove()
+		menubar.label.remove()
+		delete MenuBar.menus[menubar.id]
+	}
+)
 
 interface Storage<Value = any> {
 	value: Value
@@ -247,7 +314,7 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 			configurable: true,
 		})
 
-		EVENTS.UNINSTALL_MODS.subscribe(() => {
+		EVENTS.UNLOAD.subscribe(() => {
 			const value = object[key]
 			delete object[key]
 			Object.defineProperty(object, key, {

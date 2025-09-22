@@ -1,25 +1,23 @@
-import { createBlockbenchMod } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { registerMod } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:animation/export-animation-file`,
-	collectContext: () => ({
-		exportAnimationFile: Animator.exportAnimationFile,
-	}),
-	apply: ctx => {
+	apply: () => {
+		const original = Animator.exportAnimationFile
 		Animator.exportAnimationFile = function (path: string) {
-			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+			if (currentFormatIsUtilityModelProject()) {
 				for (const anim of Blockbench.Animation.all) {
 					anim.saved = true
 				}
 				return
 			}
-			return ctx.exportAnimationFile(path)
+			return original(path)
 		}
 
-		return ctx
+		return { original }
 	},
-	revert: ctx => {
-		Animator.exportAnimationFile = ctx.exportAnimationFile
+	revert: ({ original }) => {
+		Animator.exportAnimationFile = original
 	},
 })

@@ -1,6 +1,6 @@
 {
 	"meta": {
-		"format": "utility-engine:utility_model",
+		"format": "utility-engine:format/utility-model-project",
 		"format_version": "0.0.7",
 		"uuid": "929a162f-73ab-2f10-ea44-49c3d9564b2a",
 		"project_save_path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test-models\\skinTexture.utilityproject",
@@ -590,6 +590,7 @@
 		}
 	],
 	"animation_controllers": [],
+	"front_gui_light": true,
 	"display_settings": {
 		"thirdperson_righthand": {
 			"slot_id": "thirdperson_righthand",
@@ -603,6 +604,26 @@
 		},
 		"thirdperson_lefthand": {
 			"slot_id": "thirdperson_lefthand",
+			"rotation": [0, 0, 0],
+			"translation": [0, 0, 0],
+			"scale": [1, 1, 1],
+			"rotation_pivot": [0, 0, 0],
+			"scale_pivot": [0, 0, 0],
+			"mirror": [false, false, false],
+			"fit_to_frame": false
+		},
+		"gui": {
+			"slot_id": "gui",
+			"rotation": [0, 0, 0],
+			"translation": [0, 0, 0],
+			"scale": [1, 1, 1],
+			"rotation_pivot": [0, 0, 0],
+			"scale_pivot": [0, 0, 0],
+			"mirror": [false, false, false],
+			"fit_to_frame": false
+		},
+		"fixed": {
+			"slot_id": "fixed",
 			"rotation": [0, 0, 0],
 			"translation": [0, 0, 0],
 			"scale": [1, 1, 1],

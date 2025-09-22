@@ -1,13 +1,14 @@
-import { createBlockbenchMod } from '@blockbench-tools'
+import { registerMod } from '@blockbench-tools'
+import { UTILITY_MODEL_PROJECT_FORMAT_ID } from '@utility/formats/utility-model-project'
 import { localize } from '@utility/util/lang'
 
-const UTILITY_CATEGORY_QUERY = 'li.format_category:has(li[format="utility-engine:utility_model"])'
+const UTILITY_CATEGORY_QUERY = `li.format_category:has(li[format="${UTILITY_MODEL_PROJECT_FORMAT_ID}"])`
 const GENERAL_CATEGORY_QUERY = `li.format_category:has(li[format="free"])`
 
 Language.data['format_category.utility-engine'] = localize('format_category.utility_engine')
 
 // Modifies the format category sorting order to insert Utility directly below General
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:format-category`,
 	apply: () => {
 		const interval = setInterval(() => {

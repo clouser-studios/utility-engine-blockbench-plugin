@@ -1,4 +1,4 @@
-import { type ContextProperty, createBlockbenchMod } from '@blockbench-tools'
+import { registerModelFormat } from '@blockbench-tools'
 import { injectComponent } from '@utility/svelte/injectComponent'
 import { createScopedTranslator } from '@utility/util/lang'
 import { UTILITY_MODEL_PROJECT_CODEC } from './codec'
@@ -10,22 +10,25 @@ const localize = createScopedTranslator('model_format.utility_model')
 import './icon'
 import './settings'
 
-// Hide the default format page title
-const INTERVAL = setInterval(() => {
-	const title = $('div[id="format_page_utility-engine:utility_model"] h2')[0]
-	if (!title) return
-	title.style.display = 'none'
-	clearInterval(INTERVAL)
-})
+export const UTILITY_MODEL_PROJECT_FORMAT_ID = 'utility-engine:format/utility-model-project'
 
-export function saveUtilityModelProject() {
-	if (!Project || UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) return
-	Animator.exportAnimationFile('')
-	UTILITY_MODEL_PROJECT_CODEC.write(UTILITY_MODEL_PROJECT_CODEC.compile(), Project.save_path)
+export const currentFormatIsUtilityModelProject = () => {
+	return Format === UTILITY_MODEL_PROJECT_FORMAT.get()
 }
 
-export const UTILITY_MODEL_PROJECT_FORMAT = new Blockbench.ModelFormat({
-	id: `utility-engine:utility_model`,
+export function saveUtilityModelProject() {
+	if (!Project || currentFormatIsUtilityModelProject()) return
+	Animator.exportAnimationFile('')
+	const codec = UTILITY_MODEL_PROJECT_CODEC.get()
+	if (!codec) {
+		throw new Error(
+			'Tried to save as Utility Model project, but the Utility Model Project codec was not found!'
+		)
+	}
+	codec.write(codec.compile(), Project.save_path)
+}
+
+export const UTILITY_MODEL_PROJECT_FORMAT = registerModelFormat(UTILITY_MODEL_PROJECT_FORMAT_ID, {
 	name: localize('name'),
 	icon: 'fa-gear',
 	category: 'utility-engine',
@@ -39,14 +42,30 @@ export const UTILITY_MODEL_PROJECT_FORMAT = new Blockbench.ModelFormat({
 	format_page: {
 		component: {
 			created() {
-				void injectComponent({
+				// Hide the default format page title
+				const hideTitleInterval = setInterval(() => {
+					const title = $(
+						`div[id="format_page_${UTILITY_MODEL_PROJECT_FORMAT_ID}"] h2`
+					)[0]
+					if (!title) return
+					title.style.display = 'none'
+					clearInterval(hideTitleInterval)
+				})
+
+				const unmountCallback = injectComponent({
 					elementSelector() {
-						return $(`div[id="utility-engine:utility_model/format_page_mount"]`)[0]
+						return document.querySelector(
+							`div[id="${UTILITY_MODEL_PROJECT_FORMAT_ID}/format_page_mount"]`
+						) as HTMLElement
 					},
 					component: FormatPage,
 				})
+				UTILITY_MODEL_PROJECT_FORMAT.onDeleted(() => {
+					void unmountCallback()
+					clearInterval(hideTitleInterval)
+				})
 			},
-			template: `<div id="utility-engine:utility_model/format_page_mount" style="display: flex; flex-direction: column; flex-grow: 1;"></div>`,
+			template: `<div id="${UTILITY_MODEL_PROJECT_FORMAT_ID}/format_page_mount" style="display: flex; flex-direction: column; flex-grow: 1;"></div>`,
 		},
 	},
 
@@ -90,46 +109,18 @@ export const UTILITY_MODEL_PROJECT_FORMAT = new Blockbench.ModelFormat({
 	vertex_color_ambient_occlusion: true,
 })
 
-UTILITY_MODEL_PROJECT_FORMAT.codec = UTILITY_MODEL_PROJECT_CODEC
-UTILITY_MODEL_PROJECT_CODEC.format = UTILITY_MODEL_PROJECT_FORMAT
-
-createBlockbenchMod({
-	id: `utility-engine:utility-model/model-format-properties`,
-	collectContext: () => ({
-		modelIdentifierProperty: undefined as ContextProperty<'string'>,
-		defaultBackfaceCullingModeProperty: undefined as ContextProperty<'string'>,
-	}),
-	apply: ctx => {
-		ctx.modelIdentifierProperty = new Property(ModelProject, 'string', 'model_identifier', {
-			label: localize('project_settings.model_identifier'),
-			condition: {
-				formats: [UTILITY_MODEL_PROJECT_FORMAT.id],
-			},
-		})
-		ctx.defaultBackfaceCullingModeProperty = new Property(
-			ModelProject,
-			'string',
-			'default_backface_culling_mode',
-			{
-				label: localize('project_settings.default_backface_culling_mode.title'),
-				condition: {
-					formats: [UTILITY_MODEL_PROJECT_FORMAT.id],
-				},
-				options: {
-					no_culling: localize(
-						'project_settings.default_backface_culling_mode.options.no_culling'
-					),
-					cull_backfaces: localize(
-						'project_settings.default_backface_culling_mode.options.cull_backfaces'
-					),
-				},
-				default: false,
-			}
+UTILITY_MODEL_PROJECT_FORMAT.onCreated(format => {
+	const codec = UTILITY_MODEL_PROJECT_CODEC.get()
+	if (!codec) {
+		throw new Error(
+			'Tried to associate Utility Model Project format with the Utility Model Project codec, but the codec was not found!'
 		)
-		return ctx
-	},
-	revert: ctx => {
-		ctx.modelIdentifierProperty?.delete()
-		ctx.defaultBackfaceCullingModeProperty?.delete()
-	},
+	}
+	format.codec = codec
+	codec.format = format
+})
+
+UTILITY_MODEL_PROJECT_FORMAT.onDeleted(() => {
+	// @ts-expect-error
+	UTILITY_MODEL_PROJECT_CODEC.format = undefined
 })

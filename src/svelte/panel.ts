@@ -1,14 +1,15 @@
 import PACKAGE from '@package'
-import { awaitResult } from '@utility/util/promises'
-import type { ValidateResourceLocation } from '@utility/util/resourceLocation'
+import { pollUntilResult } from '@utility/util/promises'
+import type { ResourceLocation } from '@utility/util/resourceLocation'
 import { mount } from 'svelte'
 import type { ComponentMountOptions, GenericComponent } from './helperTypes'
 
 type SveltePanelOptions<ID extends string, C extends GenericComponent> = {
-	id: ValidateResourceLocation<ID>
+	id: ResourceLocation.Validate<ID>
 } & Omit<PanelOptions, 'component'> &
 	Omit<ComponentMountOptions<C>, 'outro'>
 
+// FIXME - Needs to handle unmounting when the plugin is disabled
 export class SveltePanel<ID extends string, C extends GenericComponent> extends Panel {
 	instance?: ReturnType<typeof mount> | undefined
 
@@ -23,7 +24,13 @@ export class SveltePanel<ID extends string, C extends GenericComponent> extends 
 			},
 		})
 
-		void awaitResult(() => document.querySelector(`#${mountId}`)).then(el => {
+		void pollUntilResult(
+			() => {
+				return document.querySelector(`#${mountId}`)
+			},
+			// FIXME - this will never stop polling if the panel is never added to the DOM
+			() => true
+		).then(el => {
 			this.instance = mount(options.component, {
 				target: el!,
 				props: options.props,

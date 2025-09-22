@@ -1,6 +1,6 @@
 import SteveSkin from '@assets/steve.png'
-import { createAction, createBlockbenchMod } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { registerAction, registerMod } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 import { SvelteDialog } from '@utility/svelte/dialog'
 import { localize } from '@utility/util/lang'
 import { syncable } from '@utility/util/stores'
@@ -65,12 +65,12 @@ async function promptForUsername() {
 	})
 }
 
-export const CREATE_SKIN_TEXTURE_ACTION = createAction(`utility-engine:create-skin-texture`, {
+export const CREATE_SKIN_TEXTURE_ACTION = registerAction(`utility-engine:create-skin-texture`, {
 	name: localize('action.create_skin_texture.label'),
 	icon: 'portrait',
 	condition() {
 		return (
-			UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat() &&
+			currentFormatIsUtilityModelProject() &&
 			// Project can only have one skin texture
 			!Texture.all.some(v => v instanceof SkinTexture)
 		)
@@ -79,8 +79,11 @@ export const CREATE_SKIN_TEXTURE_ACTION = createAction(`utility-engine:create-sk
 		new SkinTexture().add(true)
 	},
 })
-requestAnimationFrame(() => {
-	Toolbars.texturelist.add(CREATE_SKIN_TEXTURE_ACTION)
+CREATE_SKIN_TEXTURE_ACTION.onCreated(action => {
+	Toolbars.texturelist.add(action)
+})
+CREATE_SKIN_TEXTURE_ACTION.onDeleted(action => {
+	Toolbars.texturelist.remove(action)
 })
 
 declare global {
@@ -104,19 +107,17 @@ class OverrideTexture extends Texture {
 	}
 }
 
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:skin-texture/override-texture-class`,
-	collectContext: () => ({
-		original: Texture,
-	}),
-	apply: ctx => {
+	apply: () => {
+		const original = Texture
 		// @ts-expect-error
 		Texture = OverrideTexture
-		return ctx
+		return { original }
 	},
-	revert: ctx => {
+	revert: ({ original }) => {
 		// @ts-expect-error
-		Texture = ctx.original
+		Texture = original
 	},
 })
 

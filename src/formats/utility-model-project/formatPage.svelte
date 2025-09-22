@@ -8,7 +8,7 @@
 
 <script lang="ts">
 	function createModel() {
-		newProject(UTILITY_MODEL_PROJECT_FORMAT)
+		newProject(UTILITY_MODEL_PROJECT_FORMAT.get()!)
 		requestAnimationFrame(() => {
 			Project!.openSettings()
 		})
@@ -29,7 +29,7 @@
 	<span>Minecraft: Java Edition</span>
 </p>
 
-{@html pureMarked(localize('format_page'))}
+{@html localize('format_page')}
 
 <div class="button_bar">
 	<button onclick={() => createModel()}>
@@ -57,8 +57,4 @@
 		width: 100%;
 		height: 40px;
 	}
-
-	/* li {
-		margin-left: 24px;
-	} */
 </style>

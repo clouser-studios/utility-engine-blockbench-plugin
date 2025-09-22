@@ -1,40 +1,47 @@
-import { createBlockbenchMod } from '@blockbench-tools'
+import { registerMod } from '@blockbench-tools'
 import {
+	currentFormatIsUtilityModelProject,
 	UTILITY_MODEL_CODEC,
-	UTILITY_MODEL_PROJECT_FORMAT,
 } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:export-over-mod`,
-	collectContext: () => ({
-		action: BarItems.export_over as Action,
-		originalClick: (BarItems.export_over as Action).click,
-	}),
-	apply: ctx => {
-		ctx.action.click = (event: Event) => {
+	apply: () => {
+		const action = BarItems.export_over as Action
+		const originalClick = action.click
+
+		action.click = (event: Event) => {
 			if (!Project || !Format) return
-			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+			const codec = UTILITY_MODEL_CODEC.get()
+			if (!codec) {
+				throw new Error(
+					'Tried to export as Utility Model, but the Utility Model codec was not found!'
+				)
+			}
+
+			if (currentFormatIsUtilityModelProject()) {
 				const path = Project?.save_path
 				if (path) {
 					if (fs.existsSync(PathModule.dirname(path))) {
 						Project.save_path = path
-						UTILITY_MODEL_CODEC.write(UTILITY_MODEL_CODEC.compile(), path)
+						codec.write(codec.compile(), path)
 					} else {
 						console.error(
 							`Failed to export Utility Model, file location '${path}' does not exist!`
 						)
-						UTILITY_MODEL_CODEC.export()
+						codec.export()
 					}
 				} else {
-					UTILITY_MODEL_CODEC.export()
+					codec.export()
 				}
 			} else {
-				ctx.originalClick.call(ctx.action, event)
+				originalClick.call(action, event)
 			}
 		}
-		return ctx
+
+		return { action, originalClick }
 	},
-	revert: ctx => {
-		ctx.action.click = ctx.originalClick
+	revert: ({ action, originalClick }) => {
+		action.click = originalClick
 	},
 })

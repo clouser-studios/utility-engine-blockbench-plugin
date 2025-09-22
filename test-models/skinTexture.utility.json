@@ -115,15 +115,6 @@
 			}
 		]
 	},
-	"display": {
-		"thirdperson_righthand": {
-			"rotation": [50, 0, 0],
-			"right_arm_rotation": [76, 0, 0]
-		},
-		"thirdperson_lefthand": {
-			"left_arm_rotation": [-50, 41, -34]
-		}
-	},
 	"meshes": [
 		{
 			"name": "cuboid",
@@ -324,5 +315,15 @@
 			"loop_mode": "once",
 			"loop_delay": "0"
 		}
-	]
+	],
+	"front_gui_light": true,
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [50, 0, 0],
+			"right_arm_rotation": [76, 0, 0]
+		},
+		"thirdperson_lefthand": {
+			"left_arm_rotation": [-50, 41, -34]
+		}
+	}
 }

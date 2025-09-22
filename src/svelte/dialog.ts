@@ -1,4 +1,4 @@
-import type { ValidateResourceLocation } from '@utility/util/resourceLocation'
+import type { ResourceLocation } from '@utility/util/resourceLocation'
 import { mount, unmount, type Component } from 'svelte'
 import type { ComponentMountOptions, GenericComponent } from './helperTypes'
 
@@ -29,7 +29,7 @@ type SvelteDialogOptions<
 	'lines' | 'sidebar' | 'component' | 'form' | 'part_order' | 'form_first' | 'title' | 'id'
 > & {
 	title: string | ComponentMountOptions<TitleC>
-	id: ValidateResourceLocation<ID>
+	id: ResourceLocation.Validate<ID>
 	disableKeybinds?: boolean
 	disableConfirmKeybind?: boolean
 	disableCancelKeybind?: boolean

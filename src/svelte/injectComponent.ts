@@ -1,4 +1,4 @@
-import { awaitResult } from '@utility/util/promises'
+import { pollUntilResult } from '@utility/util/promises'
 import { mount, unmount, type Component } from 'svelte'
 import type { ComponentMountOptions } from './helperTypes'
 
@@ -7,7 +7,7 @@ interface InjectSvelteComponentOptions<C extends Component<any, any>, E extends 
 	/**
 	 * A function that returns the element to inject the component into.
 	 *
-	 * This function will be polled until it returns a non-null value.
+	 * This function will be polled until it returns a non-nullish value.
 	 * @returns The element to inject the component into
 	 */
 	elementSelector: () => E | undefined | null
@@ -28,37 +28,52 @@ interface InjectSvelteComponentOptions<C extends Component<any, any>, E extends 
 	injectIndex?: number
 }
 
-type UnmountCallback = () => void
-
 /**
- * Injects a svelte component into the DOM.
+ * Attempts to mount a Svelte component into an element specified by `elementSelector`.
+ *
+ * The `elementSelector` function will be polled until it returns a non-null value, at which point the component will be mounted.
+ *
+ * @returns A function that cancels the mounting if it hasn't been mounted yet, or unmounts the component if it has been mounted.
  */
-export async function injectComponent<C extends Component<any, any>, E extends HTMLElement>(
+export function injectComponent<C extends Component<any, any>, E extends HTMLElement>(
 	options: InjectSvelteComponentOptions<C, E>
-): Promise<UnmountCallback> {
-	const target = await awaitResult(options.elementSelector)
-	const anchor = document.createComment(`injected-svelte-component-` + guid())
+): () => Promise<void> {
+	let cancelled = false
+	let mountResult: ReturnType<typeof mount> | undefined
+	let anchor: Comment | undefined
 
-	if (options.prepend) {
-		target.insertBefore(anchor, target.firstChild)
-	} else if (options.injectIndex !== undefined) {
-		target.insertBefore(anchor, target.children[options.injectIndex] || null)
-	} else {
-		target.appendChild(anchor)
-	}
+	let mountedPromise = new Promise<void>(async resolve => {
+		const target = await pollUntilResult(options.elementSelector, () => cancelled)
+		anchor = document.createComment(`injected-svelte-component-` + guid())
 
-	const mountResult = mount(options.component, {
-		target,
-		anchor,
-		props: options.props,
-		intro: options.intro,
-		context: options.context,
+		if (options.prepend) {
+			target.insertBefore(anchor, target.firstChild)
+		} else if (options.injectIndex !== undefined) {
+			target.insertBefore(anchor, target.children[options.injectIndex] || null)
+		} else {
+			target.appendChild(anchor)
+		}
+
+		mountResult = mount(options.component, {
+			target,
+			anchor,
+			props: options.props,
+			intro: options.intro,
+			context: options.context,
+		})
+
+		if (options.postMount) options.postMount(mountResult!, target)
+
+		resolve()
+	}).catch(e => {
+		if (!cancelled) throw e
 	})
 
-	if (options.postMount) options.postMount(mountResult, target)
-
 	return async () => {
-		await unmount(mountResult, { outro: options.outro })
-		anchor.remove()
+		// Cancel the promise if the component is unmounted before it could be injected.
+		cancelled = true
+		await mountedPromise
+		if (mountResult) await unmount(mountResult, { outro: options.outro })
+		anchor?.remove()
 	}
 }

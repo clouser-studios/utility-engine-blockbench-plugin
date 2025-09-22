@@ -1,11 +1,11 @@
 import Icon from '@assets/icons/nobackground.png'
-import { createAction } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { registerAction } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
 import { localize } from '@utility/util/lang'
 import { parsePackPath } from '@utility/util/minecraftUtil'
 import { scrubUndefined } from '@utility/util/objUtils'
-import { type v0_0_1 as UtilityModel } from './versions/0.0.1'
+import { type UtilityModel } from './versions/latest'
 
 const FORMAT_VERSION = '0.0.1'
 
@@ -40,7 +40,7 @@ function validateTextures() {
 function renderCube(cube: Cube) {
 	if (!cube.export) return
 
-	const element = { uuid: cube.uuid } as UtilityModel.IElement
+	const element = { uuid: cube.uuid } as UtilityModel.Element
 
 	element.from = [...cube.from]
 	element.to = [...cube.to]
@@ -62,7 +62,7 @@ function renderCube(cube: Cube) {
 	element.faces = {}
 	for (const [face, data] of Object.entries(cube.faces)) {
 		if (!data?.texture) continue
-		const renderedFace = {} as UtilityModel.IElementFace
+		const renderedFace = {} as UtilityModel.ElementFace
 		if (data.enabled) {
 			renderedFace.uv = data.uv
 				.slice()
@@ -83,8 +83,8 @@ function renderCube(cube: Cube) {
 	return element
 }
 
-function renderMesh(mesh: Mesh): UtilityModel.IMesh {
-	const saveCopy = mesh.getSaveCopy!() as UtilityModel.IMeshSaveCopy
+function renderMesh(mesh: Mesh): UtilityModel.Mesh {
+	const saveCopy = mesh.getSaveCopy!() as UtilityModel.MeshSaveCopy
 
 	for (const [key, face] of Object.entries(mesh.faces)) {
 		saveCopy.faces[key].vertices = face.getSortedVertices().slice()
@@ -112,16 +112,16 @@ function renderMesh(mesh: Mesh): UtilityModel.IMesh {
 }
 
 function recurseStructure(
-	model: UtilityModel.IUtilityModelJSON,
+	model: UtilityModel.Json,
 	children: OutlinerNode[]
 	// parent?: Group
-): UtilityModel.IStructure {
-	const structure: UtilityModel.IStructure = {}
+): UtilityModel.Structure {
+	const structure: UtilityModel.Structure = {}
 
 	for (const child of children) {
 		if (!child.export) continue
 		if (child instanceof Group) {
-			const bone: UtilityModel.IBone = {
+			const bone: UtilityModel.Bone = {
 				name: child.name,
 				rotation: {
 					euler: child.rotation,
@@ -152,10 +152,10 @@ function recurseStructure(
 	return structure
 }
 
-function createUtilityModel(): UtilityModel.IUtilityModelJSON {
+function createUtilityModel(): UtilityModel.Json {
 	validateTextures()
 
-	const model: UtilityModel.IUtilityModelJSON = {
+	const model: UtilityModel.Json = {
 		__comment:
 			'Created in Blockbench, exported via Utility Engine. Will not work in Vanilla Minecraft!',
 		format_version: FORMAT_VERSION,
@@ -187,7 +187,7 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 
 	model.structure = recurseStructure(model, Outliner.root)
 
-	const animations: UtilityModel.IUtilityModelJSON['animations'] = []
+	const animations: UtilityModel.Json['animations'] = []
 	for (const animation of Blockbench.Animation.all) {
 		const bedrock = animation.compileBedrockAnimation()
 		animations.push({
@@ -200,9 +200,13 @@ function createUtilityModel(): UtilityModel.IUtilityModelJSON {
 	}
 	if (animations.length) model.animations = animations
 
+	if (Project!.front_gui_light) {
+		model.front_gui_light = true
+	}
+
 	const display = {} as UtilityModel.DisplayContainer
 	for (const [key, settings] of Object.entries(Project!.display_settings)) {
-		const reducedSettings: UtilityModel.IDisplay = {}
+		const reducedSettings: UtilityModel.Display = {}
 		if (!settings.rotation.allAre(v => v === 0)) {
 			reducedSettings.rotation = [...settings.rotation]
 		}
@@ -283,30 +287,29 @@ export function exportUtilityModel(path?: string) {
 	}
 }
 
-export const EXPORT_UTILITY_MODEL_AS_ACTION = createAction(
+export const EXPORT_UTILITY_MODEL_AS_ACTION = registerAction(
 	`utility-engine:export-utility-model-as`,
 	{
 		name: localize('action.export_utility_model_as.label'),
 		icon: Icon,
-		condition() {
-			return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
-		},
+		condition: () => currentFormatIsUtilityModelProject(),
 		click() {
 			exportUtilityModel()
 		},
 	}
 )
+EXPORT_UTILITY_MODEL_AS_ACTION.onCreated(action => {
+	MenuBar.addAction(action, 'file.export.1')
+})
 
-export const EXPORT_UTILITY_MODEL_ACTION = createAction(`utility-engine:export-utility-model`, {
+export const EXPORT_UTILITY_MODEL_ACTION = registerAction(`utility-engine:export-utility-model`, {
 	name: localize('action.export_utility_model.label'),
 	icon: Icon,
-	condition() {
-		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
-	},
+	condition: () => currentFormatIsUtilityModelProject(),
 	click() {
 		exportUtilityModel(Project!.export_path)
 	},
 })
-
-MenuBar.addAction(EXPORT_UTILITY_MODEL_ACTION, 'file.export.0')
-MenuBar.addAction(EXPORT_UTILITY_MODEL_AS_ACTION, 'file.export.1')
+EXPORT_UTILITY_MODEL_ACTION.onCreated(action => {
+	MenuBar.addAction(action, 'file.export.0')
+})

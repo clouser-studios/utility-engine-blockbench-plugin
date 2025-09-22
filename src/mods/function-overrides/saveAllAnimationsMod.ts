@@ -1,15 +1,14 @@
-import { createBlockbenchMod } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { registerMod } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:save-all-animations`,
-	collectContext: () => ({
-		action: BarItems.save_all_animations as Action,
-	}),
-	apply: ctx => {
-		const originalCondition = ctx.action.condition!
-		ctx.action.condition = function (this: Action, context: any) {
-			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+	apply: () => {
+		const action = BarItems.save_all_animations as Action
+		const originalCondition = action.condition!
+
+		action.condition = function (this: Action, context: any) {
+			if (currentFormatIsUtilityModelProject()) {
 				return false
 			}
 			if (typeof originalCondition === 'function') {
@@ -17,9 +16,10 @@ createBlockbenchMod({
 			}
 			return Condition(originalCondition)
 		}
-		return { ...ctx, originalCondition }
+
+		return { action, originalCondition }
 	},
-	revert: ctx => {
-		ctx.action.condition = ctx.originalCondition
+	revert: ({ action, originalCondition }) => {
+		action.condition = originalCondition
 	},
 })

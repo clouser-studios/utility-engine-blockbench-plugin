@@ -1,5 +1,5 @@
-import { createBlockbenchMod } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { registerMod } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 
 const ANIMATION_RENAME_ACTION_CONTENT =
 	"() => Prop.active_panel == 'animations' && AnimationItem.selected"
@@ -11,17 +11,20 @@ declare global {
 	}
 }
 
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:animation-rename-action`,
-	collectContext: () => ({
-		action: undefined as (typeof SharedActions.actions.rename)[0] | undefined,
-		originalCondition: undefined as unknown as () => boolean,
-		newCondition: undefined as unknown as () => boolean,
-	}),
-	apply: ctx => {
-		ctx.newCondition = () => {
-			if (!UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
-				return Condition(ctx.originalCondition)
+	apply: () => {
+		const handler = SharedActions.actions.rename.find(v => {
+			return v.condition?.toString() === ANIMATION_RENAME_ACTION_CONTENT
+		})
+		if (!handler) {
+			throw new Error('Failed to find rename action handler!')
+		}
+		const originalCondition = handler.condition
+
+		handler.condition = () => {
+			if (!currentFormatIsUtilityModelProject()) {
+				return Condition(originalCondition)
 			}
 			// @ts-expect-error
 			if (Prop.active_panel === 'animations' && AnimationItem.selected) {
@@ -34,21 +37,9 @@ createBlockbenchMod({
 			return false
 		}
 
-		const interval = setInterval(() => {
-			ctx.action = SharedActions.actions.rename.find(
-				v => v.condition?.toString() === ANIMATION_RENAME_ACTION_CONTENT
-			)
-			if (!ctx.action) return
-			ctx.action.condition = ctx.newCondition
-			clearInterval(interval)
-		}, 16)
-		return ctx
+		return { handler, originalCondition }
 	},
-	revert: ctx => {
-		const action = SharedActions.actions.rename.find(
-			v => v.toString() === ctx.newCondition.toString()
-		)
-		if (!action) return
-		action.condition = ctx.originalCondition
+	revert: ({ handler, originalCondition }) => {
+		handler.condition = originalCondition
 	},
 })

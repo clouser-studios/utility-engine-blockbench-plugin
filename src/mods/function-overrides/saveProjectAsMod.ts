@@ -1,27 +1,34 @@
-import { createBlockbenchMod } from '@blockbench-tools'
+import { registerMod } from '@blockbench-tools'
 import {
+	currentFormatIsUtilityModelProject,
 	UTILITY_MODEL_CODEC,
-	UTILITY_MODEL_PROJECT_FORMAT,
 } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:save-project-as`,
-	collectContext: () => ({
-		action: BarItems.save_project_as as Action,
-		originalClick: (BarItems.save_project_as as Action).click,
-	}),
-	apply: ctx => {
-		ctx.action.click = (event: Event) => {
+	apply: () => {
+		const action = BarItems.save_project_as as Action
+		const originalClick = action.click
+
+		action.click = (event: Event) => {
 			if (!Project || !Format) return
-			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
-				UTILITY_MODEL_CODEC.export()
+			const codec = UTILITY_MODEL_CODEC.get()
+			if (!codec) {
+				throw new Error(
+					'Tried to export as Utility Model, but the Utility Model codec was not found!'
+				)
+			}
+
+			if (currentFormatIsUtilityModelProject()) {
+				codec.export()
 			} else {
-				ctx.originalClick.call(ctx.action, event)
+				originalClick.call(action, event)
 			}
 		}
-		return ctx
+
+		return { action, originalClick }
 	},
-	revert: ctx => {
-		ctx.action.click = ctx.originalClick
+	revert: ({ action, originalClick }) => {
+		action.click = originalClick
 	},
 })

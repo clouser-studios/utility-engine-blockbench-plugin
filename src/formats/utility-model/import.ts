@@ -1,12 +1,12 @@
 import Icon from '@assets/icons/nobackground.png'
-import { createAction } from '@blockbench-tools'
+import { registerAction } from '@blockbench-tools'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
 import { localize } from '@utility/util/lang'
 import { parsePackPath } from '@utility/util/minecraftUtil'
 import { pickKeys } from '@utility/util/objUtils'
 import { updateUtilityModel } from './dfu'
-import { type latest as UtilityModel } from './versions/latest'
+import { type UtilityModel } from './versions/latest'
 
 export class ImportError extends Error {
 	constructor(key: string, ...args: string[]) {
@@ -19,20 +19,20 @@ export class ImportError extends Error {
  * Imports the structure, elements, and meshes of a utility model.
  */
 function buildOutliner(
-	structure: UtilityModel.IStructure,
-	elements?: UtilityModel.IElement[],
-	meshes?: UtilityModel.IMesh[]
+	structure: UtilityModel.Structure,
+	elements?: UtilityModel.Element[],
+	meshes?: UtilityModel.Mesh[]
 ) {
-	function importCube(element: UtilityModel.IElement, parent?: Group) {
+	function importCube(element: UtilityModel.Element, parent?: Group) {
 		// Logic to import a single element
 		console.log(`Importing element: ${element.uuid}`)
 
-		const saveCopy: UtilityModel.IElement & { type: 'cube' } = {
+		const saveCopy: UtilityModel.Element & { type: 'cube' } = {
 			...element,
 			type: 'cube',
 		}
 		for (const [name, face] of Object.entries(saveCopy.faces ?? {}) as Array<
-			[string, Omit<UtilityModel.IElementFace, 'texture'> & { texture: string | Texture }]
+			[string, Omit<UtilityModel.ElementFace, 'texture'> & { texture: string | Texture }]
 		>) {
 			if (face.texture === undefined) continue
 			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
@@ -48,11 +48,11 @@ function buildOutliner(
 		newElement.addTo(parent)
 	}
 
-	function importMesh(mesh: UtilityModel.IMesh, parent?: Group) {
+	function importMesh(mesh: UtilityModel.Mesh, parent?: Group) {
 		// Logic to import a single mesh
 		console.log(`Importing mesh: ${mesh.uuid}`)
 
-		const saveCopy: UtilityModel.IMeshSaveCopy & { type: 'mesh' } = {
+		const saveCopy: UtilityModel.MeshSaveCopy & { type: 'mesh' } = {
 			type: 'mesh',
 			name: mesh.name,
 			uuid: mesh.uuid,
@@ -63,7 +63,7 @@ function buildOutliner(
 		}
 
 		for (const [name, face] of Object.entries(saveCopy.faces) as Array<
-			[string, Omit<UtilityModel.IMeshFace, 'texture'> & { texture: string | Texture }]
+			[string, Omit<UtilityModel.MeshFace, 'texture'> & { texture: string | Texture }]
 		>) {
 			if (face.texture === undefined) continue
 			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
@@ -80,7 +80,7 @@ function buildOutliner(
 		newMesh.addTo(parent)
 	}
 
-	function importStructure(struct: UtilityModel.IStructure, parent?: Group) {
+	function importStructure(struct: UtilityModel.Structure, parent?: Group) {
 		for (const uuid of struct.elements ?? []) {
 			const element = elements?.find(e => e.uuid === uuid)
 			if (!element) {
@@ -104,7 +104,7 @@ function buildOutliner(
 		}
 	}
 
-	function importBone(bone: UtilityModel.IBone, parent?: Group) {
+	function importBone(bone: UtilityModel.Bone, parent?: Group) {
 		// Logic to import a single bone
 		console.log(`Importing bone: ${bone.name}`)
 
@@ -121,7 +121,7 @@ function buildOutliner(
 	importStructure(structure)
 }
 
-function importTextures(textures: UtilityModel.IUtilityModelJSON['textures'], projectPath = '') {
+function importTextures(textures: UtilityModel.Json['textures'], projectPath = '') {
 	const particleResourceLocation = textures.particle ?? ''
 
 	const duplicateParticleTextureId = Object.entries(textures).find(([id, resourceLocation]) => {
@@ -232,7 +232,7 @@ function processBoneKeyframe(
 	return keyframe
 }
 
-function processBoneKeyframes(bone: UtilityModel.IAnimationBone) {
+function processBoneKeyframes(bone: UtilityModel.AnimationBone) {
 	const keyframes: KeyframeOptions[] = []
 	for (const [time, data] of Object.entries(bone.position)) {
 		keyframes.push(processBoneKeyframe(time, data, 'position'))
@@ -246,7 +246,7 @@ function processBoneKeyframes(bone: UtilityModel.IAnimationBone) {
 	return keyframes
 }
 
-function importAnimations(animations: UtilityModel.IUtilityModelJSON['animations']) {
+function importAnimations(animations: UtilityModel.Json['animations']) {
 	for (const animation of animations ?? []) {
 		console.log(`Importing animation: ${animation.name}`)
 
@@ -278,12 +278,12 @@ function importAnimations(animations: UtilityModel.IUtilityModelJSON['animations
 }
 
 export function createUtilityModelProjectFromUtilityModel(
-	model: UtilityModel.IUtilityModelJSON,
+	model: UtilityModel.Json,
 	projectPath = ''
 ): void {
 	model = updateUtilityModel(model)
 
-	newProject(UTILITY_MODEL_PROJECT_FORMAT)
+	newProject(UTILITY_MODEL_PROJECT_FORMAT.get()!)
 
 	Project!.export_path = projectPath
 
@@ -297,6 +297,12 @@ export function createUtilityModelProjectFromUtilityModel(
 	importTextures(model.textures, projectPath)
 	buildOutliner(model.structure, model.elements, model.meshes)
 	importAnimations(model.animations)
+
+	if (model.front_gui_light) {
+		Project!.front_gui_light = true
+		// @ts-expect-error - Missing type
+		DisplayMode.updateGUILight()
+	}
 
 	if (model.display) {
 		// @ts-expect-error
@@ -344,12 +350,13 @@ export function importUtilityModel() {
 	)
 }
 
-export const IMPORT_UTILITY_MODEL_ACTION = createAction(`utility-engine:import-utility-model`, {
+export const IMPORT_UTILITY_MODEL_ACTION = registerAction(`utility-engine:import-utility-model`, {
 	name: localize('action.import_utility_model.label'),
 	icon: Icon,
 	click() {
 		importUtilityModel()
 	},
 })
-
-MenuBar.addAction(IMPORT_UTILITY_MODEL_ACTION, 'file.import.0')
+IMPORT_UTILITY_MODEL_ACTION.onCreated(action => {
+	MenuBar.addAction(action, 'file.import.0')
+})

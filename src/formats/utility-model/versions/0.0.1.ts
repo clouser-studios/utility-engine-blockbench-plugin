@@ -1,20 +1,20 @@
 export namespace v0_0_1 {
-	export interface IMeshFaceSaveCopy {
+	export interface MeshFaceSaveCopy {
 		uv: Record<string, number[]>
 		vertices: string[]
 		texture: string
 	}
 
-	export interface IMeshSaveCopy {
+	export interface MeshSaveCopy {
 		name: string
 		uuid: string
 		rotation: ArrayVector3
 		origin: ArrayVector3
 		vertices: Record<string, ArrayVector3>
-		faces: Record<string, IMeshFaceSaveCopy>
+		faces: Record<string, MeshFaceSaveCopy>
 	}
 
-	export interface IElementFace {
+	export interface ElementFace {
 		uv: number[]
 		rotation?: number
 		texture: string
@@ -22,7 +22,7 @@ export namespace v0_0_1 {
 		tintindex?: number
 	}
 
-	export interface IElement {
+	export interface Element {
 		name: string
 		uuid: string
 		from: number[]
@@ -32,17 +32,17 @@ export namespace v0_0_1 {
 			euler: ArrayVector3
 			origin: ArrayVector3
 		}
-		faces?: Record<string, IElementFace>
+		faces?: Record<string, ElementFace>
 		enableBackfaceCulling?: boolean
 	}
 
-	export interface IMeshFace {
+	export interface MeshFace {
 		uv: Record<string, ArrayVector2>
 		vertices: string[]
 		texture: number
 	}
 
-	export interface IMesh {
+	export interface Mesh {
 		name: string
 		uuid: string
 		rotation?: {
@@ -50,7 +50,7 @@ export namespace v0_0_1 {
 			origin: ArrayVector3
 		}
 		vertices: Record<string, ArrayVector3>
-		faces: Record<string, IMeshFaceSaveCopy>
+		faces: Record<string, MeshFaceSaveCopy>
 		enableBackfaceCulling?: boolean
 	}
 
@@ -62,21 +62,21 @@ export namespace v0_0_1 {
 				lerp_mode: string
 		  }
 
-	export interface IAnimationBone {
+	export interface AnimationBone {
 		position: Record<string | number, KeyframeData>
 		rotation: Record<string | number, KeyframeData>
 		scale: Record<string | number, KeyframeData>
 	}
 
-	export interface IAnimation {
+	export interface Animation {
 		name: string
 		animation_length: number
 		loop_mode: 'once' | 'loop' | 'hold'
 		loop_delay: number | string
-		bones: Record<string, IAnimationBone>
+		bones: Record<string, AnimationBone>
 	}
 
-	export interface IDisplay {
+	export interface Display {
 		translation?: ArrayVector3
 		rotation?: ArrayVector3
 		scale?: ArrayVector3
@@ -87,40 +87,41 @@ export namespace v0_0_1 {
 		right_arm_rotation_when_offhand_occupied?: ArrayVector3
 	}
 
-	export type DisplayContainer = Record<DisplaySlotName, IDisplay>
+	export type DisplayContainer = Record<DisplaySlotName, Display>
 
-	export interface IBone {
+	export interface Bone {
 		name: string
 		rotation?: {
 			euler: ArrayVector3
 			origin: ArrayVector3
 		}
-		children: IStructure
+		children: Structure
 	}
 
-	export interface IStructure {
+	export interface Structure {
 		elements?: string[]
 		meshes?: string[]
-		bones?: IBone[]
+		bones?: Bone[]
 	}
 
-	export interface IUtilityModelJSON {
+	export interface Json {
 		__comment?: string
 		format_version: string
 		texture_size: ArrayVector2
 		textures: Record<string, string> & {
 			particle?: string
 		}
-		elements: IElement[]
-		structure: IStructure
-		meshes?: IMesh[]
-		animations?: IAnimation[]
+		elements: Element[]
+		structure: Structure
+		meshes?: Mesh[]
+		animations?: Animation[]
+		front_gui_light?: boolean
 		display?: DisplayContainer
 	}
 }
 
 export default {
-	upgrade(model: any): v0_0_1.IUtilityModelJSON {
+	upgrade(model: any): v0_0_1.Json {
 		console.groupCollapsed('Updating utility model to 0.0.1')
 
 		// As this is the first version the DFU knows of, there is nothing to upgrade.
@@ -128,6 +129,6 @@ export default {
 		model.format_version = '0.0.1'
 
 		console.groupEnd()
-		return model as v0_0_1.IUtilityModelJSON
+		return model as v0_0_1.Json
 	},
 }

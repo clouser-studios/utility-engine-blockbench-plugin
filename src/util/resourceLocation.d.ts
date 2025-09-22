@@ -4,24 +4,36 @@ import type { Chars, RestrictString } from './stringUtils'
 type NamespaceChars = Chars.LowercaseAlphaNumeric | '.' | '-'
 type PathChars = NamespaceChars | '/'
 
-/**
- * Validates Namespaced Resource Identifier.
- *
- * - Format: `namespace:path`
- * - Allowed characters: [a-z0-9.-]
- *
- * ```
- * // Valid
- * 'namespace:path', 'name-space:foo/bar.json', 'snavesutit.animated-java:blueprint-settings-dialog'
- *
- * // Invalid
- * 'Namespace:Path', 'namespace:path:extra', 'namespacepath'
- * ```
- */
-export type ValidateResourceLocation<L extends string> = L extends `${infer N}:${infer P}`
-	? N extends RestrictString<N, NamespaceChars>
-		? P extends RestrictString<P, PathChars>
-			? L
-			: `Invalid Path: ${RestrictString<P, PathChars>}`
-		: `Invalid Namespace: ${RestrictString<N, NamespaceChars>}`
-	: 'No separator (:) found'
+export namespace ResourceLocation {
+	export type ValidatePath<P extends string> =
+		P extends RestrictString<P, PathChars>
+			? P
+			: `Invalid characters in path: ${RestrictString<P, Exclude<string, PathChars>>}`
+
+	export type ValidateNamespace<N extends string> =
+		N extends RestrictString<N, NamespaceChars>
+			? N
+			: `Invalid characters in namespace: ${RestrictString<N, Exclude<string, NamespaceChars>>}`
+
+	/**
+	 * Validates Namespaced Resource Identifier.
+	 *
+	 * - Format: `namespace:path`
+	 * - Allowed characters: [a-z0-9.-]
+	 *
+	 * ```
+	 * // Valid
+	 * 'namespace:path', 'name-space:foo/bar.json', 'snavesutit.animated-java:blueprint-settings-dialog'
+	 *
+	 * // Invalid
+	 * 'Namespace:Path', 'namespace:path:extra', 'namespacepath'
+	 * ```
+	 */
+	export type Validate<L extends string> = L extends `${infer N}:${infer P}`
+		? N extends RestrictString<N, NamespaceChars>
+			? P extends RestrictString<P, PathChars>
+				? L
+				: ValidatePath<P>
+			: ValidateNamespace<N>
+		: 'No namespace separator (:) found'
+}

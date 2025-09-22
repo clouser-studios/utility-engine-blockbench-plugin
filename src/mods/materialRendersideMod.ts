@@ -1,5 +1,5 @@
-import { createBlockbenchMod, createPropertySubscribable } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { createPropertySubscribable, registerMod } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 import { localize } from '@utility/util/lang'
 
 declare global {
@@ -11,18 +11,53 @@ declare global {
 	}
 }
 
-createBlockbenchMod({
+const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
+	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
+	onChange: (value: boolean) => {
+		console.log('Toggling default backface culling mode:', value)
+		if (value) {
+			for (const cube of Cube.selected) {
+				cube.enableBackfaceCulling = undefined
+			}
+			for (const mesh of Mesh.selected) {
+				mesh.enableBackfaceCulling = undefined
+			}
+		}
+		Canvas.updateAll()
+	},
+	condition: () => currentFormatIsUtilityModelProject(),
+})
+
+const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-toggle', {
+	name: localize('model_format.utility_model.element_settings.backface_culling'),
+	onChange: (value: boolean) => {
+		console.log('Toggling backface culling for selected cubes & meshes', value)
+		if (Cube.selected.length !== 0) {
+			for (const cube of Cube.selected) {
+				cube.enableBackfaceCulling = value
+			}
+		}
+		if (Mesh.selected.length !== 0) {
+			for (const mesh of Mesh.selected) {
+				mesh.enableBackfaceCulling = value
+			}
+		}
+		Canvas.updateAll()
+	},
+	condition: () => currentFormatIsUtilityModelProject(),
+})
+
+registerMod({
 	id: `utility-engine:cube/material-renderside`,
-	collectContext: () => ({
-		cubeInit: Cube.prototype.init,
-		openCubeMenu: Cube.prototype.menu!.open,
-		meshInit: Mesh.prototype.init,
-		openMeshMenu: Mesh.prototype.menu!.open,
-	}),
-	apply: ctx => {
+	apply: () => {
+		const cubeInit = Cube.prototype.init
+		const openCubeMenu = Cube.prototype.menu!.open
+		const meshInit = Mesh.prototype.init
+		const openMeshMenu = Mesh.prototype.menu!.open
+
 		Cube.prototype.init = function (this: Cube, ...args) {
 			console.log('Cube init called with args:', args)
-			const result = ctx.cubeInit.apply(this, args)
+			const result = cubeInit.apply(this, args)
 
 			const scope = this
 			const [, set] = createPropertySubscribable<THREE.ShaderMaterial>(this.mesh, 'material')
@@ -53,15 +88,12 @@ createBlockbenchMod({
 		}
 
 		Cube.prototype.menu!.open = function (this: Cube, ...args) {
-			console.log('Cube menu open called with args:', args)
-			const result = ctx.openCubeMenu.apply(this, args)
-			if (!UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+			const result = openCubeMenu.apply(this, args)
+			if (!currentFormatIsUtilityModelProject()) {
 				return result
 			}
 			const cube = Cube.selected.at(0)
 			if (!cube) return result
-
-			console.log('test', cube.enableBackfaceCulling)
 
 			if (cube.enableBackfaceCulling === undefined) {
 				USE_DEFAULT_BACKFACE_CULLING.set(true)
@@ -77,13 +109,11 @@ createBlockbenchMod({
 		}
 
 		Mesh.prototype.init = function (this: Mesh, ...args) {
-			console.log('Mesh init called with args:', args)
-			const result = ctx.meshInit.apply(this, args)
+			const result = meshInit.apply(this, args)
 
 			const scope = this
 			const [, set] = createPropertySubscribable<THREE.ShaderMaterial>(this.mesh, 'material')
 			set.subscribe(value => {
-				console.log('Material set:', value.newValue)
 				switch (scope.enableBackfaceCulling) {
 					case true:
 						value.newValue.side = THREE.FrontSide
@@ -109,9 +139,8 @@ createBlockbenchMod({
 		}
 
 		Mesh.prototype.menu!.open = function (this: Mesh, ...args) {
-			console.log('Mesh menu open called with args:', args)
-			const result = ctx.openMeshMenu.apply(this, args)
-			if (!UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+			const result = openMeshMenu.apply(this, args)
+			if (!currentFormatIsUtilityModelProject()) {
 				return result
 			}
 			const mesh = Mesh.selected.at(0)
@@ -130,54 +159,20 @@ createBlockbenchMod({
 			return result
 		}
 
-		return ctx
+		Cube.prototype.menu!.addAction(BACKFACE_CULLING_TOGGLE, 7)
+		Cube.prototype.menu!.addAction(USE_DEFAULT_BACKFACE_CULLING, 7)
+		Mesh.prototype.menu!.addAction(BACKFACE_CULLING_TOGGLE, 7)
+		Mesh.prototype.menu!.addAction(USE_DEFAULT_BACKFACE_CULLING, 7)
+
+		return { cubeInit, meshInit }
 	},
-	revert: ctx => {
-		Cube.prototype.init = ctx.cubeInit
+	revert: ({ cubeInit, meshInit }) => {
+		Cube.prototype.init = cubeInit
+		Mesh.prototype.init = meshInit
+
+		Cube.prototype.menu!.removeAction(BACKFACE_CULLING_TOGGLE)
+		Cube.prototype.menu!.removeAction(USE_DEFAULT_BACKFACE_CULLING)
+		Mesh.prototype.menu!.removeAction(BACKFACE_CULLING_TOGGLE)
+		Mesh.prototype.menu!.removeAction(USE_DEFAULT_BACKFACE_CULLING)
 	},
 })
-
-const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
-	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
-	onChange: (value: boolean) => {
-		console.log('Toggling default backface culling mode:', value)
-		if (value) {
-			for (const cube of Cube.selected) {
-				cube.enableBackfaceCulling = undefined
-			}
-			for (const mesh of Mesh.selected) {
-				mesh.enableBackfaceCulling = undefined
-			}
-		}
-		Canvas.updateAll()
-	},
-	condition: () => {
-		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
-	},
-})
-
-const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-toggle', {
-	name: localize('model_format.utility_model.element_settings.backface_culling'),
-	onChange: (value: boolean) => {
-		console.log('Toggling backface culling for selected cubes & meshes', value)
-		if (Cube.selected.length !== 0) {
-			for (const cube of Cube.selected) {
-				cube.enableBackfaceCulling = value
-			}
-		}
-		if (Mesh.selected.length !== 0) {
-			for (const mesh of Mesh.selected) {
-				mesh.enableBackfaceCulling = value
-			}
-		}
-		Canvas.updateAll()
-	},
-	condition: () => {
-		return UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()
-	},
-})
-
-Cube.prototype.menu!.addAction(BACKFACE_CULLING_TOGGLE, 7)
-Cube.prototype.menu!.addAction(USE_DEFAULT_BACKFACE_CULLING, 7)
-Mesh.prototype.menu!.addAction(BACKFACE_CULLING_TOGGLE, 7)
-Mesh.prototype.menu!.addAction(USE_DEFAULT_BACKFACE_CULLING, 7)

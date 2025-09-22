@@ -1,5 +1,6 @@
 <script lang="ts" module>
-	import { type latest } from '@utility/formats/utility-model-project/versions/latest'
+	import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
+	import { type UtilityModelProject } from '@utility/formats/utility-model-project/versions/latest'
 	import EVENTS from '@utility/util/events'
 	import { createScopedTranslator } from '@utility/util/lang'
 	import { onMount } from 'svelte'
@@ -12,7 +13,7 @@
 </script>
 
 <script lang="ts">
-	let hasOpenProject = $state(!!Project)
+	let hasOpenUtilityModelProject = $state(!!Project)
 	let isPlayerRefModel = $state(false)
 	let displaySlot = $state<DisplaySlotName>(display_slot ?? 'thirdperson_righthand')
 	let isThirdPersonSlot = $derived(
@@ -36,15 +37,26 @@
 		})
 	}
 
-	const updateRefModel = () => {
+	const resetRefModel = (
+		refModel: typeof displayReferenceObjects.active,
+		visualUpdate = false
+	): refModel is '' => {
 		display_area.removeFromParent()
 		scene.add(display_area)
 
-		if (!isPlayerRefModel) return
-		const refModel = displayReferenceObjects.active
-		if (!refModel) return
+		if (!isPlayerRefModel) return true
+		if (!refModel) return true
 
 		refModel.updateBasePosition()
+		setObjectRotation(['left_arm', 'left_arm_layer'], DEFAULT_LEFT_ARM_ROTATION)
+		setObjectRotation(['right_arm', 'right_arm_layer'], DEFAULT_RIGHT_ARM_ROTATION)
+		if (visualUpdate) Canvas.updateAllPositions()
+		return false
+	}
+
+	const updateRefModel = () => {
+		const refModel = displayReferenceObjects.active
+		if (resetRefModel(refModel)) return
 
 		const leftArm = refModel.model.getObjectByName('left_arm')
 		const rightArm = refModel.model.getObjectByName('right_arm')
@@ -61,7 +73,6 @@
 			rightArm.add(display_area)
 		}
 
-		// Update Saved Rotations
 		const settings = Project!.utility_display_settings[displaySlot]
 
 		let leftArmRotation: ArrayVector3 | undefined
@@ -77,19 +88,17 @@
 
 		if (leftArmRotation) {
 			setObjectRotation(['left_arm', 'left_arm_layer'], leftArmRotation)
-		} else {
-			setObjectRotation(['left_arm', 'left_arm_layer'], DEFAULT_LEFT_ARM_ROTATION)
 		}
 
 		if (rightArmRotation) {
 			setObjectRotation(['right_arm', 'right_arm_layer'], rightArmRotation)
-		} else {
-			setObjectRotation(['right_arm', 'right_arm_layer'], DEFAULT_RIGHT_ARM_ROTATION)
 		}
+
+		Canvas.updateAllPositions()
 	}
 
 	const onchange = (
-		key: keyof latest.UtilityDisplaySettings,
+		key: keyof UtilityModelProject.UtilityDisplaySettings,
 		overwrite: boolean,
 		rotation: ArrayVector3 | undefined
 	) => {
@@ -116,33 +125,45 @@
 	}
 
 	onMount(() => {
-		const unsubDisplaySlotChanged = EVENTS.DISPLAY_SLOT_CHANGED.subscribe(
-			({ slot, previous }) => {
-				console.log(`Display slot changed from ${previous} to ${slot}`)
-
-				displaySlot = slot
-			}
-		)
-
-		const unsubSelectMode = EVENTS.SELECT_MODE.subscribe(({ mode }) => {
-			if (mode?.id === 'display') {
-				console.log('Display mode activated')
+		const unsubs = [
+			EVENTS.REF_MODEL_CHANGED.subscribe(({ refModel }) => {
+				if (!currentFormatIsUtilityModelProject()) return
+				console.log('Reference model changed')
+				isPlayerRefModel = !!(
+					refModel && refModel.id === displayReferenceObjects.refmodels.player.id
+				)
 				updateRefModel()
-			}
-		})
+			}),
 
-		const pollInterval = setInterval(() => {
-			hasOpenProject = !!Project
-			isPlayerRefModel = !!(
-				displayReferenceObjects.active &&
-				displayReferenceObjects.active.id === displayReferenceObjects.refmodels.player.id
-			)
-		}, 16)
+			EVENTS.DISPLAY_SLOT_CHANGED.subscribe(({ slot, previous }) => {
+				if (!currentFormatIsUtilityModelProject()) return
+				console.log(`Display slot changed from ${previous} to ${slot}`)
+				displaySlot = slot
+			}),
+
+			EVENTS.SELECT_MODE.subscribe(({ mode }) => {
+				if (!currentFormatIsUtilityModelProject()) return
+				if (mode?.id !== 'display') return
+				console.log('Display mode activated')
+				requestAnimationFrame(() => {
+					updateRefModel()
+				})
+			}),
+
+			EVENTS.SELECT_PROJECT.subscribe(project => {
+				hasOpenUtilityModelProject = !!project && currentFormatIsUtilityModelProject()
+				resetRefModel(displayReferenceObjects.active, true)
+			}),
+
+			EVENTS.UNSELECT_PROJECT.subscribe(() => {
+				hasOpenUtilityModelProject = false
+				resetRefModel(displayReferenceObjects.active, true)
+			}),
+		]
 
 		return () => {
-			unsubDisplaySlotChanged()
-			unsubSelectMode()
-			clearInterval(pollInterval)
+			unsubs.forEach(unsub => unsub())
+			resetRefModel(displayReferenceObjects.active, true)
 		}
 	})
 </script>
@@ -163,7 +184,7 @@
 	</div>
 {/snippet}
 
-{#if hasOpenProject}
+{#if hasOpenUtilityModelProject}
 	{#if isThirdPersonSlot}
 		<p class="bar display_slot_section_bar title" title={localize('description')}>
 			{localize('title')}
@@ -208,10 +229,6 @@
 			/>
 		{/key}
 	{/if}
-{:else}
-	<p class="warning">
-		{@html localize('warning.no_open_project')}
-	</p>
 {/if}
 
 <style>

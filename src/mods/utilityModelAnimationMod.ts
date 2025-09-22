@@ -1,4 +1,4 @@
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 import { localize } from '@utility/util/lang'
 
 export const ANIMATION_TYPES = {
@@ -100,7 +100,7 @@ class UtilityModelAnimation extends Blockbench.Animation {
 	}
 
 	remove(undo: boolean, removeFromFiles = true) {
-		if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+		if (currentFormatIsUtilityModelProject()) {
 			return super.remove(undo, false)
 		} else {
 			return super.remove(undo, removeFromFiles)

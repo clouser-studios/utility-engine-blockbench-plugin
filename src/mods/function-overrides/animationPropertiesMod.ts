@@ -1,27 +1,25 @@
-import { createBlockbenchMod } from '@blockbench-tools'
+import { registerMod } from '@blockbench-tools'
 import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 
-createBlockbenchMod({
+registerMod({
 	id: `utility-engine:animation-properties-action`,
-	collectContext: () => ({
-		originalOpen: Blockbench.Animation.prototype.propertiesDialog,
-	}),
-	apply: ctx => {
+	apply: () => {
+		const original = Blockbench.Animation.prototype.propertiesDialog
 		Blockbench.Animation.prototype.propertiesDialog = function (this: _Animation) {
-			if (UTILITY_MODEL_PROJECT_FORMAT.isCurrentFormat()) {
+			if (currentFormatIsUtilityModelProject()) {
 				if (!Blockbench.Animation.selected) {
 					Blockbench.showQuickMessage('No animation selected')
 					return
 				}
 				openAnimationPropertiesDialog(Blockbench.Animation.selected)
 			} else {
-				ctx.originalOpen.call(this)
+				original.call(this)
 			}
 		}
-		return ctx
+		return { original }
 	},
-	revert: ctx => {
-		Blockbench.Animation.prototype.propertiesDialog = ctx.originalOpen
+	revert: ({ original }) => {
+		Blockbench.Animation.prototype.propertiesDialog = original
 	},
 })

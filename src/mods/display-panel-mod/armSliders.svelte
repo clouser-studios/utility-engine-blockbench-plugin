@@ -1,13 +1,13 @@
 <script lang="ts">
 	import DisplaySectionToolbar from '@components/panel-items/displaySectionToolbar.svelte'
 	import Slider from '@components/panel-items/slider.svelte'
-	import { type latest } from '@utility/formats/utility-model-project/versions/latest'
+	import { type UtilityModelProject } from '@utility/formats/utility-model-project/versions/latest'
 
 	interface Props {
-		displaySettingsKey: keyof latest.UtilityDisplaySettings
+		displaySettingsKey: keyof UtilityModelProject.UtilityDisplaySettings
 		label: string
 		onchange: (
-			key: keyof latest.UtilityDisplaySettings,
+			key: keyof UtilityModelProject.UtilityDisplaySettings,
 			overwrite: boolean,
 			rotation: ArrayVector3 | undefined
 		) => void

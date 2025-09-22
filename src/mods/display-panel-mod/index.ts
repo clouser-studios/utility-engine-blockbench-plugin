@@ -1,13 +1,11 @@
 import { injectComponent } from '@utility/svelte/injectComponent'
-import { createBlockbenchMod } from '@utility/util/moddingTools'
-import { unmount } from 'svelte'
+import { registerMod } from '@utility/util/moddingTools'
 import Panel from './panel.svelte'
 
-createBlockbenchMod({
+registerMod({
 	id: 'utility-engine:display-panel/arm-rotation',
-	collectContext: () => ({}),
 	apply: () => {
-		const component = injectComponent({
+		const unmountCallback = injectComponent({
 			component: Panel,
 			elementSelector() {
 				return document.querySelector<HTMLDivElement>('#panel_display > .panel_vue_wrapper')
@@ -18,9 +16,9 @@ createBlockbenchMod({
 				parent.style.overflowY = 'auto'
 			},
 		})
-		return { component }
+		return { unmountCallback }
 	},
-	revert: async ctx => {
-		await unmount(await ctx.component)
+	revert: async ({ unmountCallback }) => {
+		await unmountCallback()
 	},
 })

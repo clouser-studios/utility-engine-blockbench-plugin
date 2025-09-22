@@ -6,6 +6,11 @@ declare module '*.png' {
 	export = value
 }
 
+declare module '*.svg' {
+	const value: string
+	export = value
+}
+
 /**
  * Import this folder's contents recursively.
  * If a local index is found in a folder, it is imported and the rest of that folder is ignored.

@@ -1,10 +1,10 @@
 import EVENTS from '@utility/util/events'
-import { createBlockbenchMod } from '@utility/util/moddingTools'
+import { registerMod } from '@utility/util/moddingTools'
 
-createBlockbenchMod({
+registerMod({
 	id: 'utility-engine:display-slot-changed-event',
-	collectContext: () => ({
-		originalLoadDisplayFunctions: {
+	apply: () => {
+		const originalLoadDisplayFunctions = {
 			// @ts-expect-error
 			loadThirdRight: DisplayMode.loadThirdRight,
 			// @ts-expect-error
@@ -23,10 +23,9 @@ createBlockbenchMod({
 			loadFixed: DisplayMode.loadFixed,
 			// @ts-expect-error
 			loadShelf: DisplayMode.loadShelf,
-		},
-	}),
-	apply(ctx) {
-		for (const [key, oldFunc] of Object.entries(ctx.originalLoadDisplayFunctions)) {
+		}
+
+		for (const [key, oldFunc] of Object.entries(originalLoadDisplayFunctions)) {
 			// @ts-expect-error - No type is defined for this function
 			DisplayMode[key] = function () {
 				const previous = display_slot
@@ -35,10 +34,11 @@ createBlockbenchMod({
 				EVENTS.DISPLAY_SLOT_CHANGED.publish({ slot, previous })
 			}
 		}
-		return ctx
+
+		return originalLoadDisplayFunctions
 	},
-	revert(ctx) {
-		for (const [key, oldFunc] of Object.entries(ctx.originalLoadDisplayFunctions)) {
+	revert: originalLoadDisplayFunctions => {
+		for (const [key, oldFunc] of Object.entries(originalLoadDisplayFunctions)) {
 			// @ts-expect-error - No type is defined for this function
 			DisplayMode[key] = oldFunc
 		}

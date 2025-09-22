@@ -1,10 +1,10 @@
 import v0_0_1 from './versions/0.0.1'
-import { type latest } from './versions/latest'
+import { type UtilityModel } from './versions/latest'
 
 /**
  * Takes a utility model and returns a new utility model that has been upgraded to the latest version of the utility model format.
  */
-export function updateUtilityModel(model: any): latest.IUtilityModelJSON {
+export function updateUtilityModel(model: any): UtilityModel.Json {
 	const newModel = JSON.parse(JSON.stringify(model))
 	const modelVersion = model.format_version
 

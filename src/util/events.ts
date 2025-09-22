@@ -1,15 +1,15 @@
-import PACKAGE from '@package'
 import { subscribable } from './subscribable'
 
 // Plugin Events
 const EVENTS = {
 	LOAD: subscribable<void>(),
+	FINISHED_LOADING: subscribable<void>(),
+
 	UNLOAD: subscribable<void>(),
+	FINISHED_UNLOADING: subscribable<void>(),
+
 	INSTALL: subscribable<void>(),
 	UNINSTALL: subscribable<void>(),
-
-	INSTALL_MODS: subscribable<void>(),
-	UNINSTALL_MODS: subscribable<void>(),
 
 	SELECT_PROJECT: subscribable<ModelProject>(),
 	UNSELECT_PROJECT: subscribable<ModelProject>(),
@@ -19,25 +19,11 @@ const EVENTS = {
 	SELECT_MODE: subscribable<{ mode: Mode }>(),
 
 	DISPLAY_SLOT_CHANGED: subscribable<{ slot: DisplaySlotName; previous: DisplaySlotName }>(),
+	REF_MODEL_CHANGED: subscribable<{
+		refModel: refModel<keyof typeof displayReferenceObjects.refmodels>
+	}>(),
 }
 export default EVENTS
-
-function injectionHandler() {
-	console.groupCollapsed(`Injecting BlockbenchMods added by '${PACKAGE.name}'`)
-	EVENTS.INSTALL_MODS.publish()
-	console.groupEnd()
-}
-
-function extractionHandler() {
-	console.groupCollapsed(`Extracting BlockbenchMods added by '${PACKAGE.name}'`)
-	EVENTS.UNINSTALL_MODS.publish()
-	console.groupEnd()
-}
-
-EVENTS.LOAD.subscribe(injectionHandler)
-EVENTS.UNLOAD.subscribe(extractionHandler)
-EVENTS.INSTALL.subscribe(injectionHandler)
-EVENTS.UNINSTALL.subscribe(extractionHandler)
 
 Blockbench.on<EventName>('select_project', ({ project }: { project: ModelProject }) => {
 	EVENTS.SELECT_PROJECT.publish(project)
