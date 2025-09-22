@@ -65,7 +65,7 @@ class Logger {
 		icon?: ImgConsoleStyleOptions
 	) {
 		if (icon) {
-			getImgStyle(icon).then(style => {
+			void getImgStyle(icon).then(style => {
 				this.prefix = ['%c %c ' + this.prefix[0], style, '', ...this.prefix.slice(1)]
 			})
 		}

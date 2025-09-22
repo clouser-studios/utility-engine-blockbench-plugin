@@ -50,7 +50,7 @@ registerMod({
 		return { unsubs, defaultLabelDisplay, defaultSliderDisplay }
 	},
 
-	revert: async ctx => {
+	revert: ctx => {
 		ctx.unsubs.forEach(unsub => unsub())
 
 		const label = getPoseAngleLabel()

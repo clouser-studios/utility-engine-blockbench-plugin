@@ -56,7 +56,7 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerModelFormat(UTILITY_MODEL_PR
 					elementSelector() {
 						return document.querySelector(
 							`div[id="${UTILITY_MODEL_PROJECT_FORMAT_ID}/format_page_mount"]`
-						) as HTMLElement
+						)! as HTMLElement
 					},
 					component: FormatPage,
 				})

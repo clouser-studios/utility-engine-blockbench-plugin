@@ -42,7 +42,7 @@ export function injectComponent<C extends Component<any, any>, E extends HTMLEle
 	let mountResult: ReturnType<typeof mount> | undefined
 	let anchor: Comment | undefined
 
-	let mountedPromise = new Promise<void>(async resolve => {
+	const mountedPromise = new Promise<void>(async resolve => {
 		const target = await pollUntilResult(options.elementSelector, () => cancelled)
 		anchor = document.createComment(`injected-svelte-component-` + guid())
 

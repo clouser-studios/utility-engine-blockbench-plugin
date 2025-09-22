@@ -4,7 +4,7 @@ import PACKAGE from '@package'
 import { log } from './util/log'
 
 EVENTS.FINISHED_LOADING.subscribe(() => {
-	log.img(
+	void log.img(
 		{ url: Title, height: 44 },
 		'\n\n Utility Engine v' + PACKAGE.version,
 		'\n Created by',
