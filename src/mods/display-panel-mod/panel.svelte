@@ -165,7 +165,6 @@
 				console.log('DISPLAY_SETTINGS_UPDATED', slot.slot_id, displaySlot?.slot_id, slot)
 				if (!currentFormatIsUtilityModelProject()) return
 				if (slot !== displaySlot) return
-				log.info('DISPLAY_SETTINGS_UPDATED')
 				updatePreview()
 			}),
 
@@ -174,7 +173,6 @@
 				isPlayerRefModel = !!(
 					refModel && refModel.id === displayReferenceObjects.refmodels.player.id
 				)
-				log.info('REF_MODEL_CHANGED')
 				updatePreview()
 				requestAnimationFrame(() => {
 					updatePreview()
@@ -187,7 +185,6 @@
 					resetReferenceModel()
 					return
 				}
-				log.info('DISPLAY_SLOT_CHANGED')
 				updatePreview()
 				requestAnimationFrame(() => {
 					updatePreview()
@@ -196,13 +193,11 @@
 
 			EVENTS.SELECT_MODE.subscribe(({ mode }) => {
 				if (!currentFormatIsUtilityModelProject()) return
-				log.info('SELECT_MODE')
 				isDisplayModeActive = mode?.id === 'display'
 			}),
 
 			EVENTS.SELECT_PROJECT.subscribe(project => {
 				openProjectIsUtilityModelProject = !!project && currentFormatIsUtilityModelProject()
-				log.info('SELECT_PROJECT')
 				resetReferenceModel()
 			}),
 
@@ -211,7 +206,6 @@
 				isDisplayModeActive = false
 				isPlayerRefModel = false
 				previewOffhand = false
-				log.info('UNSELECT_PROJECT')
 			}),
 		]
 
