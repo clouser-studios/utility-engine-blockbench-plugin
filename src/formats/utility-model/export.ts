@@ -3,6 +3,7 @@ import { registerAction } from '@blockbench-tools'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
 import { localize } from '@utility/util/lang'
+import { log } from '@utility/util/log'
 import { parsePackPath } from '@utility/util/minecraftUtil'
 import { scrubUndefined } from '@utility/util/objUtils'
 import { type UtilityModel } from './versions/latest'
@@ -270,7 +271,7 @@ export function exportUtilityModel(path?: string) {
 			},
 		})
 	} catch (e: any) {
-		console.error(e)
+		log.error(e)
 		if (e instanceof ExportError) {
 			Blockbench.showMessageBox({
 				title: localize('message.failed_to_export.title'),

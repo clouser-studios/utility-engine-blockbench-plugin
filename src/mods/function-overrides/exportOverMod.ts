@@ -3,6 +3,7 @@ import {
 	currentFormatIsUtilityModelProject,
 	UTILITY_MODEL_CODEC,
 } from '@utility/formats/utility-model-project'
+import { log } from '@utility/util/log'
 
 registerMod({
 	id: `utility-engine:export-over-mod`,
@@ -26,7 +27,7 @@ registerMod({
 						Project.save_path = path
 						codec.write(codec.compile(), path)
 					} else {
-						console.error(
+						log.error(
 							`Failed to export Utility Model, file location '${path}' does not exist!`
 						)
 						codec.export()

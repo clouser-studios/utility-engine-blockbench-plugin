@@ -1,3 +1,4 @@
+import { log } from '@utility/util/log'
 import type { ResourceLocation } from '@utility/util/resourceLocation'
 import { mount, unmount, type Component } from 'svelte'
 import type { ComponentMountOptions, GenericComponent } from './helperTypes'
@@ -211,7 +212,7 @@ export class SvelteDialogSidebar<
 			target.style.overflow = 'visible'
 			const pageData = this.pages?.[page]
 			if (!pageData) {
-				console.error(
+				log.error(
 					`Attempted to switch pages to unknown page "${page}" in "${options.id}" dialog`
 				)
 				return

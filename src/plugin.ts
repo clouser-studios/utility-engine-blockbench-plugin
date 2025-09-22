@@ -22,7 +22,10 @@ BBPlugin.register(PACKAGE.name, {
 	min_version: PACKAGE.min_blockbench_version,
 	tags: PACKAGE.tags as [string, string, string],
 	onload() {
-		EVENTS.LOAD.publish()
+		// Wait until plugin system is done loading this plugin.
+		requestAnimationFrame(() => {
+			EVENTS.LOAD.publish()
+		})
 	},
 	onunload() {
 		EVENTS.UNLOAD.publish()

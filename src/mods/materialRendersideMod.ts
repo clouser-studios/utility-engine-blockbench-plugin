@@ -14,7 +14,6 @@ declare global {
 const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
 	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
 	onChange: (value: boolean) => {
-		console.log('Toggling default backface culling mode:', value)
 		if (value) {
 			for (const cube of Cube.selected) {
 				cube.enableBackfaceCulling = undefined
@@ -56,13 +55,11 @@ registerMod({
 		const openMeshMenu = Mesh.prototype.menu!.open
 
 		Cube.prototype.init = function (this: Cube, ...args) {
-			console.log('Cube init called with args:', args)
 			const result = cubeInit.apply(this, args)
 
 			const scope = this
 			const [, set] = createPropertySubscribable<THREE.ShaderMaterial>(this.mesh, 'material')
 			set.subscribe(value => {
-				console.log('Material set:', value.newValue)
 				switch (scope.enableBackfaceCulling) {
 					case true:
 						value.newValue.side = THREE.FrontSide

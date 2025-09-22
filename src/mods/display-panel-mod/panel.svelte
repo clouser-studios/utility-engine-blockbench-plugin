@@ -6,8 +6,16 @@
 	import { onMount } from 'svelte'
 	import ArmSliders from './armSliders.svelte'
 
-	const DEFAULT_LEFT_ARM_ROTATION: ArrayVector3 = [22.5, 0, 0]
-	const DEFAULT_RIGHT_ARM_ROTATION: ArrayVector3 = [22.5, 0, 0]
+	const getDefaultArmRotation = (
+		side: 'left' | 'right',
+		primaryHand: 'left' | 'right'
+	): ArrayVector3 => {
+		if (side === 'left') {
+			return primaryHand === 'left' ? [22.5, 0, 0] : [0, 0, 0]
+		} else {
+			return primaryHand === 'right' ? [22.5, 0, 0] : [0, 0, 0]
+		}
+	}
 
 	const localize = createScopedTranslator('panel.arm_rotation')
 </script>
@@ -21,20 +29,30 @@
 	)
 	let previewingOffhand = $state(false)
 
-	const setObjectRotation = (names: string[], rotation: ArrayVector3) => {
+	const setArmRotation = (side: 'left' | 'right', rotation: ArrayVector3) => {
 		const refModel = displayReferenceObjects.active
 		if (!refModel) return
 
-		names.forEach(name => {
-			const object = refModel.model.getObjectByName(name)
-			if (!object) return
+		const armName = side === 'left' ? 'left_arm' : 'right_arm'
+		const armLayerName = side === 'left' ? 'left_arm_layer' : 'right_arm_layer'
 
+		const objects = refModel.model.children.filter(
+			obj => obj.name === armName || obj.name === armLayerName
+		)
+
+		objects.forEach(object => {
 			object.rotation.set(
 				(rotation[0] * Math.PI) / 180,
 				(rotation[1] * Math.PI) / 180,
 				(rotation[2] * Math.PI) / 180
 			)
+			object.matrixWorldNeedsUpdate = true
 		})
+	}
+
+	const updateCanvas = () => {
+		Canvas.updateAllPositions()
+		Canvas.updateView({ elements: Outliner.elements })
 	}
 
 	const resetRefModel = (
@@ -48,9 +66,10 @@
 		if (!refModel) return true
 
 		refModel.updateBasePosition()
-		setObjectRotation(['left_arm', 'left_arm_layer'], DEFAULT_LEFT_ARM_ROTATION)
-		setObjectRotation(['right_arm', 'right_arm_layer'], DEFAULT_RIGHT_ARM_ROTATION)
-		if (visualUpdate) Canvas.updateAllPositions()
+		const primaryHand = displaySlot === 'thirdperson_lefthand' ? 'left' : 'right'
+		setArmRotation('left', getDefaultArmRotation('left', primaryHand))
+		setArmRotation('right', getDefaultArmRotation('right', primaryHand))
+		if (visualUpdate) updateCanvas()
 		return false
 	}
 
@@ -58,8 +77,11 @@
 		const refModel = displayReferenceObjects.active
 		if (resetRefModel(refModel)) return
 
-		const leftArm = refModel.model.getObjectByName('left_arm')
-		const rightArm = refModel.model.getObjectByName('right_arm')
+		// Only arm objects are marked with r_model
+		const arms = refModel.model.children.filter(o => o.r_model === refModel.variant)
+
+		const leftArm = arms.find(arm => arm.name === 'left_arm')
+		const rightArm = arms.find(arm => arm.name === 'right_arm')
 
 		if (displaySlot === 'thirdperson_lefthand' && leftArm) {
 			display_area.removeFromParent()
@@ -87,14 +109,15 @@
 		}
 
 		if (leftArmRotation) {
-			setObjectRotation(['left_arm', 'left_arm_layer'], leftArmRotation)
+			setArmRotation('left', leftArmRotation)
 		}
 
 		if (rightArmRotation) {
-			setObjectRotation(['right_arm', 'right_arm_layer'], rightArmRotation)
+			setArmRotation('right', rightArmRotation)
 		}
 
-		Canvas.updateAllPositions()
+		updateCanvas()
+		requestAnimationFrame(updateCanvas)
 	}
 
 	const onchange = (
@@ -128,23 +151,20 @@
 		const unsubs = [
 			EVENTS.REF_MODEL_CHANGED.subscribe(({ refModel }) => {
 				if (!currentFormatIsUtilityModelProject()) return
-				console.log('Reference model changed')
 				isPlayerRefModel = !!(
 					refModel && refModel.id === displayReferenceObjects.refmodels.player.id
 				)
 				updateRefModel()
 			}),
 
-			EVENTS.DISPLAY_SLOT_CHANGED.subscribe(({ slot, previous }) => {
+			EVENTS.DISPLAY_SLOT_CHANGED.subscribe(({ slot }) => {
 				if (!currentFormatIsUtilityModelProject()) return
-				console.log(`Display slot changed from ${previous} to ${slot}`)
 				displaySlot = slot
 			}),
 
 			EVENTS.SELECT_MODE.subscribe(({ mode }) => {
 				if (!currentFormatIsUtilityModelProject()) return
 				if (mode?.id !== 'display') return
-				console.log('Display mode activated')
 				requestAnimationFrame(() => {
 					updateRefModel()
 				})

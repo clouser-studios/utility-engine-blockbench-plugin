@@ -2,6 +2,7 @@ import EVENTS from '@events'
 import PACKAGE from '@package'
 import { SkinTexture } from '@utility/textures/skin-texture'
 import { localize } from '@utility/util/lang'
+import { log } from '@utility/util/log'
 import { resetAllConsoleGroups } from '@utility/util/misc'
 import { registerCodec } from '@utility/util/moddingTools'
 import { UTILITY_MODEL_PROJECT_FORMAT, UTILITY_MODEL_PROJECT_FORMAT_ID } from '.'
@@ -44,7 +45,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 				model = updateUtilityProject(model)
 			} catch (e: any) {
 				resetAllConsoleGroups()
-				console.error('Failed to upgrade Utility Model:', e)
+				log.error('Failed to upgrade Utility Model:', e)
 				Blockbench.showMessageBox({
 					title: localize('error.utility_model_format.failed_to_upgrade_project.title'),
 					message: localize(
@@ -383,7 +384,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 						Project!.save_path = path
 						this.write!(content, path)
 					} else {
-						console.error(
+						log.error(
 							`Failed to export Utility Model, file location '${path}' does not exist!`
 						)
 						Blockbench.showMessageBox({

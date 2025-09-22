@@ -1,7 +1,7 @@
 {
 	"meta": {
 		"format": "utility-engine:format/utility-model-project",
-		"format_version": "0.0.7",
+		"format_version": "0.0.7.5",
 		"uuid": "929a162f-73ab-2f10-ea44-49c3d9564b2a",
 		"project_save_path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test-models\\skinTexture.utilityproject",
 		"export_path": "D:\\github-repos\\clouser-studios\\utility-engine-blockbench-plugin\\test-models\\skinTexture.utility.json"
@@ -635,7 +635,8 @@
 	},
 	"utility_display_settings": {
 		"thirdperson_righthand": {
-			"right_arm_rotation": [76, 0, 0]
+			"right_arm_rotation": [72, 0, 0],
+			"left_arm_rotation": [72, 0, 0]
 		},
 		"thirdperson_lefthand": {
 			"left_arm_rotation": [-50, 41, -34]
