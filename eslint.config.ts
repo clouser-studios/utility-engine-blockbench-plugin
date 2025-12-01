@@ -1,12 +1,10 @@
-// // @ts-expect-error
-// import checkFile from 'eslint-plugin-check-file'
+import checkFile from 'eslint-plugin-check-file'
 import svelteEslint from 'eslint-plugin-svelte'
 import svelteParser from 'svelte-eslint-parser'
 import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
-import svelteConfig from './svelte.config'
-import type { NamingConventionRule } from './tools/tslintNamingConventionRule'
+import type { NamingConventionRule } from './.scripts/tslintNamingConventionRule'
 
-console.log(`[${new Date().toLocaleTimeString()}] Loading ESLint config`)
+console.log('⚙️  Loading ESLint config...')
 
 const IGNORE_PATTERNS = [
 	'.DS_Store',
@@ -45,21 +43,23 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	'svelte/html-quotes': ['warn', { prefer: 'double' }],
 	'svelte/block-lang': ['error', { script: ['ts', null], style: null }],
 	'svelte/comment-directive': ['error', { reportUnusedDisableDirectives: true }],
-	// // Check File
-	// 'check-file/filename-naming-convention': [
-	// 	'error',
-	// 	{
-	// 		'src/**/*.{ts.d.ts}': 'CAMEL_CASE',
-	// 		'tools/**/*.{ts.d.ts}': 'CAMEL_CASE',
-	// 	},
-	// ],
-	// 'check-file/folder-naming-convention': [
-	// 	'error',
-	// 	{
-	// 		'src/**': 'KEBAB_CASE',
-	// 		'tools/**': 'KEBAB_CASE',
-	// 	},
-	// ],
+	'svelte/valid-compile': ['error', { ignoreWarnings: true }],
+	// Check File
+	'check-file/filename-naming-convention': [
+		'error',
+		{
+			'**/!(versions)/*.{ts,svelte}': 'CAMEL_CASE',
+		},
+		{
+			ignoreMiddleExtensions: true,
+		},
+	],
+	'check-file/folder-naming-convention': [
+		'error',
+		{
+			'**/!(.scripts)/*': 'KEBAB_CASE',
+		},
+	],
 	// TypeScript
 	'@typescript-eslint/no-explicit-any': 'off',
 	'@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
@@ -148,17 +148,16 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 		{
 			selector: 'variableLike',
 			format: ['camelCase'],
+			leadingUnderscore: 'forbid',
 		},
-		{ selector: 'interface', format: ['PascalCase'] },
 		{
 			selector: 'interface',
-			modifiers: ['exported'],
 			format: ['PascalCase'],
-			prefix: ['I'],
+			leadingUnderscore: 'forbid',
 		},
 		{ selector: 'typeLike', format: ['PascalCase'] },
 		{ selector: 'objectLiteralProperty', format: null },
-		{ selector: 'default', format: ['camelCase'] },
+		{ selector: 'default', format: ['camelCase'], leadingUnderscore: 'forbid' },
 		{
 			selector: 'parameter',
 			modifiers: ['unused'],
@@ -190,7 +189,7 @@ export default tsESLint.config(
 		plugins: {
 			'@typescript-eslint': tsESLint.plugin,
 			svelte: svelteEslint,
-			// 'check-file': checkFile,
+			'check-file': checkFile,
 		},
 	},
 	{
@@ -214,6 +213,8 @@ export default tsESLint.config(
 		rules: {
 			// Causes issues with Svelte and global types
 			'no-undef': 'off',
+			// Annoying when destructuring props
+			'prefer-const': 'off',
 			'@typescript-eslint/naming-convention': [
 				'warn',
 				{
@@ -224,7 +225,12 @@ export default tsESLint.config(
 				{
 					selector: 'variable',
 					modifiers: ['const', 'global'],
-					format: ['UPPER_CASE'],
+					format: ['camelCase', 'UPPER_CASE'],
+				},
+				{
+					selector: 'variable',
+					modifiers: ['const', 'global', 'destructured'],
+					format: ['camelCase', 'UPPER_CASE'],
 				},
 				{
 					selector: 'variable',
@@ -243,7 +249,7 @@ export default tsESLint.config(
 			parser: svelteParser,
 			parserOptions: {
 				parser: tsESLint.parser,
-				svelteConfig: svelteConfig,
+				// svelteConfig: svelteConfig,
 				extraFileExtensions: ['.svelte'],
 			},
 			globals: {
@@ -267,3 +273,4 @@ export default tsESLint.config(
 		},
 	}
 )
+console.log(`✅ ESLint config loaded successfully.`)

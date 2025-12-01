@@ -1,5 +1,5 @@
 {
-	"include": ["./src/**/*", "./tools/esbuild.ts", "./eslint.config.ts"],
+	"include": ["src/**/*", ".scripts/esbuild.ts", "eslint.config.ts"],
 	"exclude": ["**/node_modules/**"],
 	"compilerOptions": {
 		"outDir": "./dist/",
@@ -17,6 +17,16 @@
 		"noEmit": true,
 		"verbatimModuleSyntax": true,
 		"isolatedModules": true,
-		"alwaysStrict": true
+		"alwaysStrict": true,
+		"baseUrl": ".",
+		"paths": {
+			"@plugin-package/*": ["src/plugin-package/*"],
+			"@package": ["./package.json"],
+			"@utility/*": ["./src/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@events": ["./src/util/events"],
+			"@components/*": ["./src/svelte-components/*"],
+			"@blockbench-tools": ["./src/util/moddingTools"]
+		}
 	}
 }

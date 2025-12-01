@@ -1,49 +1,49 @@
-import { PACKAGE } from '../package'
-import { Subscribable } from './subscribable'
-
-export class PluginEvent<EventData = void> extends Subscribable<EventData> {
-	protected static events: Record<string, PluginEvent<any>> = {}
-	constructor(public name: string) {
-		super()
-		PluginEvent.events[name] = this
-	}
-}
+import { subscribable } from './subscribable'
 
 // Plugin Events
 const EVENTS = {
-	LOAD: new PluginEvent('load'),
-	UNLOAD: new PluginEvent('unload'),
-	INSTALL: new PluginEvent('install'),
-	UNINSTALL: new PluginEvent('uninstall'),
+	PLUGIN_LOAD: subscribable<void>(),
+	PLUGIN_FINISHED_LOADING: subscribable<void>(),
 
-	INJECT_MODS: new PluginEvent('injectMods'),
-	EXTRACT_MODS: new PluginEvent('extractMods'),
+	PLUGIN_UNLOAD: subscribable<void>(),
+	PLUGIN_FINISHED_UNLOADING: subscribable<void>(),
 
-	SELECT_PROJECT: new PluginEvent<ModelProject>('selectProject'),
-	UNSELECT_PROJECT: new PluginEvent<ModelProject>('deselectProject'),
+	INSTALL: subscribable<void>(),
+	UNINSTALL: subscribable<void>(),
+
+	SELECT_PROJECT: subscribable<ModelProject>(),
+	UNSELECT_PROJECT: subscribable<ModelProject>(),
+
+	UPDATE_PROJECT_SETTINGS: subscribable<Record<string, any>>(),
+
+	SELECT_MODE: subscribable<{ mode: Mode }>(),
+
+	DISPLAY_SLOT_CHANGED: subscribable<{ slot: DisplaySlotName; previous: DisplaySlotName }>(),
+	REF_MODEL_CHANGED: subscribable<{
+		refModel: refModel<keyof typeof displayReferenceObjects.refmodels>
+	}>(),
+	DISPLAY_SETTINGS_UPDATED: subscribable<DisplaySlot>(),
+
+	UNDO: subscribable<UndoEntry>(),
+	REDO: subscribable<UndoEntry>(),
 }
 export default EVENTS
 
-function injectionHandler() {
-	console.groupCollapsed(`Injecting BlockbenchMods added by '${PACKAGE.name}'`)
-	EVENTS.INJECT_MODS.dispatch()
-	console.groupEnd()
-}
-
-function extractionHandler() {
-	console.groupCollapsed(`Extracting BlockbenchMods added by '${PACKAGE.name}'`)
-	EVENTS.EXTRACT_MODS.dispatch()
-	console.groupEnd()
-}
-
-EVENTS.LOAD.subscribe(injectionHandler)
-EVENTS.UNLOAD.subscribe(extractionHandler)
-EVENTS.INSTALL.subscribe(injectionHandler)
-EVENTS.UNINSTALL.subscribe(extractionHandler)
-
 Blockbench.on<EventName>('select_project', ({ project }: { project: ModelProject }) => {
-	EVENTS.SELECT_PROJECT.dispatch(project)
+	EVENTS.SELECT_PROJECT.publish(project)
 })
 Blockbench.on<EventName>('unselect_project', ({ project }: { project: ModelProject }) => {
-	EVENTS.UNSELECT_PROJECT.dispatch(project)
+	EVENTS.UNSELECT_PROJECT.publish(project)
+})
+Blockbench.on<EventName>('update_project_settings', formResult => {
+	EVENTS.UPDATE_PROJECT_SETTINGS.publish(formResult)
+})
+Blockbench.on<EventName>('select_mode', ({ mode }: { mode: Mode }) => {
+	EVENTS.SELECT_MODE.publish({ mode })
+})
+Blockbench.on<EventName>('undo', ({ entry }: { entry: UndoEntry }) => {
+	EVENTS.UNDO.publish(entry)
+})
+Blockbench.on<EventName>('redo', ({ entry }: { entry: UndoEntry }) => {
+	EVENTS.REDO.publish(entry)
 })

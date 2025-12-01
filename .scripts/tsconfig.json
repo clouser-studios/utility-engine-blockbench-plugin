@@ -1,0 +1,22 @@
+{
+	"include": ["./**/*.ts"],
+	"compilerOptions": {
+		"outDir": "./dist/",
+		"noImplicitAny": true,
+		"module": "ES2022",
+		"target": "ES2022",
+		"moduleResolution": "node",
+		"strict": true,
+		"types": ["node"],
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true,
+		"allowUmdGlobalAccess": true,
+		"allowUnreachableCode": true,
+		"esModuleInterop": true,
+		"noEmit": true,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"alwaysStrict": true,
+		"experimentalDecorators": true
+	}
+}

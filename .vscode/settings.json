@@ -24,12 +24,12 @@
 		"**/node_modules": true
 	},
 	"npm.exclude": ["**/node_modules"],
-	// "svelte.plugin.svelte.compilerWarnings": {
-	// 	"a11y-click-events-have-key-events": "ignore",
-	// 	"a11y-no-static-element-interactions": "ignore"
-	// },
+	"svelte.plugin.svelte.compilerWarnings": {
+		"a11y_click_events_have_key_events": "ignore",
+		"a11y_no_static_element_interactions": "ignore"
+	},
 	"errorLens.excludePatterns": ["**/node_modules/**/*"],
-	"eslint.validate": ["javascript", "javascriptreact", "svelte"],
+	"eslint.validate": ["javascript", "svelte", "typescript"],
 	"eslint.useFlatConfig": true,
 	"eslint.problems.shortenToSingleLine": true
 }

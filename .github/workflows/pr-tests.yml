@@ -42,7 +42,7 @@ jobs:
           ref: ${{ github.head_ref }}
       - run: |
           git fetch --no-tags --depth=1 origin main
-          git checkout main 
+          git checkout main
           git checkout ${{ github.head_ref }}
 
       - name: Set Node.js 22.x
@@ -50,20 +50,17 @@ jobs:
         with:
           node-version: 22.x
 
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
 
       - name: 🔍 Inspect Code Formatting
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: check-formatting
+        run: yarn check-formatting
 
       - name: 🔍 Inspect Code Practices
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: lint
+        run: yarn lint
 
   # build-and-test:
   #   name: 🏗️ Build & Test

@@ -1,5 +1,4 @@
 import type { ComponentConstructorOptions } from 'svelte'
-import { Syncable } from './stores'
 
 export type SvelteComponentConstructor<T, U extends ComponentConstructorOptions> = new (
 	options: U
@@ -34,17 +33,6 @@ export function makeNotZero(vec: THREE.Vector3 | THREE.Euler) {
 	if (vec.x === 0) vec.x = 0.00001
 	if (vec.y === 0) vec.y = 0.00001
 	if (vec.z === 0) vec.z = 0.00001
-}
-
-export function scrubUndefined<T extends Record<string, any>>(obj: T) {
-	for (const key in obj) {
-		if (obj[key] === undefined) {
-			delete obj[key]
-		} else if (typeof obj[key] === 'object') {
-			scrubUndefined(obj[key])
-		}
-	}
-	return obj
 }
 
 // Developed by FetchBot 💖
@@ -94,29 +82,10 @@ export function eulerFromQuaternion(q: THREE.Quaternion) {
 	return rot
 }
 
-export function mapObjEntries<V, RV>(
-	obj: Record<string, V>,
-	cb: (k: string, v: V) => [string, RV]
-): Record<string, RV> {
-	return Object.fromEntries(Object.entries(obj).map(([k, v]) => cb(k, v)))
-}
-
 export function markdownToHTML(markdown: string) {
 	return markdown
 		.replace('\n', '<br/>')
 		.replace(/`(.+?)`/, '<code class="animated-java-code">$1</code>')
-}
-
-export function makeSyncable<O extends Record<string, any>>(obj: O) {
-	return mapObjEntries(obj, (k, v) => [k, new Syncable(v)]) as {
-		[Key in keyof O]: Syncable<O[Key]>
-	}
-}
-
-export function makeNotSyncable<O extends Record<string, Syncable<any>>>(obj: O) {
-	return mapObjEntries(obj, (k, v) => [k, v.get()]) as {
-		[Key in keyof O]: ReturnType<O[Key]['get']>
-	}
 }
 
 export function resetAllConsoleGroups() {
