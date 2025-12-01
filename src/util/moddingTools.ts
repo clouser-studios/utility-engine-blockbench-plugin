@@ -29,7 +29,7 @@ interface ModHandle {
 const REGISTERED_MODS = new Map<string, ModHandle>()
 const MOD_INSTALL_ORDER: string[] = []
 
-EVENTS.LOAD.subscribe(async () => {
+EVENTS.PLUGIN_LOAD.subscribe(async () => {
 	console.groupCollapsed(`Installing Mods...`)
 	try {
 		for (const modId of MOD_INSTALL_ORDER) {
@@ -42,10 +42,10 @@ EVENTS.LOAD.subscribe(async () => {
 		throw e
 	}
 	console.groupEnd()
-	EVENTS.FINISHED_LOADING.publish()
+	EVENTS.PLUGIN_FINISHED_LOADING.publish()
 })
 
-EVENTS.UNLOAD.subscribe(async () => {
+EVENTS.PLUGIN_UNLOAD.subscribe(async () => {
 	console.groupCollapsed(`Uninstalling Mods...`)
 	try {
 		for (const modId of [...MOD_INSTALL_ORDER].reverse()) {
@@ -58,7 +58,7 @@ EVENTS.UNLOAD.subscribe(async () => {
 		throw e
 	}
 	console.groupEnd()
-	EVENTS.FINISHED_UNLOADING.publish()
+	EVENTS.PLUGIN_FINISHED_UNLOADING.publish()
 })
 
 interface ModOptions<ID extends string, RevertContext extends any | void> {
@@ -314,7 +314,7 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 			configurable: true,
 		})
 
-		EVENTS.UNLOAD.subscribe(() => {
+		EVENTS.PLUGIN_UNLOAD.subscribe(() => {
 			const value = object[key]
 			delete object[key]
 			Object.defineProperty(object, key, {
@@ -326,27 +326,6 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 
 	return subscribables
 }
-
-// export function overwriteFunction<Target extends Record<string, any>, Key extends string>(
-// 	/**
-// 	 * The object or class to overwrite the function on.
-// 	 */
-// 	target: Target,
-// 	/**
-// 	 * The key of the function to overwrite.
-// 	 */
-// 	key: string,
-// 	/**
-// 	 * The function to overwrite the original function with.
-// 	 */
-// 	callback: (target: Target, originalFunction: Target[Key]) => void,
-// 	/**
-// 	 * The priority of the overwrite. Higher priority overwrites are called first.
-// 	 */
-// 	priority?: number
-// ) {
-// 	//
-// }
 
 /**
  * A wrapper for the Blockbench.Property class that deep-clones the property value when copying or merging.

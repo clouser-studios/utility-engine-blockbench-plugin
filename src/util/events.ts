@@ -2,11 +2,11 @@ import { subscribable } from './subscribable'
 
 // Plugin Events
 const EVENTS = {
-	LOAD: subscribable<void>(),
-	FINISHED_LOADING: subscribable<void>(),
+	PLUGIN_LOAD: subscribable<void>(),
+	PLUGIN_FINISHED_LOADING: subscribable<void>(),
 
-	UNLOAD: subscribable<void>(),
-	FINISHED_UNLOADING: subscribable<void>(),
+	PLUGIN_UNLOAD: subscribable<void>(),
+	PLUGIN_FINISHED_UNLOADING: subscribable<void>(),
 
 	INSTALL: subscribable<void>(),
 	UNINSTALL: subscribable<void>(),

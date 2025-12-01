@@ -3,7 +3,7 @@ import EVENTS from '@events'
 import PACKAGE from '@package'
 import { log } from './util/log'
 
-EVENTS.FINISHED_LOADING.subscribe(() => {
+EVENTS.PLUGIN_FINISHED_LOADING.subscribe(() => {
 	void log.img(
 		{ url: Title, height: 44 },
 		'\n\n Utility Engine v' + PACKAGE.version,
@@ -24,11 +24,11 @@ BBPlugin.register(PACKAGE.name, {
 	onload() {
 		// Wait until plugin system is done loading this plugin.
 		requestAnimationFrame(() => {
-			EVENTS.LOAD.publish()
+			EVENTS.PLUGIN_LOAD.publish()
 		})
 	},
 	onunload() {
-		EVENTS.UNLOAD.publish()
+		EVENTS.PLUGIN_UNLOAD.publish()
 	},
 	oninstall() {
 		EVENTS.INSTALL.publish()

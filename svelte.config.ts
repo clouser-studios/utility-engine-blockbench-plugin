@@ -19,16 +19,15 @@ export const preprocess = [
 
 const IMPORT_PATH = resolve(__dirname, '../src/util/', 'events.ts')
 
-export const transformCssToJs = (
-	css: string
-) => `import SVELTE_EVENTS from ${JSON.stringify(IMPORT_PATH)};
-(() => {
-	var css;
-	SVELTE_EVENTS.LOAD.subscribe(() => {
-		css = Blockbench.addCSS(${JSON.stringify(css)});
-	});
-	SVELTE_EVENTS.UNLOAD.subscribe(() => css?.delete());
-})()`
+export const transformCssToJs = (css: string) =>
+	`import SVELTE_EVENTS from ${JSON.stringify(IMPORT_PATH)};
+	(() => {
+		var css;
+		SVELTE_EVENTS.PLUGIN_LOAD.subscribe(() =>
+			css = Blockbench.addCSS(${JSON.stringify(css)});
+		);
+		SVELTE_EVENTS.PLUGIN_UNLOAD.subscribe(() => css?.delete());
+	})()`.replace(/\s/g, '')
 
 const IGNORED_WARNINGS = Object.keys(VSCODE_SETTINGS['svelte.plugin.svelte.compilerWarnings'])
 
