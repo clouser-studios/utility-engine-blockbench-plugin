@@ -3,7 +3,6 @@ import {
 	currentFormatIsUtilityModelProject,
 	UTILITY_MODEL_CODEC,
 } from '@utility/formats/utility-model-project'
-import { log } from '@utility/util/log'
 
 registerMod({
 	id: `utility-engine:export-over-mod`,
@@ -23,15 +22,11 @@ registerMod({
 			if (currentFormatIsUtilityModelProject()) {
 				const path = Project?.save_path
 				if (path) {
-					if (fs.existsSync(PathModule.dirname(path))) {
-						Project.save_path = path
-						codec.write(codec.compile(), path)
-					} else {
-						log.error(
-							`Failed to export Utility Model, file location '${path}' does not exist!`
-						)
-						codec.export()
-					}
+					Blockbench.writeFile(path, {
+						content: codec.compile(),
+					})
+					Project.save_path = path
+					// codec.write(codec.compile(), path)
 				} else {
 					codec.export()
 				}

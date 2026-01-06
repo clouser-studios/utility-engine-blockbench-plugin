@@ -1,4 +1,3 @@
-import { log } from '@utility/util/log'
 import type { ResourceLocation } from '@utility/util/resourceLocation'
 import { mount, unmount, type Component } from 'svelte'
 import type { ComponentMountOptions, GenericComponent } from './helperTypes'
@@ -70,6 +69,11 @@ export class SvelteDialog<
 
 		this.anchor = anchor
 
+		this.onBuild = () => {
+			const target = this.dialogContentElement
+			target.appendChild(this.anchor)
+		}
+
 		this.onOpen = () => {
 			if (!options.stackable) {
 				DIALOG_STACK.forEach(v => v.cancel())
@@ -94,6 +98,7 @@ export class SvelteDialog<
 				intro: options.intro,
 				context: options.context,
 			})
+			console.log('Mounted Svelte component for dialog', this)
 
 			if (typeof options.title !== 'string') {
 				const target = this.dialogHandleElement
@@ -166,26 +171,28 @@ export class SvelteDialog<
 	}
 
 	get dialogContentElement() {
-		const element = this.anchor.parentElement
+		const element = this.object?.querySelector('.dialog_content')
 		if (!element) {
-			throw new Error('Failed to get dialog content element: Anchor element has no parent')
+			debugger
+			throw new Error('Failed to find .dialog_content element')
 		}
 		return element as HTMLDivElement
 	}
 
 	get dialogHandleElement() {
-		const element =
-			this.dialogContentElement.parentElement?.parentElement?.querySelector('.dialog_handle')
+		const element = this.object?.querySelector('.dialog_handle')
 		if (!element) {
-			throw new Error('Failed to get dialog handle element: .dialog_handle not found')
+			debugger
+			throw new Error('Failed to find .dialog_handle element')
 		}
 		return element as HTMLDivElement
 	}
 
 	get dialogButtonBarElement() {
-		const element = this.dialogContentElement.parentElement?.querySelector('.button_bar')
+		const element = this.object?.querySelector('.button_bar')
 		if (!element) {
-			throw new Error('Failed to get dialog button bar element: .button_bar not found')
+			debugger
+			throw new Error('Failed to find .button_bar element')
 		}
 		return element as HTMLDivElement
 	}
@@ -212,7 +219,7 @@ export class SvelteDialogSidebar<
 			target.style.overflow = 'visible'
 			const pageData = this.pages?.[page]
 			if (!pageData) {
-				log.error(
+				console.error(
 					`Attempted to switch pages to unknown page "${page}" in "${options.id}" dialog`
 				)
 				return

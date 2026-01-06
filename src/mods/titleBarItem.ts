@@ -8,7 +8,11 @@ import {
 import { IMPORT_UTILITY_MODEL_ACTION } from '@utility/formats/utility-model/import'
 import { pollUntilResult } from '@utility/util/promises'
 
-export const TITLE_BAR_MENU = registerBarMenu('utility-engine:bar-menu/title-bar-menu', [], {})
+export const TITLE_BAR_MENU = registerBarMenu(
+	{ id: 'utility-engine:bar-menu/title-bar-menu' },
+	[],
+	{}
+)
 
 TITLE_BAR_MENU.onCreated(menubar => {
 	function createIconImg() {

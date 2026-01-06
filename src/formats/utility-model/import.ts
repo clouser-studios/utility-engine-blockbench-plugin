@@ -121,6 +121,14 @@ function buildOutliner(
 }
 
 function importTextures(textures: UtilityModel.Json['textures'], projectPath = '') {
+	const fs = requireNativeModule('fs', {
+		message: 'Utility requires this module in order to import Utility Models.',
+		optional: false,
+	})
+	if (!fs) {
+		throw new Error('User denied access to native fs module')
+	}
+
 	const particleResourceLocation = textures.particle ?? ''
 
 	const duplicateParticleTextureId = Object.entries(textures).find(([id, resourceLocation]) => {
@@ -330,13 +338,16 @@ export function importUtilityModel() {
 	)
 }
 
-export const IMPORT_UTILITY_MODEL_ACTION = registerAction(`utility-engine:import-utility-model`, {
-	name: localize('action.import_utility_model.label'),
-	icon: Icon,
-	click() {
-		importUtilityModel()
-	},
-})
+export const IMPORT_UTILITY_MODEL_ACTION = registerAction(
+	{ id: `utility-engine:import-utility-model` },
+	{
+		name: localize('action.import_utility_model.label'),
+		icon: Icon,
+		click() {
+			importUtilityModel()
+		},
+	}
+)
 IMPORT_UTILITY_MODEL_ACTION.onCreated(action => {
 	MenuBar.addAction(action, 'file.import.0')
 })

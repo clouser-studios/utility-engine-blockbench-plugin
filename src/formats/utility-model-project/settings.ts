@@ -12,7 +12,7 @@ declare global {
 }
 
 export const OPEN_PROJECT_SETTINGS_ACTION = registerAction(
-	`utility-engine:open-utility-model-settings`,
+	{ id: `utility-engine:open-utility-model-settings` },
 	{
 		name: localize('action.open_utility_model_settings.label'),
 		icon: Icon,

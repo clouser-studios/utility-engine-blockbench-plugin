@@ -28,7 +28,7 @@ export function addProjectToRecentProjects(file: FileResult) {
 }
 
 export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
-	`utility-engine:codec/utility-model-project`,
+	{ id: `utility-engine:codec/utility-model-project` },
 	{
 		name: 'Utility Model Project',
 		extension: 'utilityproject',
@@ -68,6 +68,14 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 		// region parse
 		// Takes the model file and injects it's data into the global Project
 		parse(model: UtilityModelProject.Json, path) {
+			const fs = requireNativeModule('fs', {
+				message: 'Utility requires this module in order to import Utility Model Projects.',
+				optional: false,
+			})
+			if (!fs) {
+				throw new Error('User denied access to native fs module')
+			}
+
 			console.log(`Parsing Utility Model from '${path}'...`)
 			if (!Project) throw new Error('No project to parse into')
 
@@ -152,7 +160,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 			}
 
 			if (model.outliner) {
-				parseGroups(model.outliner)
+				Outliner.loadJSON(model.outliner)
 			}
 
 			if (model.animations) {
@@ -177,8 +185,8 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 					model.animation_variable_placeholders
 			}
 
-			if (model.front_gui_light) {
-				Project.front_gui_light = model.front_gui_light
+			if (model.front_gui_light === 'front') {
+				Project.front_gui_light = true
 				// @ts-expect-error - Missing type
 				DisplayMode.updateGUILight()
 			}
@@ -340,7 +348,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 			}
 
 			if (Project.front_gui_light) {
-				model.front_gui_light = Project.front_gui_light
+				model.front_gui_light = 'front'
 			}
 
 			if (Object.keys(Project.display_settings).length > 0) {
@@ -383,23 +391,25 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerCodec(
 				content: this.compile!(),
 				// eslint-disable-next-line @typescript-eslint/naming-convention
 				custom_writer: (content, path) => {
-					if (fs.existsSync(PathModule.dirname(path))) {
-						Project!.save_path = path
-						this.write!(content, path)
-					} else {
-						log.error(
-							`Failed to export Utility Model, file location '${path}' does not exist!`
-						)
-						Blockbench.showMessageBox({
-							title: localize(
-								'error.utility-model-format.failed-to-export-project.title'
-							),
-							message: localize(
-								'error.utility-model-format.failed-to-export-project.description',
-								localize('error.utility_model_format.invalid_export_path')
-							),
-						})
-					}
+					Project!.save_path = path
+					this.write!(content, path)
+					// if (fs.existsSync(PathModule.dirname(path))) {
+					// 	Project!.save_path = path
+					// 	this.write!(content, path)
+					// } else {
+					// 	log.error(
+					// 		`Failed to export Utility Model, file location '${path}' does not exist!`
+					// 	)
+					// 	Blockbench.showMessageBox({
+					// 		title: localize(
+					// 			'error.utility-model-format.failed-to-export-project.title'
+					// 		),
+					// 		message: localize(
+					// 			'error.utility-model-format.failed-to-export-project.description',
+					// 			localize('error.utility_model_format.invalid_export_path')
+					// 		),
+					// 	})
+					// }
 				},
 			})
 		},

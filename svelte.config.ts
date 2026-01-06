@@ -24,10 +24,10 @@ export const transformCssToJs = (css: string) =>
 	(() => {
 		var css;
 		SVELTE_EVENTS.PLUGIN_LOAD.subscribe(() =>
-			css = Blockbench.addCSS(${JSON.stringify(css)});
+			css = Blockbench.addCSS(${JSON.stringify(css)})
 		);
 		SVELTE_EVENTS.PLUGIN_UNLOAD.subscribe(() => css?.delete());
-	})()`.replace(/\s/g, '')
+	})()`.replace(/\n/g, '')
 
 const IGNORED_WARNINGS = Object.keys(VSCODE_SETTINGS['svelte.plugin.svelte.compilerWarnings'])
 

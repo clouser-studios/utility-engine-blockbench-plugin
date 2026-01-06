@@ -254,7 +254,9 @@ export function exportUtilityModel(path?: string) {
 
 		if (path) {
 			try {
-				fs.writeFileSync(path, autoStringify(model))
+				Blockbench.writeFile(path, {
+					content: autoStringify(model),
+				})
 				Blockbench.showQuickMessage(localize('message.exported'))
 				return
 			} catch {} // Ignore errors and continue with the file picker
@@ -275,7 +277,7 @@ export function exportUtilityModel(path?: string) {
 				// Patch stupid bug with Blockbench exporter
 				chosenPath = chosenPath.replace(/\.utility\.json\.utility\.json$/, '.utility.json')
 				Project!.export_path = chosenPath
-				fs.writeFileSync(chosenPath, content.toString())
+				Blockbench.writeFile(chosenPath, { content })
 				Blockbench.showQuickMessage(localize('message.exported'))
 			},
 		})
@@ -298,7 +300,7 @@ export function exportUtilityModel(path?: string) {
 }
 
 export const EXPORT_UTILITY_MODEL_AS_ACTION = registerAction(
-	`utility-engine:export-utility-model-as`,
+	{ id: `utility-engine:export-utility-model-as` },
 	{
 		name: localize('action.export_utility_model_as.label'),
 		icon: Icon,
@@ -312,14 +314,17 @@ EXPORT_UTILITY_MODEL_AS_ACTION.onCreated(action => {
 	MenuBar.addAction(action, 'file.export.1')
 })
 
-export const EXPORT_UTILITY_MODEL_ACTION = registerAction(`utility-engine:export-utility-model`, {
-	name: localize('action.export_utility_model.label'),
-	icon: Icon,
-	condition: () => currentFormatIsUtilityModelProject(),
-	click() {
-		exportUtilityModel(Project!.export_path)
-	},
-})
+export const EXPORT_UTILITY_MODEL_ACTION = registerAction(
+	{ id: `utility-engine:export-utility-model` },
+	{
+		name: localize('action.export_utility_model.label'),
+		icon: Icon,
+		condition: () => currentFormatIsUtilityModelProject(),
+		click() {
+			exportUtilityModel(Project!.export_path)
+		},
+	}
+)
 EXPORT_UTILITY_MODEL_ACTION.onCreated(action => {
 	MenuBar.addAction(action, 'file.export.0')
 })

@@ -41,7 +41,7 @@ export namespace v0_0_8 {
 		backgrounds?: Record<string, any>
 		collections?: CollectionOptions[]
 		texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
-		front_gui_light?: boolean
+		front_gui_light?: 'front'
 		display_settings?: Partial<Record<DisplaySlotName, UtilityDisplaySettings>>
 	}
 }

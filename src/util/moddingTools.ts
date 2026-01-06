@@ -1,9 +1,7 @@
-import EVENTS from '@events'
+import PACKAGE from '@package'
+import EVENTS from './events'
 import type { ResourceLocation } from './resourceLocation'
 import { subscribable, type Subscribable } from './subscribable'
-
-// Useful for describing context variables that will become BlochBench class properties in the inject function.
-export type ContextProperty<Type extends keyof IPropertyType> = Property<Type> | undefined
 
 class ModInstallError extends Error {
 	constructor(id: string, err: Error) {
@@ -31,6 +29,7 @@ const MOD_INSTALL_ORDER: string[] = []
 
 EVENTS.PLUGIN_LOAD.subscribe(async () => {
 	console.groupCollapsed(`Installing Mods...`)
+
 	try {
 		for (const modId of MOD_INSTALL_ORDER) {
 			const mod = REGISTERED_MODS.get(modId)!
@@ -41,12 +40,20 @@ EVENTS.PLUGIN_LOAD.subscribe(async () => {
 		console.groupEnd()
 		throw e
 	}
+
+	// Emit fake plugin load events for all already loaded plugins, so mods can hook into them
+	for (const plugin of Object.values(Plugins.registered)) {
+		if (plugin.id === PACKAGE.name) continue
+		EVENTS.EXTERNAL_PLUGIN_LOAD.publish(plugin)
+	}
+
 	console.groupEnd()
 	EVENTS.PLUGIN_FINISHED_LOADING.publish()
 })
 
 EVENTS.PLUGIN_UNLOAD.subscribe(async () => {
 	console.groupCollapsed(`Uninstalling Mods...`)
+
 	try {
 		for (const modId of [...MOD_INSTALL_ORDER].reverse()) {
 			const mod = REGISTERED_MODS.get(modId)!
@@ -57,15 +64,26 @@ EVENTS.PLUGIN_UNLOAD.subscribe(async () => {
 		console.groupEnd()
 		throw e
 	}
+
+	for (const plugin of Object.values(Plugins.registered)) {
+		if (plugin.id === PACKAGE.name) continue
+		EVENTS.EXTERNAL_PLUGIN_UNLOAD.publish(plugin)
+	}
+
 	console.groupEnd()
 	EVENTS.PLUGIN_FINISHED_UNLOADING.publish()
 })
 
-interface ModOptions<ID extends string, RevertContext extends any | void> {
+export interface BaseModOptions<ID extends string> {
 	id: ResourceLocation.Validate<ID>
 	/** A list of mod IDs that this mod depends on */
 	dependencies?: string[]
+	/** The priority of the mod. Higher priority mods will be installed first. */
 	priority?: number
+}
+
+interface ModOptions<ID extends string, RevertContext extends any | void>
+	extends BaseModOptions<ID> {
 	/** A function that applies the mod. This function should return a context object that will be passed to the revert function. */
 	apply: () => Promise<RevertContext> | RevertContext
 	/**
@@ -135,6 +153,7 @@ export function registerMod<ID extends string, RevertContext extends any | void>
 				applyContext = await options.apply()
 				installed = true
 			} catch (err) {
+				debugger
 				throw new ModInstallError(options.id, err as Error)
 			}
 		},
@@ -148,6 +167,7 @@ export function registerMod<ID extends string, RevertContext extends any | void>
 				await options.revert(applyContext)
 				installed = false
 			} catch (err) {
+				debugger
 				throw new ModUninstallError(options.id, err as Error)
 			}
 		},
@@ -160,19 +180,103 @@ export function registerMod<ID extends string, RevertContext extends any | void>
 	return handle
 }
 
+interface RegisterProjectModOptions<ID extends string, RevertContext extends any | void>
+	extends ModOptions<ID, RevertContext> {
+	apply: () => RevertContext
+	revert: (ctx: RevertContext) => void
+	/** A function that checks if the mod should be applied when switching projects */
+	condition: (project: ModelProject) => boolean
+}
+
+/**
+ * Registers a mod that is applied / reverted when a project is selected / unselected that meets the provided condition.
+ */
+export function registerProjectMod<ID extends string, RevertContext extends any | void>(
+	options: RegisterProjectModOptions<ID, RevertContext>
+) {
+	let revertContext: RevertContext | null = null
+
+	return registerMod({
+		...options,
+
+		apply: () => {
+			return [
+				EVENTS.PRE_SELECT_PROJECT.subscribe(project => {
+					// Effectively using revertContext as a boolean to check if the mod is applied
+					if (revertContext !== null) return
+					if (!options.condition(project)) return
+					console.log(`Applying project mod '${options.id}'`)
+					revertContext = options.apply()
+				}),
+
+				EVENTS.UNSELECT_PROJECT.subscribe(() => {
+					// Effectively using revertContext as a boolean to check if the mod is applied
+					if (revertContext === null) return
+					console.log(`Reverting project mod '${options.id}'`)
+					options.revert(revertContext)
+					revertContext = null
+				}),
+			]
+		},
+
+		revert: ctx => {
+			ctx.forEach(unsub => unsub())
+		},
+	})
+}
+
+interface RegisterPluginModOptions<ID extends string, RevertContext extends any | void>
+	extends ModOptions<ID, RevertContext> {
+	apply: () => RevertContext
+	revert: (ctx: RevertContext) => void
+	/** A function that checks if the mod should be applied when the plugin is loaded */
+	condition: (plugin: BBPlugin) => boolean
+}
+
+/**
+ * Registers a mod that is applied / reverted when a plugin is loaded / unloaded that meets the provided condition.
+ */
+export function registerPluginMod<ID extends string, RevertContext extends any | void>(
+	options: RegisterPluginModOptions<ID, RevertContext>
+) {
+	let revertContext: RevertContext | undefined
+
+	return registerMod({
+		...options,
+
+		apply: () => {
+			return [
+				EVENTS.EXTERNAL_PLUGIN_LOAD.subscribe(plugin => {
+					if (!Condition(options.condition, plugin)) return
+					console.log(`Applying plugin mod '${options.id}'`)
+					revertContext = options.apply()
+				}),
+
+				EVENTS.EXTERNAL_PLUGIN_UNLOAD.subscribe(() => {
+					// Effectively using revertContext as a boolean to check if the mod is applied
+					if (revertContext !== undefined) {
+						console.log(`Reverting plugin mod '${options.id}'`)
+						options.revert(revertContext)
+						revertContext = undefined
+					}
+				}),
+			]
+		},
+
+		revert: ctx => {
+			ctx.forEach(unsub => unsub())
+		},
+	})
+}
+
 interface DeletableEventHandler<T> {
 	/** The current instance of this deletable */
-	get(): T | undefined
+	get(): T | null
 	onCreated: Subscribable<T>['subscribe']
 	onDeleted: Subscribable<T>['subscribe']
 }
 
-type CreateActionOptions = ActionOptions & {
-	/**
-	 * @param path Path pointing to the location. Use the ID of each level of the menu, or index or group within a level, separated by a period. For example; `file.export.0` places the action at the top position of the Export submenu in the File menu.
-	 */
-	menu_path?: string
-}
+interface RegisterDeletableOptions<ID extends string> extends BaseModOptions<ID> {}
 
 /**
  * Defines a new deletable register function, that handles the creation and deletion of deletables on the appropriate Blockbench events.
@@ -181,8 +285,11 @@ function registerDeletableFactory<T extends Deletable, A extends any[]>(
 	createInstance: (id: string, ...args: A) => T,
 	deleteInstance: (instance: T) => void
 ) {
-	return function handler<ID extends string>(id: ResourceLocation.Validate<ID>, ...args: A) {
-		let activeInstance: T | undefined
+	return function handler<ID extends string>(
+		{ id, priority, dependencies }: RegisterDeletableOptions<ID>,
+		...args: A
+	) {
+		let activeInstance: T | null
 		const created = subscribable<T>()
 		const deleted = subscribable<T>()
 
@@ -194,6 +301,8 @@ function registerDeletableFactory<T extends Deletable, A extends any[]>(
 
 		registerMod({
 			id,
+			priority,
+			dependencies,
 			apply: () => {
 				activeInstance = createInstance(id, ...args)
 				created.publish(activeInstance)
@@ -201,7 +310,7 @@ function registerDeletableFactory<T extends Deletable, A extends any[]>(
 			},
 			revert: lastInstance => {
 				deleteInstance(lastInstance)
-				activeInstance = undefined
+				activeInstance = null
 				deleted.publish(lastInstance)
 			},
 		})
@@ -216,7 +325,7 @@ function registerDeletableFactory<T extends Deletable, A extends any[]>(
  * See https://www.blockbench.net/wiki/api/action for more information on the Blockbench.Action class.
  */
 export const registerAction = registerDeletableFactory(
-	(id, options: CreateActionOptions) => new Action(id, options),
+	(id, options: ActionOptions) => new Action(id, options),
 	action => action.delete()
 )
 
@@ -246,12 +355,174 @@ export const registerBarMenu = registerDeletableFactory(
 		// Swap over to this when Blockbench updates to 5.0
 		// menubar.delete()
 		// Temporary implementation of `menubar.delete()` from Blockbench 5.0
-		// @ts-expect-error
+		// @ts-expect-error No types
 		menubar.node.remove()
 		menubar.label.remove()
 		delete MenuBar.menus[menubar.id]
 	}
 )
+
+export const registerModelLoader = registerDeletableFactory(
+	(id, options: Omit<ModelLoaderOptions, 'id'>) => new ModelLoader(id, options),
+	loader => loader.delete()
+)
+
+export const registerMenu = registerDeletableFactory(
+	(id, template: MenuItem[] | ((context?: any) => MenuItem[]), options: MenuOptions) =>
+		new Menu(id, template, options),
+	menu => {
+		// Swap over to this when Blockbench updates to 5.0
+		// menu.delete()
+		// Temporary implementation of `menu.delete()` from Blockbench 5.0
+		// @ts-expect-error No types
+		menu.node.remove()
+	}
+)
+
+interface PropertyOverrideModOptions<
+	ID extends string,
+	T extends Object,
+	K extends keyof T,
+	O extends T[K],
+> extends BaseModOptions<ID> {
+	object: T
+	key: K
+	get: (this: T, original: T[K]) => O
+	set?: (this: T, value: O) => void
+}
+
+export function registerPropertyOverrideMod<
+	ID extends string,
+	T extends Object,
+	K extends keyof T,
+	O extends T[K],
+>(options: PropertyOverrideModOptions<ID, T, K, O>) {
+	registerMod({
+		...options,
+
+		apply: () => {
+			if (options.object == undefined) {
+				throw new Error(`Cannot override property on undefined object.`)
+			}
+
+			const original = {
+				value: undefined as O,
+				descriptor: undefined as unknown as PropertyDescriptor,
+			}
+
+			original.value = options.object[options.key] as O
+
+			original.descriptor = Object.getOwnPropertyDescriptor(options.object, options.key) ?? {
+				value: original.value,
+				writable: true,
+				configurable: true,
+			}
+
+			if (original.descriptor.configurable === false) {
+				throw new Error(
+					`Cannot override property '${String(
+						options.key
+					)}' on object because it is not configurable.`
+				)
+			}
+
+			Object.defineProperty(options.object, options.key, {
+				configurable: true,
+				get() {
+					return options.get.call(this, original.value)
+				},
+				set(value) {
+					original.value = value
+				},
+			})
+
+			return { original }
+		},
+
+		revert: ({ original }) => {
+			Object.defineProperty(options.object, options.key, original.descriptor)
+		},
+	})
+}
+
+interface ConditionalPropertyOverrideModOptions<
+	ID extends string,
+	T extends Object,
+	K extends keyof T,
+	O extends T[K],
+> extends BaseModOptions<ID> {
+	object: T
+	key: K
+	condition: ConditionResolvable<T>
+	get: (this: T, original: T[K]) => O
+	set?: (this: T, value: O) => void
+}
+
+export function registerConditionalPropertyOverrideMod<
+	ID extends string,
+	T extends Object,
+	K extends keyof T,
+	O extends T[K],
+>(options: ConditionalPropertyOverrideModOptions<ID, T, K, O>) {
+	registerMod({
+		...options,
+
+		apply: () => {
+			if (options.object == undefined) {
+				throw new Error(`Cannot override property on undefined object.`)
+			}
+
+			const original = {
+				value: undefined as O,
+				descriptor: undefined as unknown as PropertyDescriptor,
+			}
+
+			original.value = options.object[options.key] as O
+
+			original.descriptor = Object.getOwnPropertyDescriptor(options.object, options.key) ?? {
+				value: original.value,
+				writable: true,
+				configurable: true,
+			}
+
+			if (original.descriptor.configurable === false) {
+				throw new Error(
+					`Cannot override property '${String(
+						options.key
+					)}' on object because it is not configurable.`
+				)
+			}
+
+			Object.defineProperty(options.object, options.key, {
+				configurable: true,
+				enumerable: original.descriptor.enumerable,
+				get: function (this: T) {
+					if (Condition(options.condition, this)) {
+						return options.get.call(this, original.value)
+					}
+					return original.value
+				},
+				set: options.set
+					? function (this: T, value) {
+							if (Condition(options.condition, this)) {
+								options.set!.call(this, value)
+							} else {
+								original.value = value
+							}
+						}
+					: value => {
+							original.value = value
+						},
+			})
+
+			return { original }
+		},
+
+		revert: ({ original }) => {
+			Object.defineProperty(options.object, options.key, original.descriptor)
+		},
+	})
+}
 
 interface Storage<Value = any> {
 	value: Value
@@ -350,9 +621,4 @@ export class ObjectProperty extends Property<'object'> {
 			instance[this.name] = JSON.parse(JSON.stringify(data[this.name]))
 		}
 	}
-}
-
-export const fixClassPropertyInheritance: ClassDecorator = target => {
-	target.properties = { ...target.properties }
-	return target
 }

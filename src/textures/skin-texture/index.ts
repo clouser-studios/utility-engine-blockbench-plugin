@@ -51,8 +51,9 @@ async function autoUpdateSkinFormat(skinUrl: string) {
 }
 
 async function promptForUsername() {
-	const username = syncable<string | undefined>('')
-	return new Promise<string | undefined>(resolve => {
+	const username = syncable<string>('')
+	console.log(username)
+	return new Promise<string>(resolve => {
 		new SvelteDialog({
 			id: `utility-engine:username-prompt`,
 			title: '',
@@ -65,20 +66,25 @@ async function promptForUsername() {
 	})
 }
 
-export const CREATE_SKIN_TEXTURE_ACTION = registerAction(`utility-engine:create-skin-texture`, {
-	name: localize('action.create_skin_texture.label'),
-	icon: 'portrait',
-	condition() {
-		return (
-			currentFormatIsUtilityModelProject() &&
-			// Project can only have one skin texture
-			!Texture.all.some(v => v instanceof SkinTexture)
-		)
+export const CREATE_SKIN_TEXTURE_ACTION = registerAction(
+	{
+		id: `utility-engine:create-skin-texture`,
 	},
-	click() {
-		new SkinTexture().add(true)
-	},
-})
+	{
+		name: localize('action.create_skin_texture.label'),
+		icon: 'portrait',
+		condition() {
+			return (
+				currentFormatIsUtilityModelProject() &&
+				// Project can only have one skin texture
+				!Texture.all.some(v => v instanceof SkinTexture)
+			)
+		},
+		click() {
+			new SkinTexture().add(true)
+		},
+	}
+)
 CREATE_SKIN_TEXTURE_ACTION.onCreated(action => {
 	Toolbars.texturelist.add(action)
 })

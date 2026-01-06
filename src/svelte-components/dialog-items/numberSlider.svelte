@@ -20,6 +20,13 @@
 		step = undefined,
 	}: Props = $props()
 
+	// FIXME - The molang parser is not exposed as of BB 5.0.7. I have made a github issue for this bug.
+	// https://github.com/JannisX11/blockbench/issues/3241 - Once this is fixed, remove this stub and use the global Molang parser.
+	class Molang {
+		parse(value: any) {
+			return value
+		}
+	}
 	const MOLANG_PARSER = new Molang()
 
 	let input: HTMLInputElement

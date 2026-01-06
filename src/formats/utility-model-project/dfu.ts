@@ -1,5 +1,6 @@
 import PACKAGE from '@package'
 import { compareLongVersions } from '@utility/util/compareVersion'
+import { log } from '@utility/util/log'
 import { type UtilityModelProject } from '../utility-model-project/versions/latest'
 import v0_0_5 from './versions/0.0.5'
 import v0_0_7 from './versions/0.0.7'
@@ -25,7 +26,7 @@ export function updateUtilityProject(model: any): UtilityModelProject.Json {
 		}
 	}
 
-	console.log('Updated model to latest version:', newModel)
+	log.info('Updated model to latest version:', newModel)
 
 	return newModel
 }
