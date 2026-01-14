@@ -8,7 +8,11 @@ registerMod({
 		const original = barSelect.condition
 
 		barSelect.condition = () => {
-			if (Modes.display && display_slot === 'gui' && currentFormatIsUtilityModelProject()) {
+			if (
+				Modes.display &&
+				DisplayMode.display_slot === 'gui' &&
+				currentFormatIsUtilityModelProject()
+			) {
 				return true
 			}
 			return Condition(original)

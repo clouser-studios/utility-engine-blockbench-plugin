@@ -28,9 +28,9 @@ registerMod({
 		for (const [key, oldFunc] of Object.entries(originalLoadDisplayFunctions)) {
 			// @ts-expect-error - No type is defined for this function
 			DisplayMode[key] = function () {
-				const previous = display_slot
+				const previous = DisplayMode.display_slot
 				oldFunc.call()
-				const slot = display_slot
+				const slot = DisplayMode.display_slot
 				EVENTS.DISPLAY_SLOT_CHANGED.publish({ slot, previous })
 			}
 		}

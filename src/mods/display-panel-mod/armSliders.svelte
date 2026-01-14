@@ -21,7 +21,7 @@
 	let rotationY = $state(0)
 	let rotationZ = $state(0)
 
-	const displaySlot = Project!.display_settings[display_slot]
+	const displaySlot = Project!.display_settings[DisplayMode.display_slot]
 
 	const loadChannelRotation = (shouldForceDisable = false) => {
 		if (displaySlot[displaySlotChannel]) {

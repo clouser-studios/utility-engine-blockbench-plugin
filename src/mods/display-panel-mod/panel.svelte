@@ -11,7 +11,8 @@
 		side: 'left' | 'right',
 		primaryHand: 'left' | 'right'
 	): ArrayVector3 => {
-		const defaultX = displayReferenceObjects.refmodels.player.pose_angles[display_slot] ?? 22.5
+		const defaultX =
+			displayReferenceObjects.refmodels.player.pose_angles[DisplayMode.display_slot] ?? 22.5
 		if (side === 'left') {
 			return primaryHand === 'left' ? [defaultX, 0, 0] : [0, 0, 0]
 		} else {

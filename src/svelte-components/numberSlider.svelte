@@ -23,8 +23,6 @@
 		onchangeFinished = undefined,
 	}: Props = $props()
 
-	const MOLANG_PARSER = new Molang()
-
 	let input: HTMLInputElement
 	let slider: HTMLElement
 
@@ -58,7 +56,7 @@
 		})
 
 		addEventListeners(input, 'focusout dblclick', () => {
-			let v = MOLANG_PARSER.parse(value)
+			let v = NumSlider.MolangParser.parse(value)
 			if (enforceMinMax) {
 				v = Math.clamp(v, min ?? -Infinity, max ?? Infinity)
 			}
