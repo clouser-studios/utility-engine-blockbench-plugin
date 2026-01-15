@@ -1,14 +1,14 @@
-import { SvelteDialog } from '@utility/svelte/dialog'
-import { localize } from '@utility/util/lang'
-import { syncable } from '@utility/util/stores'
+import { localize } from '@utility/util/lang.ts'
+import { observable } from 'svelte-observable-store'
+import { SvelteDialog } from 'svelte-patching-tools/blockbench'
 import AnimationProperties from './animationProperties.svelte'
 
 export function openAnimationPropertiesDialog(animation: _Animation) {
-	const animationName = syncable(animation.name ?? 'new_animation')
-	const animationPath = syncable(animation.path ?? 'custom')
-	const animationType = syncable(animation.utility_model_animation_type ?? 'custom')
-	const loopMode = syncable(animation.loop as string)
-	const loopDelay = syncable(Number(animation.loop_delay) ?? 0)
+	const animationName = observable(animation.name ?? 'new_animation')
+	const animationPath = observable(animation.path ?? 'custom')
+	const animationType = observable(animation.utility_model_animation_type ?? 'custom')
+	const loopMode = observable(animation.loop as string)
+	const loopDelay = observable(Number(animation.loop_delay) ?? 0)
 
 	new SvelteDialog({
 		id: `utility-engine:animation-properties-dialog`,

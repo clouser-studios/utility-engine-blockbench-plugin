@@ -1,5 +1,5 @@
 import { registerMod } from '@blockbench-tools'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 
 registerMod({
 	id: `utility-engine:save-all-animations`,

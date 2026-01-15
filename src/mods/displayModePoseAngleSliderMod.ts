@@ -1,6 +1,6 @@
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import EVENTS from '@utility/util/events'
-import { registerMod } from '@utility/util/moddingTools'
+import { registerMod } from '@blockbench-tools'
+import EVENTS from '@events'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 
 const getPoseAngleLabel = () => {
 	return $(

@@ -1,12 +1,12 @@
 import UtilityIcon from '@assets/icons/icon.png'
 import { registerBarMenu } from '@blockbench-tools'
-import { OPEN_PROJECT_SETTINGS_ACTION } from '@utility/formats/utility-model-project/settings'
+import { OPEN_PROJECT_SETTINGS_ACTION } from '@utility/formats/utility-model-project/settings.ts'
 import {
 	EXPORT_UTILITY_MODEL_ACTION,
 	EXPORT_UTILITY_MODEL_AS_ACTION,
-} from '@utility/formats/utility-model/export'
-import { IMPORT_UTILITY_MODEL_ACTION } from '@utility/formats/utility-model/import'
-import { pollUntilResult } from '@utility/util/promises'
+} from '@utility/formats/utility-model/export.ts'
+import { IMPORT_UTILITY_MODEL_ACTION } from '@utility/formats/utility-model/import.ts'
+import { pollUntilResult } from '@utility/util/promises.ts'
 
 export const TITLE_BAR_MENU = registerBarMenu(
 	{ id: 'utility-engine:bar-menu/title-bar-menu' },

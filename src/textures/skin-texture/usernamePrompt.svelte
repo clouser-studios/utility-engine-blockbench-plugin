@@ -1,13 +1,13 @@
 <script lang="ts" module>
-	import { createScopedTranslator } from '@utility/util/lang'
-	import { type Syncable } from '@utility/util/stores'
+	import { createScopedTranslator } from '@utility/util/lang.ts'
+	import { type Observable } from 'svelte-observable-store'
 
 	const localize = createScopedTranslator('dialog.username_prompt')
 </script>
 
 <script lang="ts">
 	interface Props {
-		username: Syncable<string>
+		username: Observable<string>
 	}
 	let { username }: Props = $props()
 </script>

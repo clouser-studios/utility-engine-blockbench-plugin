@@ -1,7 +1,6 @@
-import PACKAGE from '@package'
-import EVENTS from './events'
-import type { ResourceLocation } from './resourceLocation'
-import { subscribable, type Subscribable } from './subscribable'
+import EVENTS from '@events'
+import PACKAGE from '@package' with { type: 'json' }
+import { subscribable, type Subscribable } from 'simple-subpub'
 
 class ModInstallError extends Error {
 	constructor(id: string, err: Error) {
@@ -74,16 +73,15 @@ EVENTS.PLUGIN_UNLOAD.subscribe(async () => {
 	EVENTS.PLUGIN_FINISHED_UNLOADING.publish()
 })
 
-export interface BaseModOptions<ID extends string> {
-	id: ResourceLocation.Validate<ID>
+export interface BaseModOptions {
+	id: string
 	/** A list of mod IDs that this mod depends on */
 	dependencies?: string[]
 	/** The priority of the mod. Higher priority mods will be installed first. */
 	priority?: number
 }
 
-interface ModOptions<ID extends string, RevertContext extends any | void>
-	extends BaseModOptions<ID> {
+interface ModOptions<RevertContext extends any | void> extends BaseModOptions {
 	/** A function that applies the mod. This function should return a context object that will be passed to the revert function. */
 	apply: () => Promise<RevertContext> | RevertContext
 	/**
@@ -126,9 +124,7 @@ function updateModInstallOrder() {
  *
  * If a mod fails to install, an error will be thrown, and the plugin will fail to load.
  */
-export function registerMod<ID extends string, RevertContext extends any | void>(
-	options: ModOptions<ID, RevertContext>
-) {
+export function registerMod<RevertContext extends any | void>(options: ModOptions<RevertContext>) {
 	let applyContext: RevertContext
 	let installed = false
 
@@ -180,8 +176,8 @@ export function registerMod<ID extends string, RevertContext extends any | void>
 	return handle
 }
 
-interface RegisterProjectModOptions<ID extends string, RevertContext extends any | void>
-	extends ModOptions<ID, RevertContext> {
+interface RegisterProjectModOptions<RevertContext extends any | void>
+	extends ModOptions<RevertContext> {
 	apply: () => RevertContext
 	revert: (ctx: RevertContext) => void
 	/** A function that checks if the mod should be applied when switching projects */
@@ -191,8 +187,8 @@ interface RegisterProjectModOptions<ID extends string, RevertContext extends any
 /**
  * Registers a mod that is applied / reverted when a project is selected / unselected that meets the provided condition.
  */
-export function registerProjectMod<ID extends string, RevertContext extends any | void>(
-	options: RegisterProjectModOptions<ID, RevertContext>
+export function registerProjectMod<RevertContext extends any | void>(
+	options: RegisterProjectModOptions<RevertContext>
 ) {
 	let revertContext: RevertContext | null = null
 
@@ -225,19 +221,19 @@ export function registerProjectMod<ID extends string, RevertContext extends any 
 	})
 }
 
-interface RegisterPluginModOptions<ID extends string, RevertContext extends any | void>
-	extends ModOptions<ID, RevertContext> {
+interface RegisterPluginModOptions<RevertContext extends any | void>
+	extends ModOptions<RevertContext> {
 	apply: () => RevertContext
 	revert: (ctx: RevertContext) => void
 	/** A function that checks if the mod should be applied when the plugin is loaded */
-	condition: (plugin: BBPlugin) => boolean
+	condition: (plugin: typeof BBPlugin) => boolean
 }
 
 /**
  * Registers a mod that is applied / reverted when a plugin is loaded / unloaded that meets the provided condition.
  */
-export function registerPluginMod<ID extends string, RevertContext extends any | void>(
-	options: RegisterPluginModOptions<ID, RevertContext>
+export function registerPluginMod<RevertContext extends any | void>(
+	options: RegisterPluginModOptions<RevertContext>
 ) {
 	let revertContext: RevertContext | undefined
 
@@ -276,7 +272,7 @@ interface DeletableEventHandler<T> {
 	onDeleted: Subscribable<T>['subscribe']
 }
 
-interface RegisterDeletableOptions<ID extends string> extends BaseModOptions<ID> {}
+interface RegisterDeletableOptions extends BaseModOptions {}
 
 /**
  * Defines a new deletable register function, that handles the creation and deletion of deletables on the appropriate Blockbench events.
@@ -285,10 +281,7 @@ function registerDeletableFactory<T extends Deletable, A extends any[]>(
 	createInstance: (id: string, ...args: A) => T,
 	deleteInstance: (instance: T) => void
 ) {
-	return function handler<ID extends string>(
-		{ id, priority, dependencies }: RegisterDeletableOptions<ID>,
-		...args: A
-	) {
+	return function handler({ id, priority, dependencies }: RegisterDeletableOptions, ...args: A) {
 		let activeInstance: T | null
 		const created = subscribable<T>()
 		const deleted = subscribable<T>()
@@ -351,15 +344,7 @@ export const registerCodec = registerDeletableFactory(
 
 export const registerBarMenu = registerDeletableFactory(
 	(id, structure: MenuItem[], options?: BarMenuOptions) => new BarMenu(id, structure, options),
-	menubar => {
-		// Swap over to this when Blockbench updates to 5.0
-		// menubar.delete()
-		// Temporary implementation of `menubar.delete()` from Blockbench 5.0
-		// @ts-expect-error No types
-		menubar.node.remove()
-		menubar.label.remove()
-		delete MenuBar.menus[menubar.id]
-	}
+	menubar => menubar.delete()
 )
 
 export const registerModelLoader = registerDeletableFactory(
@@ -370,33 +355,20 @@ export const registerModelLoader = registerDeletableFactory(
 export const registerMenu = registerDeletableFactory(
 	(id, template: MenuItem[] | ((context?: any) => MenuItem[]), options: MenuOptions) =>
 		new Menu(id, template, options),
-	menu => {
-		// Swap over to this when Blockbench updates to 5.0
-		// menu.delete()
-		// Temporary implementation of `menu.delete()` from Blockbench 5.0
-		// @ts-expect-error No types
-		menu.node.remove()
-	}
+	menu => menu.delete()
 )
 
-interface PropertyOverrideModOptions<
-	ID extends string,
-	T extends Object,
-	K extends keyof T,
-	O extends T[K],
-> extends BaseModOptions<ID> {
+interface PropertyOverrideModOptions<T extends Object, K extends keyof T, O extends T[K]>
+	extends BaseModOptions {
 	object: T
 	key: K
 	get: (this: T, original: T[K]) => O
 	set?: (this: T, value: O) => void
 }
 
-export function registerPropertyOverrideMod<
-	ID extends string,
-	T extends Object,
-	K extends keyof T,
-	O extends T[K],
->(options: PropertyOverrideModOptions<ID, T, K, O>) {
+export function registerPropertyOverrideMod<T extends Object, K extends keyof T, O extends T[K]>(
+	options: PropertyOverrideModOptions<T, K, O>
+) {
 	registerMod({
 		...options,
 
@@ -445,12 +417,8 @@ export function registerPropertyOverrideMod<
 	})
 }
 
-interface ConditionalPropertyOverrideModOptions<
-	ID extends string,
-	T extends Object,
-	K extends keyof T,
-	O extends T[K],
-> extends BaseModOptions<ID> {
+interface ConditionalPropertyOverrideModOptions<T extends Object, K extends keyof T, O extends T[K]>
+	extends BaseModOptions {
 	object: T
 	key: K
 	condition: ConditionResolvable<T>
@@ -459,11 +427,10 @@ interface ConditionalPropertyOverrideModOptions<
 }
 
 export function registerConditionalPropertyOverrideMod<
-	ID extends string,
 	T extends Object,
 	K extends keyof T,
 	O extends T[K],
->(options: ConditionalPropertyOverrideModOptions<ID, T, K, O>) {
+>(options: ConditionalPropertyOverrideModOptions<T, K, O>) {
 	registerMod({
 		...options,
 

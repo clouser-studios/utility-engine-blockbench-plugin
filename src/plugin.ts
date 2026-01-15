@@ -1,7 +1,7 @@
 import Title from '@assets/title.png'
 import EVENTS from '@events'
-import PACKAGE from '@package'
-import { log } from './util/log'
+import PACKAGE from '@package' with { type: 'json' }
+import { log } from '@utility/util/log.ts'
 
 EVENTS.PLUGIN_FINISHED_LOADING.subscribe(() => {
 	void log.img(

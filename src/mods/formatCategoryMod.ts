@@ -1,6 +1,6 @@
 import { registerMod } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT_ID } from '@utility/formats/utility-model-project'
-import { localize } from '@utility/util/lang'
+import { UTILITY_MODEL_PROJECT_FORMAT_ID } from '@utility/formats/utility-model-project/index.ts'
+import { localize } from '@utility/util/lang.ts'
 
 const UTILITY_CATEGORY_QUERY = `li.format_category:has(li[format="${UTILITY_MODEL_PROJECT_FORMAT_ID}"])`
 const GENERAL_CATEGORY_QUERY = `li.format_category:has(li[format="free"])`

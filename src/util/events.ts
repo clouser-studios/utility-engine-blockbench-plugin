@@ -1,4 +1,4 @@
-import { subscribable } from './subscribable'
+import { subscribable } from 'simple-subpub'
 
 // Plugin Events
 const EVENTS = {

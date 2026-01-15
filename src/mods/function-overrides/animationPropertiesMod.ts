@@ -1,6 +1,6 @@
 import { registerMod } from '@blockbench-tools'
-import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
+import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties/index.ts'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 
 registerMod({
 	id: `utility-engine:animation-properties-action`,

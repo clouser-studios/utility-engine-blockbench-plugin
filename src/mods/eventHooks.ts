@@ -1,5 +1,5 @@
-import EVENTS from 'src/util/events'
-import { registerPropertyOverrideMod } from 'src/util/moddingTools'
+import { registerPropertyOverrideMod } from '@blockbench-tools'
+import EVENTS from '@events'
 
 registerPropertyOverrideMod({
 	id: `animated-java:event-hook/external-plugin-load/load`,

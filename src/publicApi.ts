@@ -1,5 +1,5 @@
-import EVENTS from './util/events'
-import { registerMod } from './util/moddingTools'
+import { registerMod } from '@blockbench-tools'
+import EVENTS from '@events'
 
 // Provide a global object for other plugins to interact with
 const API = {

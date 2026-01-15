@@ -1,5 +1,5 @@
-import { injectComponent } from '@utility/svelte/injectComponent'
-import { registerMod } from '@utility/util/moddingTools'
+import { registerMod } from '@blockbench-tools'
+import { injectComponent } from 'svelte-patching-tools'
 import Panel from './panel.svelte'
 
 registerMod({

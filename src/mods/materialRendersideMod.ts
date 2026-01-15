@@ -1,6 +1,6 @@
 import { createPropertySubscribable, registerMod } from '@blockbench-tools'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { localize } from '@utility/util/lang'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { localize } from '@utility/util/lang.ts'
 
 declare global {
 	interface Cube {

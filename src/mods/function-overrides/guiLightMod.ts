@@ -1,5 +1,5 @@
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { registerMod } from '@utility/util/moddingTools'
+import { registerMod } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 
 registerMod({
 	id: 'utility-engine:gui-light/condition',

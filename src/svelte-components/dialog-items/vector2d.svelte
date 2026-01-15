@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { type Syncable } from '@utility/util/stores'
+	import { type Observable } from 'svelte-observable-store'
 	import DialogItem from './dialogItem.svelte'
 
 	interface Props extends DialogItemProps<ArrayVector2> {
-		valueX: Syncable<number>
+		valueX: Observable<number>
 		defaultValueX: number
 		minX?: number
 		maxX?: number
 
-		valueY: Syncable<number>
+		valueY: Observable<number>
 		defaultValueY: number
 		minY?: number
 		maxY?: number
@@ -55,7 +55,7 @@
 	function eventListenerFactory(
 		targetInput: HTMLInputElement,
 		targetSlider: HTMLElement,
-		value: Syncable<number>,
+		value: Observable<number>,
 		min?: number,
 		max?: number
 	) {

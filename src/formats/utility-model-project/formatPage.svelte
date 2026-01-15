@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import Icon from '@utility/assets/icons/icon.png'
-	import { createScopedTranslator } from '@utility/util/lang'
-	import { UTILITY_MODEL_PROJECT_FORMAT } from '.'
+	import { createScopedTranslator } from '@utility/util/lang.ts'
+	import { UTILITY_MODEL_PROJECT_FORMAT } from './index.ts'
 
 	const localize = createScopedTranslator('model_format.utility_model')
 </script>

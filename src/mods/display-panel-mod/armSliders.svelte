@@ -1,8 +1,8 @@
 <script lang="ts">
 	import DisplaySectionToolbar from '@components/panel-items/displaySectionToolbar.svelte'
 	import Slider from '@components/panel-items/slider.svelte'
-	import EVENTS from '@utility/util/events'
-	import type { PickValues } from '@utility/util/objUtils'
+	import EVENTS from '@events'
+	import type { PickValues } from '@utility/util/objUtils.ts'
 	import { onMount } from 'svelte'
 
 	interface Props {
@@ -80,6 +80,8 @@
 			}),
 		]
 
+		onpreviewChange(displaySlotChannel, getRotation())
+
 		return () => {
 			unsubs.forEach(unsub => unsub())
 		}
@@ -88,8 +90,6 @@
 	$effect(() => {
 		onpreviewChange(displaySlotChannel, getRotation())
 	})
-
-	onpreviewChange(displaySlotChannel, getRotation())
 
 	const onreset = () => {
 		rotationX = 0

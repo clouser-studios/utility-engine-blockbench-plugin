@@ -1,33 +1,25 @@
 <script lang="ts" module>
-	import { ANIMATION_TYPES } from '@utility/mods/utilityModelAnimationMod'
+	import { ANIMATION_TYPES } from '@utility/mods/utilityModelAnimationMod.ts'
 	import LineInput from '@utility/svelte-components/dialog-items/lineInput.svelte'
 	import NumberSlider from '@utility/svelte-components/dialog-items/numberSlider.svelte'
 	import Select from '@utility/svelte-components/dialog-items/select.svelte'
-	import { createScopedTranslator } from '@utility/util/lang'
-	import { type Syncable } from '@utility/util/stores'
+	import { createScopedTranslator } from '@utility/util/lang.ts'
+	import { onMount } from 'svelte'
+	import { type Observable } from 'svelte-observable-store'
 
 	const localize = createScopedTranslator('dialog.animation_properties')
 </script>
 
 <script lang="ts">
 	interface Props {
-		animationName: Syncable<string>
-		animationPath: Syncable<string>
-		animationType: Syncable<string>
-		loopMode: Syncable<string>
-		loopDelay: Syncable<number>
+		animationName: Observable<string>
+		animationPath: Observable<string>
+		animationType: Observable<string>
+		loopMode: Observable<string>
+		loopDelay: Observable<number>
 	}
 
 	const { animationName, animationPath, animationType, loopMode, loopDelay }: Props = $props()
-
-	animationType.subscribe(type => {
-		if (type === 'custom') {
-			$animationPath = 'custom'
-		} else if (Object.keys(ANIMATION_TYPES).includes(type)) {
-			$animationName = type
-			$animationPath = 'utility'
-		}
-	})
 
 	const USED_TYPES = Blockbench.Animation.all.reduce((acc: string[], anim) => {
 		if (animationName.get() === anim.name) return acc // Ignore self
@@ -45,6 +37,17 @@
 		},
 		{}
 	)
+
+	onMount(() => {
+		animationType.subscribe(type => {
+			if (type === 'custom') {
+				$animationPath = 'custom'
+			} else if (Object.keys(ANIMATION_TYPES).includes(type)) {
+				$animationName = type
+				$animationPath = 'utility'
+			}
+		})
+	})
 </script>
 
 <div>
@@ -53,7 +56,7 @@
 			label={localize('animation_type.label')}
 			tooltip={localize('animation_type.description')}
 			options={ANIMATION_TYPES_OPTIONS}
-			defaultOption={'once'}
+			defaultOption={'custom'}
 			value={animationType}
 		/>
 	{/key}

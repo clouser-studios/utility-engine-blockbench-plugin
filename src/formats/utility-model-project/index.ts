@@ -1,9 +1,9 @@
 import { registerModelFormat } from '@blockbench-tools'
-import { injectComponent } from '@utility/svelte/injectComponent'
-import { createScopedTranslator } from '@utility/util/lang'
-import { UTILITY_MODEL_PROJECT_CODEC } from './codec'
+import { createScopedTranslator } from '@utility/util/lang.ts'
+import { injectComponent } from 'svelte-patching-tools'
+import { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 import FormatPage from './formatPage.svelte'
-export { UTILITY_MODEL_PROJECT_CODEC as UTILITY_MODEL_CODEC } from './codec'
+export { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 
 const localize = createScopedTranslator('model_format.utility_model')
 

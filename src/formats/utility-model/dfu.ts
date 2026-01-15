@@ -1,7 +1,7 @@
-import { log } from '@utility/util/log'
-import v0_0_1 from './versions/0.0.1'
-import v0_0_2 from './versions/0.0.2'
-import { type UtilityModel } from './versions/latest'
+import { log } from '@utility/util/log.ts'
+import v0_0_1 from './versions/0.0.1.ts'
+import v0_0_2 from './versions/0.0.2.ts'
+import { type UtilityModel } from './versions/latest.ts'
 
 /**
  * Takes a utility model and returns a new utility model that has been upgraded to the latest version of the utility model format.

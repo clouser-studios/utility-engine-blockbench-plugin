@@ -1,5 +1,5 @@
-import EVENTS from '@utility/util/events'
-import { registerMod } from '@utility/util/moddingTools'
+import { registerMod } from '@blockbench-tools'
+import EVENTS from '@events'
 
 // Triggers the REF_MODEL_CHANGED event when a reference model is loaded, or it's variant is changed.
 registerMod({

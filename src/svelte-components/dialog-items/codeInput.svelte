@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { type Syncable } from '@utility/util/stores'
+	import { type Observable } from 'svelte-observable-store'
 	import BaseDialogItem from './dialogItem.svelte'
 
 	interface Props extends DialogItemProps<string> {
-		value: Syncable<string>
+		value: Observable<string>
 		defaultValue: string
 		disabled?: boolean
 	}

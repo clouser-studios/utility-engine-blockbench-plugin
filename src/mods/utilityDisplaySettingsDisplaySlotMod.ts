@@ -1,7 +1,7 @@
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import EVENTS from '@utility/util/events'
-import { registerMod } from '@utility/util/moddingTools'
-import { scrubUndefined } from '@utility/util/objUtils'
+import { registerMod } from '@blockbench-tools'
+import EVENTS from '@events'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { scrubUndefined } from '@utility/util/objUtils.ts'
 
 declare global {
 	interface DisplaySlot {

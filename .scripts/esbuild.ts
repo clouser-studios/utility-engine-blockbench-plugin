@@ -11,13 +11,15 @@ import ImportGlobPlugin from 'esbuild-plugin-import-glob'
 import InlineImage from 'esbuild-plugin-inline-image'
 import * as fs from 'fs'
 import ProblemsPatchPlugin from 'node-modules-vscode-problems-patch'
+import {
+	createBlockbenchSvelteConfig,
+	esbuildPluginSvelte,
+} from 'svelte-patching-tools/esbuildPlugin'
 import PACKAGE from '../package.json'
-import SvelteConfig from '../svelte.config'
-import ImportFolderPlugin from './esbuild-plugins/importFolder'
-import LangPlugin from './esbuild-plugins/lang'
-import PackagePlugin from './esbuild-plugins/package'
-import SveltePlugin from './esbuild-plugins/svelte'
-import YamlPlugin from './esbuild-plugins/yaml'
+import ImportFolderPlugin from './esbuild-plugins/importFolder.ts'
+import LangPlugin from './esbuild-plugins/lang.ts'
+import PackagePlugin from './esbuild-plugins/package.ts'
+import YamlPlugin from './esbuild-plugins/yaml.ts'
 
 try {
 	const hooks = fs.readdirSync('./.githooks/')
@@ -95,6 +97,11 @@ Object.entries(process.env).forEach(([key, value]) => {
 	DEFINES[`process.env.${key}`] = JSON.stringify(value)
 })
 
+import VSCODE_SETTINGS from '../.vscode/settings.json'
+const IGNORED_SVELTE_WARNINGS = Object.keys(
+	VSCODE_SETTINGS['svelte.plugin.svelte.compilerWarnings']
+)
+
 const COMMON_CONFIG: ESBuild.BuildOptions = {
 	entryPoints: ['./src/index.ts'],
 	outfile: `./dist/${PACKAGE.name}.js`,
@@ -110,7 +117,15 @@ const COMMON_CONFIG: ESBuild.BuildOptions = {
 		ImportFolderPlugin,
 		ImportGlobPlugin(),
 		INFO_PLUGIN,
-		SveltePlugin(SvelteConfig),
+		esbuildPluginSvelte(
+			createBlockbenchSvelteConfig(PACKAGE.name, {
+				compilerOptions: {
+					warningFilter(warning) {
+						return !IGNORED_SVELTE_WARNINGS.includes(warning.code)
+					},
+				},
+			})
+		),
 		YamlPlugin({}),
 		PackagePlugin(),
 	],

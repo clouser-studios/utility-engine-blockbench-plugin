@@ -1,5 +1,5 @@
-import EVENTS from '@utility/util/events'
-import { registerMod } from '@utility/util/moddingTools'
+import { registerMod } from '@blockbench-tools'
+import EVENTS from '@events'
 
 registerMod({
 	id: 'utility-engine:display-slot-changed-event',

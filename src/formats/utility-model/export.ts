@@ -1,11 +1,11 @@
 import Icon from '@assets/icons/nobackground.png'
 import { registerAction } from '@blockbench-tools'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
-import { localize } from '@utility/util/lang'
-import { log } from '@utility/util/log'
-import { parsePackPath } from '@utility/util/minecraftUtil'
-import { type UtilityModel } from './versions/latest'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
+import { localize } from '@utility/util/lang.ts'
+import { log } from '@utility/util/log.ts'
+import { parsePackPath } from '@utility/util/minecraftUtil.ts'
+import { type UtilityModel } from './versions/latest.ts'
 
 const FORMAT_VERSION = '0.0.1'
 

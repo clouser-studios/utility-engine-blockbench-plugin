@@ -2,7 +2,7 @@ import checkFile from 'eslint-plugin-check-file'
 import svelteEslint from 'eslint-plugin-svelte'
 import svelteParser from 'svelte-eslint-parser'
 import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
-import type { NamingConventionRule } from './.scripts/tslintNamingConventionRule'
+import type { NamingConventionRule } from './.scripts/tslintNamingConventionRule.d.ts'
 
 console.log('⚙️  Loading ESLint config...')
 

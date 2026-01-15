@@ -1,13 +1,13 @@
+import { registerCodec } from '@blockbench-tools'
 import EVENTS from '@events'
-import PACKAGE from '@package'
-import { SkinTexture } from '@utility/textures/skin-texture'
-import { localize } from '@utility/util/lang'
-import { log } from '@utility/util/log'
-import { resetAllConsoleGroups } from '@utility/util/misc'
-import { registerCodec } from '@utility/util/moddingTools'
-import { UTILITY_MODEL_PROJECT_FORMAT, UTILITY_MODEL_PROJECT_FORMAT_ID } from '.'
-import { updateUtilityProject } from './dfu'
-import { type UtilityModelProject } from './versions/latest'
+import PACKAGE from '@package' with { type: 'json' }
+import { SkinTexture } from '@utility/textures/skin-texture/index.ts'
+import { localize } from '@utility/util/lang.ts'
+import { log } from '@utility/util/log.ts'
+import { resetAllConsoleGroups } from '@utility/util/misc.ts'
+import { updateUtilityProject } from './dfu.ts'
+import { UTILITY_MODEL_PROJECT_FORMAT, UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
+import { type UtilityModelProject } from './versions/latest.ts'
 
 export function addProjectToRecentProjects(file: FileResult) {
 	if (!Project || !file.path) return

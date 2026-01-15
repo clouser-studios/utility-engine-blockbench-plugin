@@ -1,9 +1,9 @@
 <script lang="ts" module>
-	import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-	import EVENTS from '@utility/util/events'
-	import { createScopedTranslator } from '@utility/util/lang'
-	import { log } from '@utility/util/log'
-	import type { PickValues } from '@utility/util/objUtils'
+	import EVENTS from '@events'
+	import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+	import { createScopedTranslator } from '@utility/util/lang.ts'
+	import { log } from '@utility/util/log.ts'
+	import type { PickValues } from '@utility/util/objUtils.ts'
 	import { onMount } from 'svelte'
 	import ArmSliders from './armSliders.svelte'
 

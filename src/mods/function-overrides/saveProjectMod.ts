@@ -2,7 +2,7 @@ import { registerMod } from '@blockbench-tools'
 import {
 	currentFormatIsUtilityModelProject,
 	saveUtilityModelProject,
-} from '@utility/formats/utility-model-project'
+} from '@utility/formats/utility-model-project/index.ts'
 
 registerMod({
 	id: `utility-engine:save-project`,

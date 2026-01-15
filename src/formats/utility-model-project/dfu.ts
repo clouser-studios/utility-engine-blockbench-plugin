@@ -1,10 +1,10 @@
-import PACKAGE from '@package'
-import { compareLongVersions } from '@utility/util/compareVersion'
-import { log } from '@utility/util/log'
-import { type UtilityModelProject } from '../utility-model-project/versions/latest'
-import v0_0_5 from './versions/0.0.5'
-import v0_0_7 from './versions/0.0.7'
-import v0_0_8 from './versions/0.0.8'
+import PACKAGE from '@package' with { type: 'json' }
+import { compareLongVersions } from '@utility/util/compareVersion.ts'
+import { log } from '@utility/util/log.ts'
+import { type UtilityModelProject } from '../utility-model-project/versions/latest.ts'
+import v0_0_5 from './versions/0.0.5.ts'
+import v0_0_7 from './versions/0.0.7.ts'
+import v0_0_8 from './versions/0.0.8.ts'
 
 /**
  * Takes a utility model and returns a new utility model that has been upgraded to the latest version of the utility model format.

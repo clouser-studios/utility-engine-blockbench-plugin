@@ -1,4 +1,4 @@
-import type { ISkinTextureData } from '@utility/textures/skin-texture'
+import type { ISkinTextureData } from '@utility/textures/skin-texture/index.ts'
 
 export namespace v0_0_5 {
 	export interface UtilityProjectSettings {

@@ -1,7 +1,7 @@
-import { injectComponent } from '@utility/svelte/injectComponent'
-import { registerMod } from '@utility/util/moddingTools'
-import { UTILITY_MODEL_PROJECT_FORMAT_ID } from '.'
+import { registerMod } from '@blockbench-tools'
+import { injectComponent } from 'svelte-patching-tools'
 import Icon from './icon.svelte'
+import { UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
 
 // Format Category Icon
 registerMod({

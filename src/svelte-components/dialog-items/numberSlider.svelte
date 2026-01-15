@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { type Syncable } from '@utility/util/stores'
+	import { type Observable } from 'svelte-observable-store'
 	import BaseDialogItem from './dialogItem.svelte'
 
 	interface Props extends DialogItemProps<number> {
-		value: Syncable<number>
+		value: Observable<number>
 		defaultValue: number
 		min?: number
 		max?: number
@@ -19,15 +19,6 @@
 		max = undefined,
 		step = undefined,
 	}: Props = $props()
-
-	// FIXME - The molang parser is not exposed as of BB 5.0.7. I have made a github issue for this bug.
-	// https://github.com/JannisX11/blockbench/issues/3241 - Once this is fixed, remove this stub and use the global Molang parser.
-	class Molang {
-		parse(value: any) {
-			return value
-		}
-	}
-	const MOLANG_PARSER = new Molang()
 
 	let input: HTMLInputElement
 	let slider: HTMLElement
@@ -60,7 +51,11 @@
 
 		addEventListeners(input, 'focusout dblclick', () => {
 			value.set(
-				Math.clamp(MOLANG_PARSER.parse(value.get()), min ?? -Infinity, max ?? Infinity) || 0
+				Math.clamp(
+					NumSlider.MolangParser.parse(value.get()),
+					min ?? -Infinity,
+					max ?? Infinity
+				) || 0
 			)
 		})
 	})

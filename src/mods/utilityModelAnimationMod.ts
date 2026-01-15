@@ -1,5 +1,6 @@
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { localize } from '@utility/util/lang'
+import { registerMod } from '@blockbench-tools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { localize } from '@utility/util/lang.ts'
 
 export const ANIMATION_TYPES = {
 	custom: 'loop',
@@ -135,7 +136,59 @@ UtilityModelAnimation.prototype.file_menu = new Menu([
 	},
 ])
 
-// @ts-expect-error
-Animation = UtilityModelAnimation
-// @ts-expect-error
-Blockbench.Animation = UtilityModelAnimation
+registerMod({
+	id: 'utility-engine:utility-model-animation-override',
+
+	apply: () => {
+		// @ts-expect-error -- addAnimation is not typed
+		const originalAddAnimation = Panels.animations.vue.addAnimation
+		// @ts-expect-error -- addAnimation is not typed
+		Panels.animations.vue.addAnimation = function (
+			this: any,
+			groupName: string,
+			...args: any[]
+		) {
+			if (currentFormatIsUtilityModelProject()) {
+				new UtilityModelAnimation({
+					name: groupName,
+					utility_model_animation_type: groupName === 'utility' ? 'main_loop' : 'custom',
+					path: groupName,
+				})
+					.add(true)
+					.propertiesDialog()
+				return
+			}
+			return originalAddAnimation.apply(this, groupName, args)
+		}
+
+		const originalAnimation = Blockbench.Animation
+
+		// @ts-expect-error
+		globalThis.Animation = UtilityModelAnimation
+		// @ts-expect-error
+		window.Animation = UtilityModelAnimation
+		// @ts-expect-error
+		window.Blockbench.Animation = UtilityModelAnimation
+		// @ts-expect-error
+		globalThis.Blockbench.Animation = UtilityModelAnimation
+		// @ts-expect-error
+		Blockbench.Animation = UtilityModelAnimation
+
+		return { originalAddAnimation, originalAnimation }
+	},
+
+	revert: ({ originalAddAnimation, originalAnimation }) => {
+		// @ts-expect-error
+		Panels.animations.vue.addAnimation = originalAddAnimation
+		// @ts-expect-error
+		globalThis.Animation = originalAnimation
+		// @ts-expect-error
+		window.Animation = originalAnimation
+		// @ts-expect-error
+		window.Blockbench.Animation = originalAnimation
+		// @ts-expect-error
+		globalThis.Blockbench.Animation = originalAnimation
+		// @ts-expect-error
+		Blockbench.Animation = originalAnimation
+	},
+})

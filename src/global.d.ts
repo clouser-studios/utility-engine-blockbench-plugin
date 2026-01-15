@@ -1,14 +1,14 @@
-/// <reference path="D:/github-repos/snavesutit/blockbench-types/types/index.d.ts"/>
+/// <reference path="D:/github-repos/snavesutit/blockbench/types/index.d.ts"/>
 //// <reference types="blockbench-types"/>
 
 declare module '*.png' {
 	const value: string
-	export = value
+	export default value
 }
 
 declare module '*.svg' {
 	const value: string
-	export = value
+	export default value
 }
 
 /**
@@ -17,7 +17,7 @@ declare module '*.svg' {
  */
 declare module '*//' {
 	const value: any
-	export = value
+	export default value
 }
 
 /**
@@ -26,5 +26,5 @@ declare module '*//' {
  */
 declare module '*/' {
 	const value: any
-	export = value
+	export default value
 }

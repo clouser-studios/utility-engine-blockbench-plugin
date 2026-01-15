@@ -1,8 +1,8 @@
 import Icon from '@assets/icons/nobackground.png'
 import { registerAction, registerMod } from '@blockbench-tools'
-import { createScopedTranslator, localize } from '@utility/util/lang'
-import { currentFormatIsUtilityModelProject } from '.'
-import type { UtilityModelProject } from './versions/latest'
+import { createScopedTranslator, localize } from '@utility/util/lang.ts'
+import { currentFormatIsUtilityModelProject } from './index.ts'
+import type { UtilityModelProject } from './versions/latest.ts'
 
 declare global {
 	interface ModelProject {
