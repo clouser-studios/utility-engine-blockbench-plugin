@@ -1,16 +1,19 @@
-import EVENTS from '@events'
 import PACKAGE from '@package' with { type: 'json' }
 import { subscribable, type Subscribable } from 'simple-subpub'
 
-class ModInstallError extends Error {
-	constructor(id: string, err: Error) {
-		super(`'${id}' failed to install: ${err.message}` + (err.stack ? '\n' + err.stack : ''))
-	}
-}
+declare global {
+	interface BlockbenchEventMap {
+		'blockbench_modding_tools:loaded_this_plugin': never
+		'blockbench_modding_tools:unloaded_this_plugin': never
+		'blockbench_modding_tools:installed_this_plugin': never
+		'blockbench_modding_tools:uninstalled_this_plugin': never
 
-class ModUninstallError extends Error {
-	constructor(id: string, err: Error) {
-		super(`'${id}' failed to uninstall: ${err.message}` + (err.stack ? '\n' + err.stack : ''))
+		'blockbench_modding_tools:loaded_other_plugin': BBPlugin
+		'blockbench_modding_tools:unloaded_other_plugin': BBPlugin
+		'blockbench_modding_tools:installed_other_plugin': BBPlugin
+		'blockbench_modding_tools:uninstalled_other_plugin': BBPlugin
+
+		'blockbench_modding_tools:pre_select_project': ModelProject
 	}
 }
 
@@ -26,7 +29,19 @@ interface ModHandle {
 const REGISTERED_MODS = new Map<string, ModHandle>()
 const MOD_INSTALL_ORDER: string[] = []
 
-EVENTS.PLUGIN_LOAD.subscribe(async () => {
+class ModInstallError extends Error {
+	constructor(id: string, err: Error) {
+		super(`'${id}' failed to install: ${err.message}` + (err.stack ? '\n' + err.stack : ''))
+	}
+}
+
+class ModUninstallError extends Error {
+	constructor(id: string, err: Error) {
+		super(`'${id}' failed to uninstall: ${err.message}` + (err.stack ? '\n' + err.stack : ''))
+	}
+}
+
+export async function installMods() {
 	console.groupCollapsed(`Installing Mods...`)
 
 	try {
@@ -43,14 +58,14 @@ EVENTS.PLUGIN_LOAD.subscribe(async () => {
 	// Emit fake plugin load events for all already loaded plugins, so mods can hook into them
 	for (const plugin of Object.values(Plugins.registered)) {
 		if (plugin.id === PACKAGE.name) continue
-		EVENTS.EXTERNAL_PLUGIN_LOAD.publish(plugin)
+		Blockbench.dispatchEvent('blockbench_modding_tools:installed_other_plugin', plugin)
 	}
 
 	console.groupEnd()
-	EVENTS.PLUGIN_FINISHED_LOADING.publish()
-})
+	Blockbench.dispatchEvent('blockbench_modding_tools:loaded_this_plugin')
+}
 
-EVENTS.PLUGIN_UNLOAD.subscribe(async () => {
+export async function uninstallMods() {
 	console.groupCollapsed(`Uninstalling Mods...`)
 
 	try {
@@ -71,7 +86,7 @@ EVENTS.PLUGIN_UNLOAD.subscribe(async () => {
 
 	console.groupEnd()
 	EVENTS.PLUGIN_FINISHED_UNLOADING.publish()
-})
+}
 
 export interface BaseModOptions {
 	id: string
@@ -192,31 +207,36 @@ export function registerProjectMod<RevertContext extends any | void>(
 ) {
 	let revertContext: RevertContext | null = null
 
+	const onPreSelectProject = (project: ModelProject) => {
+		// Effectively using revertContext as a boolean to check if the mod is applied
+		if (revertContext !== null) return
+		if (!options.condition(project)) return
+		console.log(`Applying project mod '${options.id}'`)
+		revertContext = options.apply()
+	}
+
+	const onUnselectProject = () => {
+		// Effectively using revertContext as a boolean to check if the mod is applied
+		if (revertContext === null) return
+		console.log(`Reverting project mod '${options.id}'`)
+		options.revert(revertContext)
+		revertContext = null
+	}
+
 	return registerMod({
 		...options,
 
 		apply: () => {
-			return [
-				EVENTS.PRE_SELECT_PROJECT.subscribe(project => {
-					// Effectively using revertContext as a boolean to check if the mod is applied
-					if (revertContext !== null) return
-					if (!options.condition(project)) return
-					console.log(`Applying project mod '${options.id}'`)
-					revertContext = options.apply()
-				}),
-
-				EVENTS.UNSELECT_PROJECT.subscribe(() => {
-					// Effectively using revertContext as a boolean to check if the mod is applied
-					if (revertContext === null) return
-					console.log(`Reverting project mod '${options.id}'`)
-					options.revert(revertContext)
-					revertContext = null
-				}),
-			]
+			Blockbench.on('blockbench_modding_tools:pre_select_project', onPreSelectProject)
+			Blockbench.on('unselect_project', onUnselectProject)
 		},
 
-		revert: ctx => {
-			ctx.forEach(unsub => unsub())
+		revert: () => {
+			Blockbench.removeListener(
+				'blockbench_modding_tools:pre_select_project',
+				onPreSelectProject
+			)
+			Blockbench.removeListener('unselect_project', onUnselectProject)
 		},
 	})
 }
@@ -237,30 +257,32 @@ export function registerPluginMod<RevertContext extends any | void>(
 ) {
 	let revertContext: RevertContext | undefined
 
+	const onLoadedPlugin = ({ plugin }: { plugin: typeof BBPlugin }) => {
+		if (!Condition(options.condition, plugin)) return
+		console.log(`Applying plugin mod '${options.id}'`)
+		revertContext = options.apply()
+	}
+
+	const onUnloadedPlugin = () => {
+		// Effectively using revertContext as a boolean to check if the mod is applied
+		if (revertContext !== undefined) {
+			console.log(`Reverting plugin mod '${options.id}'`)
+			options.revert(revertContext)
+			revertContext = undefined
+		}
+	}
+
 	return registerMod({
 		...options,
 
 		apply: () => {
-			return [
-				EVENTS.EXTERNAL_PLUGIN_LOAD.subscribe(plugin => {
-					if (!Condition(options.condition, plugin)) return
-					console.log(`Applying plugin mod '${options.id}'`)
-					revertContext = options.apply()
-				}),
-
-				EVENTS.EXTERNAL_PLUGIN_UNLOAD.subscribe(() => {
-					// Effectively using revertContext as a boolean to check if the mod is applied
-					if (revertContext !== undefined) {
-						console.log(`Reverting plugin mod '${options.id}'`)
-						options.revert(revertContext)
-						revertContext = undefined
-					}
-				}),
-			]
+			Blockbench.on('loaded_plugin', onLoadedPlugin)
+			Blockbench.on('unloaded_plugin', onUnloadedPlugin)
 		},
 
-		revert: ctx => {
-			ctx.forEach(unsub => unsub())
+		revert: () => {
+			Blockbench.removeListener('loaded_plugin', onLoadedPlugin)
+			Blockbench.removeListener('unloaded_plugin', onUnloadedPlugin)
 		},
 	})
 }
@@ -552,7 +574,7 @@ export function createPropertySubscribable<Value = any>(object: any, key: string
 			configurable: true,
 		})
 
-		EVENTS.PLUGIN_UNLOAD.subscribe(() => {
+		EVENTS.THIS_PLUGIN_UNLOADED.subscribe(() => {
 			const value = object[key]
 			delete object[key]
 			Object.defineProperty(object, key, {

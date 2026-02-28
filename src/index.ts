@@ -13,5 +13,5 @@ import './mods//'
 import './textures//'
 import './util/log'
 
-// Initialize the plugin
+// Initialize the plugin - Must be last
 import './plugin'

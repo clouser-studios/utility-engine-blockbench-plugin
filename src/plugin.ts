@@ -1,18 +1,8 @@
 import Title from '@assets/title.png'
-import EVENTS from '@events'
 import PACKAGE from '@package' with { type: 'json' }
 import { log } from '@utility/util/log.ts'
 
-EVENTS.PLUGIN_FINISHED_LOADING.subscribe(() => {
-	void log.img(
-		{ url: Title, height: 44 },
-		'\n\n Utility Engine v' + PACKAGE.version,
-		'\n Created by',
-		PACKAGE.author.name
-	)
-})
-
-BBPlugin.register(PACKAGE.name, {
+const PLUGIN = BBPlugin.register(PACKAGE.name, {
 	title: PACKAGE.title,
 	author: PACKAGE.author.name,
 	description: PACKAGE.description,
@@ -24,16 +14,13 @@ BBPlugin.register(PACKAGE.name, {
 	onload() {
 		// Wait until plugin system is done loading this plugin.
 		requestAnimationFrame(() => {
-			EVENTS.PLUGIN_LOAD.publish()
+			void log.img(
+				{ url: Title, height: 44 },
+				'\n\n Utility Engine v' + PACKAGE.version,
+				'\n Created by',
+				PACKAGE.author.name
+			)
+			Blockbench.dispatchEvent('loaded_plugin', { plugin: PLUGIN })
 		})
-	},
-	onunload() {
-		EVENTS.PLUGIN_UNLOAD.publish()
-	},
-	oninstall() {
-		EVENTS.INSTALL.publish()
-	},
-	onuninstall() {
-		EVENTS.UNINSTALL.publish()
 	},
 })
