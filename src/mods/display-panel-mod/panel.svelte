@@ -46,6 +46,7 @@
 		)
 
 		objects.forEach(object => {
+			object.rotation.order = "ZYX"
 			object.rotation.set(
 				(rotation[0] * Math.PI) / 180,
 				(rotation[1] * Math.PI) / 180,
