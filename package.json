@@ -60,6 +60,7 @@
 		"vue": "2.7.14"
 	},
 	"dependencies": {
+		"blockbench-patch-manager": "https://github.com/SnaveSutit/blockbench-patch-manager.git",
 		"fs-extra": "^11.2.0",
 		"js-yaml": "^4.1.0",
 		"simple-subpub": "^1.0.2",

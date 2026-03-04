@@ -1,5 +1,5 @@
-import { registerMod } from '@blockbench-tools'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
 declare global {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
@@ -8,7 +8,7 @@ declare global {
 	}
 }
 
-registerMod({
+registerPatch({
 	id: `utility-engine:animation-rename-action`,
 	apply: () => {
 		const structure = Blockbench.Animation.prototype.menu.structure
@@ -23,10 +23,8 @@ registerMod({
 					return false
 				}
 				return (
-					// @ts-expect-error
 					Prop.active_panel === 'animations' &&
-					AnimationItem.selected &&
-					AnimationItem.selected.utility_model_animation_type === 'custom'
+					AnimationItem.selected?.utility_model_animation_type === 'custom'
 				)
 			},
 			click: () => {

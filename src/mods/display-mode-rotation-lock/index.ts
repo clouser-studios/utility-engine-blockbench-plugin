@@ -1,5 +1,5 @@
-import { registerMod } from '@blockbench-tools'
 import EVENTS from '@events'
+import { registerPatch } from 'blockbench-patch-manager'
 import { injectComponent } from 'svelte-patching-tools'
 import DisplayModeButtons from './displayModeButtons.svelte'
 
@@ -22,7 +22,7 @@ async function unmountDisplayModeButtons() {
 	unmountCallback = null
 }
 
-registerMod({
+registerPatch({
 	id: 'utility-engine:display-mode-rotation-lock',
 	apply: () => {
 		const unsubscribe = EVENTS.SELECT_MODE.subscribe(({ mode }) => {

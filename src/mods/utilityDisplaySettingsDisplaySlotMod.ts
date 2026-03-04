@@ -1,7 +1,7 @@
-import { registerMod } from '@blockbench-tools'
 import EVENTS from '@events'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 import { scrubUndefined } from '@utility/util/objUtils.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
 declare global {
 	interface DisplaySlot {
@@ -112,7 +112,7 @@ class UtilityDisplaySlot extends DisplaySlot {
 	}
 }
 
-registerMod({
+registerPatch({
 	id: 'utility-engine:utility-display-settings-display-slot',
 	apply: () => {
 		const original = DisplaySlot

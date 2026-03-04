@@ -199,7 +199,6 @@ export default tsESLint.config(
 		languageOptions: {
 			parser: tsESLint.parser,
 			parserOptions: {
-				project: './tsconfig.json',
 				extraFileExtensions: ['.svelte'],
 			},
 			globals: {

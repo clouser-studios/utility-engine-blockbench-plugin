@@ -1,3 +1,4 @@
+import type { CollectionOptions } from '@blockbench-types/generated/outliner/collections.js'
 import type { UtilityModelAnimationOptions } from '@utility/mods/utilityModelAnimationMod.ts'
 import type { ISkinTextureData } from '@utility/textures/skin-texture/index.ts'
 import type { UTILITY_MODEL_PROJECT_FORMAT_ID } from '../index.ts'

@@ -1,10 +1,10 @@
-import { registerMod } from '@blockbench-tools'
+import { registerPatch } from 'blockbench-patch-manager'
 import { injectComponent } from 'svelte-patching-tools'
 import Icon from './icon.svelte'
 import { UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
 
 // Format Category Icon
-registerMod({
+registerPatch({
 	id: `utility-engine:utility-model-format-icon`,
 	apply: () => {
 		const unmountCallback = injectComponent({

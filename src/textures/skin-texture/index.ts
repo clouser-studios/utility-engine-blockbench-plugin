@@ -1,7 +1,7 @@
 import SteveSkin from '@assets/steve.png'
-import { registerAction, registerMod } from '@blockbench-tools'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 import { localize } from '@utility/util/lang.ts'
+import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-manager'
 import { observable } from 'svelte-observable-store'
 import { SvelteDialog } from 'svelte-patching-tools/blockbench'
 import UsernamePrompt from './usernamePrompt.svelte'
@@ -66,25 +66,25 @@ async function promptForUsername() {
 	})
 }
 
-export const CREATE_SKIN_TEXTURE_ACTION = registerAction(
-	{
-		id: `utility-engine:create-skin-texture`,
+export const CREATE_SKIN_TEXTURE_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/create-skin-texture`,
+	create() {
+		return new Action(`utility-engine:action/create-skin-texture`, {
+			name: localize('action.create_skin_texture.label'),
+			icon: 'portrait',
+			condition() {
+				return (
+					currentFormatIsUtilityModelProject() &&
+					// Project can only have one skin texture
+					!Texture.all.some(v => v instanceof SkinTexture)
+				)
+			},
+			click() {
+				new SkinTexture().add(true)
+			},
+		})
 	},
-	{
-		name: localize('action.create_skin_texture.label'),
-		icon: 'portrait',
-		condition() {
-			return (
-				currentFormatIsUtilityModelProject() &&
-				// Project can only have one skin texture
-				!Texture.all.some(v => v instanceof SkinTexture)
-			)
-		},
-		click() {
-			new SkinTexture().add(true)
-		},
-	}
-)
+})
 CREATE_SKIN_TEXTURE_ACTION.onCreated(action => {
 	Toolbars.texturelist.add(action)
 })
@@ -113,7 +113,7 @@ class OverrideTexture extends Texture {
 	}
 }
 
-registerMod({
+registerPatch({
 	id: `utility-engine:skin-texture/override-texture-class`,
 	apply: () => {
 		const original = Texture
@@ -194,7 +194,6 @@ export class SkinTexture extends OverrideTexture {
 	getSaveCopy() {
 		const copy = Texture.prototype.getSaveCopy.call(this) as TextureData
 		for (const key in SkinTexture.properties) {
-			// @ts-expect-error
 			SkinTexture.properties[key].copy(this, copy)
 		}
 		copy.isSkinTexture = true
@@ -320,7 +319,6 @@ SharedActions.add('duplicate', {
 	// prettier-ignore
 	condition: () =>
 		!!(
-			// @ts-expect-error
 			Prop.active_panel == 'textures' &&
 			Texture.selected &&
 			Texture.selected instanceof SkinTexture

@@ -1,8 +1,8 @@
-import { registerMod } from '@blockbench-tools'
+import { registerPatch } from 'blockbench-patch-manager'
 import { injectComponent } from 'svelte-patching-tools'
 import Panel from './panel.svelte'
 
-registerMod({
+registerPatch({
 	id: 'utility-engine:display-panel/arm-rotation',
 	apply: () => {
 		const unmountCallback = injectComponent({

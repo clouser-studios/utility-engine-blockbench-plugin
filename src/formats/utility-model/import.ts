@@ -1,16 +1,16 @@
 import Icon from '@assets/icons/nobackground.png'
-import { registerAction } from '@blockbench-tools'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project/index.ts'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
 import { localize } from '@utility/util/lang.ts'
 import { parsePackPath } from '@utility/util/minecraftUtil.ts'
+import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { updateUtilityModel } from './dfu.ts'
 import { type UtilityModel } from './versions/latest.ts'
 
 export class ImportError extends Error {
 	constructor(key: string, ...args: string[]) {
 		super(localize(key, ...args))
-		this.name = 'ExportError'
+		this.name = 'ImportError'
 	}
 }
 
@@ -338,16 +338,19 @@ export function importUtilityModel() {
 	)
 }
 
-export const IMPORT_UTILITY_MODEL_ACTION = registerAction(
-	{ id: `utility-engine:import-utility-model` },
-	{
-		name: localize('action.import_utility_model.label'),
-		icon: Icon,
-		click() {
-			importUtilityModel()
-		},
-	}
-)
-IMPORT_UTILITY_MODEL_ACTION.onCreated(action => {
-	MenuBar.addAction(action, 'file.import.0')
+export const IMPORT_UTILITY_MODEL_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/import-utility-model`,
+	create() {
+		const action = new Action(`utility-engine:import-utility-model`, {
+			name: localize('action.import_utility_model.label'),
+			icon: Icon,
+			click() {
+				importUtilityModel()
+			},
+		})
+
+		MenuBar.addAction(action, 'file.import.0')
+
+		return action
+	},
 })

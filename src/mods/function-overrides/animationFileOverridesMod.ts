@@ -1,7 +1,7 @@
-import { registerMod } from '@blockbench-tools'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPatch({
 	id: `utility-engine:animation/export-animation-file`,
 	apply: () => {
 		const original = Animator.exportAnimationFile

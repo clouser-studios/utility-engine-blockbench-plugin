@@ -1,6 +1,6 @@
-import { registerMod } from '@blockbench-tools'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 import { localize } from '@utility/util/lang.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
 export const ANIMATION_TYPES = {
 	custom: 'loop',
@@ -136,13 +136,11 @@ UtilityModelAnimation.prototype.file_menu = new Menu([
 	},
 ])
 
-registerMod({
+registerPatch({
 	id: 'utility-engine:utility-model-animation-override',
 
 	apply: () => {
-		// @ts-expect-error -- addAnimation is not typed
 		const originalAddAnimation = Panels.animations.vue.addAnimation
-		// @ts-expect-error -- addAnimation is not typed
 		Panels.animations.vue.addAnimation = function (
 			this: any,
 			groupName: string,
@@ -178,11 +176,8 @@ registerMod({
 	},
 
 	revert: ({ originalAddAnimation, originalAnimation }) => {
-		// @ts-expect-error
 		Panels.animations.vue.addAnimation = originalAddAnimation
-		// @ts-expect-error
 		globalThis.Animation = originalAnimation
-		// @ts-expect-error
 		window.Animation = originalAnimation
 		// @ts-expect-error
 		window.Blockbench.Animation = originalAnimation

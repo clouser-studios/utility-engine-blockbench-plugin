@@ -1,6 +1,6 @@
-import { registerMod } from '@blockbench-tools'
+import { registerPatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPatch({
 	id: `utility-engine:add-animation/click`,
 	apply: () => {
 		const action = BarItems.add_animation as Action

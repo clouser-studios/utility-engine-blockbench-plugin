@@ -1,9 +1,9 @@
-import { registerPropertyOverrideMod } from '@blockbench-tools'
 import EVENTS from '@events'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-registerPropertyOverrideMod({
-	id: `animated-java:event-hook/external-plugin-load/load`,
-	object: BBPlugin.prototype,
+registerPropertyOverridePatch({
+	id: `utility-engine:event-hook/external-plugin-load/load`,
+	target: BBPlugin.prototype,
 	key: 'load',
 
 	get: original => {
@@ -16,9 +16,9 @@ registerPropertyOverrideMod({
 	},
 })
 
-registerPropertyOverrideMod({
-	id: `animated-java:event-hook/external-plugin-load/toggle-disabled`,
-	object: BBPlugin.prototype,
+registerPropertyOverridePatch({
+	id: `utility-engine:event-hook/external-plugin-load/toggle-disabled`,
+	target: BBPlugin.prototype,
 	key: 'toggleDisabled',
 
 	get: original => {
@@ -32,9 +32,9 @@ registerPropertyOverrideMod({
 	},
 })
 
-registerPropertyOverrideMod({
-	id: `animated-java:event-hook/external-plugin-unload/unload`,
-	object: BBPlugin.prototype,
+registerPropertyOverridePatch({
+	id: `utility-engine:event-hook/external-plugin-unload/unload`,
+	target: BBPlugin.prototype,
 	key: 'unload',
 
 	get: original => {
@@ -47,9 +47,9 @@ registerPropertyOverrideMod({
 	},
 })
 
-registerPropertyOverrideMod({
-	id: `animated-java:event-hook/pre-post-select-project-event`,
-	object: ModelProject.prototype,
+registerPropertyOverridePatch({
+	id: `utility-engine:event-hook/pre-post-select-project-event`,
+	target: ModelProject.prototype,
 	key: 'loadEditorState',
 
 	get: original => {

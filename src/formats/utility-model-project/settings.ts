@@ -1,6 +1,6 @@
 import Icon from '@assets/icons/nobackground.png'
-import { registerAction, registerMod } from '@blockbench-tools'
 import { createScopedTranslator, localize } from '@utility/util/lang.ts'
+import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-manager'
 import { currentFormatIsUtilityModelProject } from './index.ts'
 import type { UtilityModelProject } from './versions/latest.ts'
 
@@ -11,21 +11,23 @@ declare global {
 	}
 }
 
-export const OPEN_PROJECT_SETTINGS_ACTION = registerAction(
-	{ id: `utility-engine:open-utility-model-settings` },
-	{
-		name: localize('action.open_utility_model_settings.label'),
-		icon: Icon,
-		condition: () => currentFormatIsUtilityModelProject(),
-		click() {
-			Project?.openSettings()
-		},
-	}
-)
+export const OPEN_PROJECT_SETTINGS_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/open-utility-model-settings`,
+	create: () => {
+		return new Action(`utility-engine:action/open-utility-model-settings`, {
+			name: localize('action.open_utility_model_settings.label'),
+			icon: Icon,
+			condition: () => currentFormatIsUtilityModelProject(),
+			click() {
+				Project?.openSettings()
+			},
+		})
+	},
+})
 
 const localizeSettings = createScopedTranslator('model_format.utility_model.project_settings')
 
-registerMod({
+registerPatch({
 	id: `utility-engine:model-format-properties`,
 	apply: () => {
 		const modelIdentifier = new Property(ModelProject, 'string', 'model_identifier', {

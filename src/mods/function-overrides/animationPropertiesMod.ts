@@ -1,8 +1,8 @@
-import { registerMod } from '@blockbench-tools'
 import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties/index.ts'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPatch({
 	id: `utility-engine:animation-properties-action`,
 	apply: () => {
 		const original = Blockbench.Animation.prototype.propertiesDialog

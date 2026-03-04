@@ -1,7 +1,7 @@
-import { registerMod } from '@blockbench-tools'
 import EVENTS from '@events'
+import { registerPatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPatch({
 	id: 'utility-engine:display-slot-changed-event',
 	apply: () => {
 		const originalLoadDisplayFunctions = {

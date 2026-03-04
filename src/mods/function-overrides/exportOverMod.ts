@@ -1,16 +1,16 @@
-import { registerMod } from '@blockbench-tools'
 import {
 	currentFormatIsUtilityModelProject,
 	UTILITY_MODEL_PROJECT_CODEC,
 } from '@utility/formats/utility-model-project/index.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPatch({
 	id: `utility-engine:export-over-mod`,
 	apply: () => {
 		const action = BarItems.export_over as Action
 		const originalClick = action.click
 
-		action.click = (event: Event) => {
+		action.click = (event?: Event) => {
 			if (!Project || !Format) return
 			const codec = UTILITY_MODEL_PROJECT_CODEC.get()
 			if (!codec) {
@@ -31,7 +31,7 @@ registerMod({
 					codec.export()
 				}
 			} else {
-				originalClick.call(action, event)
+				originalClick?.(event)
 			}
 		}
 

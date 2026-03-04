@@ -1,4 +1,4 @@
-import '@blockbench-tools'
+import 'blockbench-patch-manager'
 
 // Public API
 import './publicApi'

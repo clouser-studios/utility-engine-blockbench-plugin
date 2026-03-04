@@ -1,3 +1,4 @@
+import type { CollectionOptions } from '@blockbench-types/generated/outliner/collections.js'
 import type { ISkinTextureData } from '@utility/textures/skin-texture/index.ts'
 
 export namespace v0_0_5 {

@@ -1,6 +1,6 @@
-import { createPropertySubscribable, registerMod } from '@blockbench-tools'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 import { localize } from '@utility/util/lang.ts'
+import { overrideAccessors, registerPatch } from 'blockbench-patch-manager'
 
 declare global {
 	interface Cube {
@@ -46,7 +46,19 @@ const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-togg
 	condition: () => currentFormatIsUtilityModelProject(),
 })
 
-registerMod({
+function updateBackfaceCulling(material: THREE.Material, enableBackfaceCulling?: boolean) {
+	if (enableBackfaceCulling === true) {
+		material.side = THREE.FrontSide
+	} else if (enableBackfaceCulling === false) {
+		material.side = THREE.DoubleSide
+	} else if (Project!.default_backface_culling_mode === 'cull_backfaces') {
+		material.side = THREE.FrontSide
+	} else {
+		material.side = THREE.DoubleSide
+	}
+}
+
+registerPatch({
 	id: `utility-engine:cube/material-renderside`,
 	apply: () => {
 		const cubeInit = Cube.prototype.init
@@ -57,28 +69,13 @@ registerMod({
 		Cube.prototype.init = function (this: Cube, ...args) {
 			const result = cubeInit.apply(this, args)
 
-			const scope = this
-			const [, set] = createPropertySubscribable<THREE.ShaderMaterial>(this.mesh, 'material')
-			set.subscribe(value => {
-				switch (scope.enableBackfaceCulling) {
-					case true:
-						value.newValue.side = THREE.FrontSide
-						break
-					case false:
-						value.newValue.side = THREE.DoubleSide
-						break
-					default:
-						switch (Project!.default_backface_culling_mode) {
-							case 'cull_backfaces':
-								value.newValue.side = THREE.FrontSide
-								break
-							case 'no_culling':
-							default:
-								value.newValue.side = THREE.DoubleSide
-								break
-						}
-						break
-				}
+			overrideAccessors({
+				target: this.mesh,
+				key: 'material',
+				get: value => {
+					updateBackfaceCulling(value as THREE.Material, this.enableBackfaceCulling)
+					return value
+				},
 			})
 
 			return result
@@ -105,31 +102,16 @@ registerMod({
 			return result
 		}
 
-		Mesh.prototype.init = function (this: Mesh, ...args) {
+		Mesh.prototype.init = function (this: Mesh & { mesh: THREE.Mesh }, ...args) {
 			const result = meshInit.apply(this, args)
 
-			const scope = this
-			const [, set] = createPropertySubscribable<THREE.ShaderMaterial>(this.mesh, 'material')
-			set.subscribe(value => {
-				switch (scope.enableBackfaceCulling) {
-					case true:
-						value.newValue.side = THREE.FrontSide
-						break
-					case false:
-						value.newValue.side = THREE.DoubleSide
-						break
-					default:
-						switch (Project!.default_backface_culling_mode) {
-							case 'cull_backfaces':
-								value.newValue.side = THREE.FrontSide
-								break
-							case 'no_culling':
-							default:
-								value.newValue.side = THREE.DoubleSide
-								break
-						}
-						break
-				}
+			overrideAccessors({
+				target: this.mesh,
+				key: 'material',
+				get: value => {
+					updateBackfaceCulling(value as THREE.Material, this.enableBackfaceCulling)
+					return value
+				},
 			})
 
 			return result

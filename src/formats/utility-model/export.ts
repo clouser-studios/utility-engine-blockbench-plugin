@@ -1,10 +1,10 @@
 import Icon from '@assets/icons/nobackground.png'
-import { registerAction } from '@blockbench-tools'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
 import { parsePackPath } from '@utility/util/minecraftUtil.ts'
+import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { type UtilityModel } from './versions/latest.ts'
 
 const FORMAT_VERSION = '0.0.1'
@@ -299,32 +299,37 @@ export function exportUtilityModel(path?: string) {
 	}
 }
 
-export const EXPORT_UTILITY_MODEL_AS_ACTION = registerAction(
-	{ id: `utility-engine:export-utility-model-as` },
-	{
-		name: localize('action.export_utility_model_as.label'),
-		icon: Icon,
-		condition: () => currentFormatIsUtilityModelProject(),
-		click() {
-			exportUtilityModel()
-		},
-	}
-)
-EXPORT_UTILITY_MODEL_AS_ACTION.onCreated(action => {
-	MenuBar.addAction(action, 'file.export.1')
+export const EXPORT_UTILITY_MODEL_AS_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/export-utility-model-as`,
+	create() {
+		const action = new Action(`utility-engine:action/export-utility-model-as`, {
+			name: localize('action.export_utility_model_as.label'),
+			icon: Icon,
+			condition: () => currentFormatIsUtilityModelProject(),
+			click() {
+				exportUtilityModel()
+			},
+		})
+
+		MenuBar.addAction(action, 'file.export.1')
+
+		return action
+	},
 })
 
-export const EXPORT_UTILITY_MODEL_ACTION = registerAction(
-	{ id: `utility-engine:export-utility-model` },
-	{
-		name: localize('action.export_utility_model.label'),
-		icon: Icon,
-		condition: () => currentFormatIsUtilityModelProject(),
-		click() {
-			exportUtilityModel(Project!.export_path)
-		},
-	}
-)
-EXPORT_UTILITY_MODEL_ACTION.onCreated(action => {
-	MenuBar.addAction(action, 'file.export.0')
+export const EXPORT_UTILITY_MODEL_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/export-utility-model`,
+	create() {
+		const action = new Action(`utility-engine:action/export-utility-model`, {
+			name: localize('action.export_utility_model.label'),
+			icon: Icon,
+			condition: () => currentFormatIsUtilityModelProject(),
+			click() {
+				exportUtilityModel(Project!.export_path)
+			},
+		})
+
+		MenuBar.addAction(action, 'file.export.0')
+		return action
+	},
 })
