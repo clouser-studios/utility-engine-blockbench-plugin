@@ -27,7 +27,7 @@
 			"@assets/*": ["assets/*"],
 			"@events": ["util/events.ts"],
 			"@components/*": ["svelte-components/*"],
-			"@blockbench-types/*": ["/mnt/ssd2/repos/snavesutit/blockbench/types/*"]
+			"@blockbench-types/*": ["/var/mnt/ssd2/repos/snavesutit/blockbench/types/*"]
 		}
 	}
 }

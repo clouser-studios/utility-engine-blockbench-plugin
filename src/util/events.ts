@@ -12,11 +12,11 @@ const EVENTS = {
 	EXTERNAL_PLUGIN_LOAD: subscribable<BBPlugin>(),
 	EXTERNAL_PLUGIN_UNLOAD: subscribable<BBPlugin>(),
 
-	PRE_SELECT_PROJECT: subscribable<ModelProject>(),
-	POST_SELECT_PROJECT: subscribable<ModelProject>(),
-	SELECT_PROJECT: subscribable<ModelProject>(),
-	UNSELECT_PROJECT: subscribable<ModelProject>(),
-	CLOSE_PROJECT: subscribable<ModelProject>(),
+	PRE_SELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
+	POST_SELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
+	SELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
+	UNSELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
+	CLOSE_PROJECT: subscribable<Blockbench.ModelProject>(),
 
 	UPDATE_PROJECT_SETTINGS: subscribable<Record<string, any>>(),
 
@@ -47,10 +47,10 @@ Blockbench.on('unloaded_plugin', ({ plugin }) => {
 		EVENTS.EXTERNAL_PLUGIN_UNLOAD.publish(plugin)
 	}
 })
-Blockbench.on('select_project', ({ project }: { project: ModelProject }) => {
+Blockbench.on('select_project', ({ project }) => {
 	EVENTS.SELECT_PROJECT.publish(project)
 })
-Blockbench.on('unselect_project', ({ project }: { project: ModelProject }) => {
+Blockbench.on('unselect_project', ({ project }) => {
 	EVENTS.UNSELECT_PROJECT.publish(project)
 })
 Blockbench.on('update_project_settings', formResult => {
