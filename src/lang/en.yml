@@ -132,6 +132,7 @@ model_format:
       ### Getting Started
 
       Check out the [Utility Engine Docs](https://www.utility-engine.com) for more information on how to use this model format.
+    format_page_start_button: Create new Utility Model
     project_settings:
       model_identifier: Model Identifier
       default_backface_culling_mode:

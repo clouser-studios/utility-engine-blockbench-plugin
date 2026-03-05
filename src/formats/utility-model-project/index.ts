@@ -1,14 +1,13 @@
 import { createScopedTranslator } from '@utility/util/lang.ts'
+import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
+import { mount, unmount } from 'svelte'
 import { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 import FormatPage from './formatPage.svelte'
+import './icon'
+import './settings'
 export { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 
 const localize = createScopedTranslator('model_format.utility_model')
-
-import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
-import { injectComponent } from 'svelte-patching-tools'
-import './icon'
-import './settings'
 
 export const UTILITY_MODEL_PROJECT_FORMAT_ID = 'utility-engine:format/utility-model-project'
 
@@ -45,31 +44,19 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 			show_on_start_screen: true,
 			format_page: {
 				component: {
-					created() {
-						// Hide the default format page title
-						const hideTitleInterval = setInterval(() => {
-							const title = $(
-								`div[id="format_page_${UTILITY_MODEL_PROJECT_FORMAT_ID}"] h2`
-							)[0]
-							if (!title) return
-							title.style.display = 'none'
-							clearInterval(hideTitleInterval)
-						})
-
-						const unmountCallback = injectComponent({
-							elementSelector() {
-								return document.querySelector(
-									`div[id="${UTILITY_MODEL_PROJECT_FORMAT_ID}/format_page_mount"]`
-								)! as HTMLElement
-							},
-							component: FormatPage,
-						})
-						UTILITY_MODEL_PROJECT_FORMAT.onDeleted(() => {
-							void unmountCallback()
-							clearInterval(hideTitleInterval)
-						})
+					mounted(this: Vue) {
+						const target = this.$el.parentElement!
+						titleElement = target.querySelector('h2')
+						if (titleElement) titleElement.hidden = true
+						mountedComponent = mount(FormatPage, { target })
 					},
-					template: `<div id="${UTILITY_MODEL_PROJECT_FORMAT_ID}/format_page_mount" style="display: flex; flex-direction: column; flex-grow: 1;"></div>`,
+					destroyed(this: Vue) {
+						if (titleElement) titleElement.hidden = false
+						if (mountedComponent) {
+							void unmount(mountedComponent)
+							mountedComponent = null
+						}
+					},
 				},
 			},
 

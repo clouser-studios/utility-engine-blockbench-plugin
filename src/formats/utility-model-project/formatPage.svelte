@@ -34,7 +34,7 @@
 <div class="button_bar">
 	<button onclick={() => createModel()}>
 		<i class="material-icons">arrow_forward</i>
-		Create new Utility Model
+		{localize('format_page_start_button')}
 	</button>
 </div>
 
