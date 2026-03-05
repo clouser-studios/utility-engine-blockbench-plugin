@@ -31,7 +31,10 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 	id: UTILITY_MODEL_PROJECT_FORMAT_ID,
 	dependencies: [`utility-engine:codec/utility-model-project`],
 	create: () => {
-		const format = new ModelFormat(UTILITY_MODEL_PROJECT_FORMAT_ID, {
+		let mountedComponent: ReturnType<typeof mount> | null = null
+		let titleElement: HTMLElement | null = null
+
+		const format = new Blockbench.ModelFormat(UTILITY_MODEL_PROJECT_FORMAT_ID, {
 			name: localize('name'),
 			icon: 'fa-gear',
 			category: 'utility-engine',

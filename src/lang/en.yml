@@ -145,6 +145,22 @@ model_format:
       use_default_backface_culling: Use Default Backface Culling
       backface_culling: Backface Culling
 
+model_loader:
+  utility_model_json_loader:
+    name: Import .utility.json
+    description: Import a Utility Model from a .utility.json file.
+    format_page: |-
+      [Markdown]
+      ### Importing a .utility.json File
+
+      This will import a Utility Model from a .utility.json file, which is the model format used by Utility Engine.
+
+      ### Please note
+      This may not import textures, as .utility.json files do not contain texture data.
+
+      It is recommended to save all of your Utility Model Projects as .utilityproject files to ensure that all data is preserved for future editing.
+    format_page_start_button: Import .utility.json
+
 format_category:
   utility_engine: Utility Engine
 

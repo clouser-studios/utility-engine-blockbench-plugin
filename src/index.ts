@@ -4,7 +4,7 @@ import 'blockbench-patch-manager'
 import './publicApi'
 
 // Formats
-import './formats/utility-model-project'
+import './formats//'
 
 // Mods
 import './mods//'
