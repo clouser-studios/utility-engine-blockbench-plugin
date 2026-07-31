@@ -3,6 +3,7 @@ import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-pro
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
 import { localize } from '@utility/util/lang.ts'
 import { parsePackPath } from '@utility/util/minecraftUtil.ts'
+import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { updateUtilityModel } from './dfu.ts'
 import { type UtilityModel } from './versions/latest.ts'
@@ -279,7 +280,7 @@ function importAnimations(animations: UtilityModel.Json['animations']) {
 			saveCopy.animators[group.uuid] = animator
 		}
 
-		const anim = new Blockbench.Animation().extend(saveCopy).add()
+		const anim = new BB.Animation().extend(saveCopy).add()
 		anim.loop_delay = animation.loop_delay.toString()
 	}
 }
@@ -312,7 +313,7 @@ export function createUtilityModelProjectFromUtilityModel(
 	}
 
 	if (model.display) {
-		DisplayMode.loadJSON(model.display)
+		displayModeCompat.loadJSON(model.display)
 	}
 
 	Canvas.updateAll()
@@ -324,13 +325,13 @@ export function importUtilityModel() {
 			type: 'Utility Model',
 			extensions: ['utility.json'],
 		},
-		files => {
+		(files: Filesystem.FileResult[]) => {
 			const file = files.at(0)
 			if (!file) return
 
 			console.group('Importing Utility Model as Utility Model Project')
 			createUtilityModelProjectFromUtilityModel(
-				JSON.parse(file.content.toString()),
+				JSON.parse(file.content!.toString()),
 				file.path
 			)
 			console.groupEnd()

@@ -13,6 +13,7 @@ declare global {
 
 const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
 	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
+	icon: 'settings_backup_restore',
 	onChange: (value: boolean) => {
 		if (value) {
 			for (const cube of Cube.selected) {
@@ -29,6 +30,7 @@ const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-back
 
 const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-toggle', {
 	name: localize('model_format.utility_model.element_settings.backface_culling'),
+	icon: 'texture',
 	onChange: (value: boolean) => {
 		console.log('Toggling backface culling for selected cubes & meshes', value)
 		if (Cube.selected.length !== 0) {

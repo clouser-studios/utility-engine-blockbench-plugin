@@ -12,11 +12,11 @@ const EVENTS = {
 	EXTERNAL_PLUGIN_LOAD: subscribable<BBPlugin>(),
 	EXTERNAL_PLUGIN_UNLOAD: subscribable<BBPlugin>(),
 
-	PRE_SELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
-	POST_SELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
-	SELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
-	UNSELECT_PROJECT: subscribable<Blockbench.ModelProject>(),
-	CLOSE_PROJECT: subscribable<Blockbench.ModelProject>(),
+	PRE_SELECT_PROJECT: subscribable<ModelProject>(),
+	POST_SELECT_PROJECT: subscribable<ModelProject>(),
+	SELECT_PROJECT: subscribable<ModelProject>(),
+	UNSELECT_PROJECT: subscribable<ModelProject>(),
+	CLOSE_PROJECT: subscribable<ModelProject>(),
 
 	UPDATE_PROJECT_SETTINGS: subscribable<Record<string, any>>(),
 

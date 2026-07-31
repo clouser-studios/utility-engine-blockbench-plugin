@@ -43,7 +43,7 @@ export namespace v0_0_7 {
 		collections?: CollectionOptions[]
 		texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
 		front_gui_light?: boolean
-		display_settings?: Record<DisplaySlotName, DisplaySettings>
+		display_settings?: Record<DisplaySlotName, DisplaySlotOptions>
 		utility_display_settings?: Record<DisplaySlotName, UtilityDisplaySettings>
 	}
 }

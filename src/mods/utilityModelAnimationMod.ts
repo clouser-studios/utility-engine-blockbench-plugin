@@ -1,4 +1,5 @@
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { BB } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
@@ -61,7 +62,7 @@ export interface UtilityModelAnimationOptions extends AnimationOptions {
 	utility_model_animation_type?: AnimationType
 }
 
-class UtilityModelAnimation extends Blockbench.Animation {
+class UtilityModelAnimation extends BB.Animation {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	utility_model_animation_type: AnimationType = 'custom'
 
@@ -111,7 +112,7 @@ class UtilityModelAnimation extends Blockbench.Animation {
 	setLength(len = this.length) {
 		this.length = 0
 		this.length = limitNumber(len, this.getMaxLength(), 1e4)
-		if (Blockbench.Animation.selected == this) {
+		if (BB.Animation.selected == this) {
 			// @ts-expect-error
 			Timeline.vue._data.animation_length = this.length
 			// @ts-expect-error
@@ -159,31 +160,25 @@ registerPatch({
 			return originalAddAnimation.apply(this, groupName, args)
 		}
 
-		const originalAnimation = Blockbench.Animation
+		const originalAnimation = BB.Animation
 
-		// @ts-expect-error
+		// @ts-expect-error - UtilityModelAnimation is not assignable to libdom's Animation type
 		globalThis.Animation = UtilityModelAnimation
-		// @ts-expect-error
+		// @ts-expect-error - UtilityModelAnimation is not assignable to libdom's Animation type
 		window.Animation = UtilityModelAnimation
-		// @ts-expect-error
-		window.Blockbench.Animation = UtilityModelAnimation
-		// @ts-expect-error
-		globalThis.Blockbench.Animation = UtilityModelAnimation
-		// @ts-expect-error
-		Blockbench.Animation = UtilityModelAnimation
+		// `BB` is just a typed view of the same `Blockbench` object, so this also updates
+		// `window.Blockbench.Animation` / `globalThis.Blockbench.Animation`.
+		BB.Animation = UtilityModelAnimation
 
 		return { originalAddAnimation, originalAnimation }
 	},
 
 	revert: ({ originalAddAnimation, originalAnimation }) => {
 		Panels.animations.vue.addAnimation = originalAddAnimation
+		// @ts-expect-error - originalAnimation is not assignable to libdom's Animation type
 		globalThis.Animation = originalAnimation
+		// @ts-expect-error - originalAnimation is not assignable to libdom's Animation type
 		window.Animation = originalAnimation
-		// @ts-expect-error
-		window.Blockbench.Animation = originalAnimation
-		// @ts-expect-error
-		globalThis.Blockbench.Animation = originalAnimation
-		// @ts-expect-error
-		Blockbench.Animation = originalAnimation
+		BB.Animation = originalAnimation
 	},
 })

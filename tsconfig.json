@@ -4,6 +4,7 @@
 	"compilerOptions": {
 		"outDir": "./dist/",
 		"noImplicitAny": true,
+		"skipLibCheck": true,
 		"module": "nodenext",
 		"target": "ES2022",
 		"moduleResolution": "nodenext",

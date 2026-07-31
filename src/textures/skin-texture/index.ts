@@ -1,5 +1,6 @@
 import SteveSkin from '@assets/steve.png'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { toolbarsCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-manager'
 import { observable } from 'svelte-observable-store'
@@ -86,10 +87,10 @@ export const CREATE_SKIN_TEXTURE_ACTION = registerDeletableHandlerPatch({
 	},
 })
 CREATE_SKIN_TEXTURE_ACTION.onCreated(action => {
-	Toolbars.texturelist.add(action)
+	toolbarsCompat.texturelist.add(action)
 })
 CREATE_SKIN_TEXTURE_ACTION.onDeleted(action => {
-	Toolbars.texturelist.remove(action)
+	toolbarsCompat.texturelist.remove(action)
 })
 
 declare global {
@@ -287,7 +288,7 @@ SkinTexture.prototype.menu = new Menu([
 		icon: 'folder',
 		name: 'menu.texture.folder',
 		condition: function (texture: Texture) {
-			return isApp && texture.path
+			return !!(isApp && texture.path)
 		},
 		click(texture: Texture) {
 			texture.openFolder()
@@ -297,7 +298,7 @@ SkinTexture.prototype.menu = new Menu([
 		icon: 'save',
 		name: 'menu.texture.save',
 		condition: function (texture: Texture) {
-			return !texture.saved && texture.path
+			return !!(!texture.saved && texture.path)
 		},
 		click(texture: Texture) {
 			texture.save()

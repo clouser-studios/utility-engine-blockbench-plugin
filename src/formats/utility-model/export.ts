@@ -4,6 +4,7 @@ import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/i
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
 import { parsePackPath } from '@utility/util/minecraftUtil.ts'
+import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { type UtilityModel } from './versions/latest.ts'
 
@@ -188,7 +189,7 @@ function createUtilityModel(): UtilityModel.Json {
 	model.structure = recurseStructure(model, Outliner.root)
 
 	const animations: UtilityModel.Json['animations'] = []
-	for (const animation of Blockbench.Animation.all) {
+	for (const animation of BB.Animation.all) {
 		const bedrock = animation.compileBedrockAnimation()
 		animations.push({
 			name: animation.name,
@@ -205,7 +206,9 @@ function createUtilityModel(): UtilityModel.Json {
 	}
 
 	const display = {} as UtilityModel.DisplayContainer
-	for (const [key, settings] of Object.entries(Project!.display_settings)) {
+	for (const [key, settings] of Object.entries(Project!.display_settings) as Array<
+		[DisplaySlotName, DisplaySlot]
+	>) {
 		const reducedSettings: UtilityModel.Display = {}
 		if (!settings.rotation.allAre(v => v === 0)) {
 			reducedSettings.rotation = [...settings.rotation]
@@ -269,7 +272,7 @@ export function exportUtilityModel(path?: string) {
 			startpath: Project!.export_path.replace(/\.utility\.json$/, ''),
 			content: autoStringify(model),
 			// eslint-disable-next-line @typescript-eslint/naming-convention
-			custom_writer: (content, chosenPath) => {
+			custom_writer: (content: string | ArrayBuffer | Blob, chosenPath: string) => {
 				console.log('chosenPath:', chosenPath)
 				if (!chosenPath.endsWith('.utility.json')) {
 					chosenPath += '.utility.json'

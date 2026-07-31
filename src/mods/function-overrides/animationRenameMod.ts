@@ -1,4 +1,5 @@
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 declare global {
@@ -11,7 +12,8 @@ declare global {
 registerPatch({
 	id: `utility-engine:animation-rename-action`,
 	apply: () => {
-		const structure = Blockbench.Animation.prototype.menu.structure
+		// The animation menu's structure is always a static array, never the dynamic-menu function variant.
+		const structure = BB.Animation.prototype.menu.structure as MenuItem[]
 		const index = structure.findIndex(item => item === 'rename')
 
 		structure.splice(index, 1, {
@@ -28,7 +30,7 @@ registerPatch({
 				)
 			},
 			click: () => {
-				SharedActions.actions.rename[0].run()
+				SharedActions.run('rename')
 			},
 		})
 

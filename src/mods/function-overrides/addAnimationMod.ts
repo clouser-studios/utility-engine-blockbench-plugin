@@ -1,3 +1,4 @@
+import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 registerPatch({
@@ -6,7 +7,7 @@ registerPatch({
 		const action = BarItems.add_animation as Action
 		const original = action.click
 		action.click = function () {
-			const anim = new Blockbench.Animation({
+			const anim = new BB.Animation({
 				name: 'new_animation',
 			}).add(true)
 			anim.propertiesDialog()

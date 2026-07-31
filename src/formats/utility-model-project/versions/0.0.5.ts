@@ -1,3 +1,4 @@
+import type { ModelProject } from '@blockbench-types/generated/io/project.js'
 import type { CollectionOptions } from '@blockbench-types/generated/outliner/collections.js'
 import type { ISkinTextureData } from '@utility/textures/skin-texture/index.ts'
 

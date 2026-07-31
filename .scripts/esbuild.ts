@@ -109,6 +109,7 @@ const COMMON_CONFIG: ESBuild.BuildOptions = {
 	platform: 'browser',
 	loader: { '.svg': 'dataurl', '.ttf': 'binary' },
 	plugins: [
+		// @ts-expect-error
 		ProblemsPatchPlugin(),
 		LangPlugin({ languageFolder: './src/lang' }),
 		InlineImage({

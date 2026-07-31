@@ -1,18 +1,19 @@
 import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties/index.ts'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 registerPatch({
 	id: `utility-engine:animation-properties-action`,
 	apply: () => {
-		const original = Blockbench.Animation.prototype.propertiesDialog
-		Blockbench.Animation.prototype.propertiesDialog = function (this: _Animation) {
+		const original = BB.Animation.prototype.propertiesDialog
+		BB.Animation.prototype.propertiesDialog = function (this: _Animation) {
 			if (currentFormatIsUtilityModelProject()) {
-				if (!Blockbench.Animation.selected) {
+				if (!BB.Animation.selected) {
 					Blockbench.showQuickMessage('No animation selected')
 					return
 				}
-				openAnimationPropertiesDialog(Blockbench.Animation.selected)
+				openAnimationPropertiesDialog(BB.Animation.selected)
 			} else {
 				original.call(this)
 			}
@@ -20,6 +21,6 @@ registerPatch({
 		return { original }
 	},
 	revert: ({ original }) => {
-		Blockbench.Animation.prototype.propertiesDialog = original
+		BB.Animation.prototype.propertiesDialog = original
 	},
 })

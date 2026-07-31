@@ -1,4 +1,5 @@
 import type { CollectionOptions } from '@blockbench-types/generated/outliner/collections.js'
+import { displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import type { UtilityModelAnimationOptions } from '@utility/mods/utilityModelAnimationMod.ts'
 import type { ISkinTextureData } from '@utility/textures/skin-texture/index.ts'
 import type { UTILITY_MODEL_PROJECT_FORMAT_ID } from '../index.ts'
@@ -9,7 +10,7 @@ export namespace v0_0_8 {
 		model_identifier: string
 	}
 
-	export type UtilityDisplaySettings = Partial<DisplaySettings> & {
+	export type UtilityDisplaySettings = Partial<DisplaySlotOptions> & {
 		left_arm_rotation?: ArrayVector3
 		left_arm_rotation_when_offhand_occupied?: ArrayVector3
 		right_arm_rotation?: ArrayVector3
@@ -65,7 +66,7 @@ export default {
 		>
 
 		const mergedDisplaySettings: v0_0_8.Json['display_settings'] = {}
-		for (const slot of DisplayMode.slots) {
+		for (const slot of displayModeCompat.slots) {
 			mergedDisplaySettings[slot] = {}
 
 			Object.assign(mergedDisplaySettings[slot], model.display_settings[slot])

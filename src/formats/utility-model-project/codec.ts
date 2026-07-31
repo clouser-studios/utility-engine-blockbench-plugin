@@ -4,12 +4,16 @@ import { SkinTexture } from '@utility/textures/skin-texture/index.ts'
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
 import { resetAllConsoleGroups } from '@utility/util/misc.ts'
+import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { updateUtilityProject } from './dfu.ts'
 import { UTILITY_MODEL_PROJECT_FORMAT, UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
 import { type UtilityModelProject } from './versions/latest.ts'
 
-export function addProjectToRecentProjects(file: FileResult) {
+export function addProjectToRecentProjects(
+	// Upstream `Filesystem.FileResult` is missing `no_file`, which does exist at runtime.
+	file: Filesystem.FileResult & { no_file?: boolean }
+) {
 	if (!Project || !file.path) return
 	const name = pathToName(file.path, true)
 	if (file.path && isApp && !file.no_file) {
@@ -164,12 +168,13 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				}
 
 				if (model.outliner) {
-					Outliner.loadJSON(model.outliner)
+					// The upstream type for `loadJSON` is `(array: [], ...)`, an empty tuple - a typo.
+					Outliner.loadJSON(model.outliner as never)
 				}
 
 				if (model.animations) {
 					for (const animation of model.animations) {
-						const newAnimation = new Blockbench.Animation()
+						const newAnimation = new BB.Animation()
 						newAnimation.uuid = animation.uuid ?? guid()
 						newAnimation.extend(animation).add()
 					}
@@ -177,14 +182,13 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 
 				if (model.animation_controllers) {
 					for (const controller of model.animation_controllers) {
-						const newController = new Blockbench.AnimationController()
+						const newController = new BB.AnimationController()
 						newController.uuid = controller.uuid ?? guid()
 						newController.extend(controller).add()
 					}
 				}
 
 				if (model.animation_variable_placeholders) {
-					// @ts-expect-error
 					Interface.Panels.variable_placeholders.inside_vue._data.text =
 						model.animation_variable_placeholders
 				}
@@ -196,7 +200,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				}
 
 				if (model.display_settings) {
-					for (const slot of DisplayMode.slots) {
+					for (const slot of displayModeCompat.slots) {
 						const settings = model.display_settings[slot]
 						if (!settings) continue
 						Project.display_settings[slot] = new DisplaySlot(slot, settings)
@@ -309,7 +313,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				model.textures = []
 				for (const texture of Texture.all) {
 					const save = texture.getUndoCopy() as Texture
-					delete save.selected
+					save.selected = false
 					if (Project.save_path && texture.path) {
 						const relative = PathModule.relative(Project.save_path, texture.path)
 						texture.relative_path = relative.replace(/\\/g, '/')
@@ -336,13 +340,13 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 					bone_names: true,
 					absolute_paths: options.absolute_paths,
 				}
-				for (const animation of Blockbench.Animation.all) {
+				for (const animation of BB.Animation.all) {
 					if (!animation.getUndoCopy) continue
 					model.animations.push(animation.getUndoCopy(animationOptions, true))
 				}
 
 				model.animation_controllers = []
-				for (const controller of Blockbench.AnimationController.all) {
+				for (const controller of BB.AnimationController.all) {
 					if (!controller.getUndoCopy) continue
 					model.animation_controllers.push(controller.getUndoCopy(animationOptions, true))
 				}
@@ -358,7 +362,9 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 
 				if (Object.keys(Project.display_settings).length > 0) {
 					const displaySettings: Record<string, any> = {}
-					for (const [slot, settings] of Object.entries(Project.display_settings)) {
+					for (const [slot, settings] of Object.entries(Project.display_settings) as Array<
+						[DisplaySlotName, DisplaySlot]
+					>) {
 						displaySettings[slot] = settings.export()
 						console.log(
 							'Exported display settings for slot',
@@ -399,7 +405,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 					extensions: [this.extension],
 					content: this.compile!(),
 					// eslint-disable-next-line @typescript-eslint/naming-convention
-					custom_writer: (content, path) => {
+					custom_writer: (content: string | ArrayBuffer | Blob, path: string) => {
 						Project!.save_path = path
 						this.write!(content, path)
 						// if (fs.existsSync(PathModule.dirname(path))) {

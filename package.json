@@ -2,7 +2,7 @@
 	"name": "utility-engine",
 	"title": "Utility Engine",
 	"icon": "icon.svg",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"min_blockbench_version": "5.0.7",
 	"variant": "desktop",
 	"tags": [

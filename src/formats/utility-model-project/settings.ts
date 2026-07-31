@@ -4,12 +4,10 @@ import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-m
 import { currentFormatIsUtilityModelProject } from './index.ts'
 import type { UtilityModelProject } from './versions/latest.ts'
 
-declare global {
-	namespace Blockbench {
-		interface ModelProject {
-			utility_model: UtilityModelProject.Settings
-			default_backface_culling_mode?: 'no_culling' | 'cull_backfaces'
-		}
+declare module '@blockbench-types/generated/io/project.js' {
+	export interface ModelProject {
+		utility_model: UtilityModelProject.Settings
+		default_backface_culling_mode?: 'no_culling' | 'cull_backfaces'
 	}
 }
 
@@ -32,18 +30,13 @@ const localizeSettings = createScopedTranslator('model_format.utility_model.proj
 registerPatch({
 	id: `utility-engine:model-format-properties`,
 	apply: () => {
-		const modelIdentifier = new Property(
-			Blockbench.ModelProject,
-			'string',
-			'model_identifier',
-			{
-				label: localizeSettings('model_identifier'),
-				condition: () => currentFormatIsUtilityModelProject(),
-			}
-		)
+		const modelIdentifier = new Property(ModelProject, 'string', 'model_identifier', {
+			label: localizeSettings('model_identifier'),
+			condition: () => currentFormatIsUtilityModelProject(),
+		})
 
 		const defaultBackfaceCullingMode = new Property(
-			Blockbench.ModelProject,
+			ModelProject,
 			'string',
 			'default_backface_culling_mode',
 			{

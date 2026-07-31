@@ -34,7 +34,7 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 		let mountedComponent: ReturnType<typeof mount> | null = null
 		let titleElement: HTMLElement | null = null
 
-		const format = new Blockbench.ModelFormat(UTILITY_MODEL_PROJECT_FORMAT_ID, {
+		const format = new ModelFormat(UTILITY_MODEL_PROJECT_FORMAT_ID, {
 			name: localize('name'),
 			icon: 'fa-gear',
 			category: 'utility-engine',

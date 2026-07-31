@@ -3,10 +3,6 @@ import { mount, unmount } from 'svelte'
 import FormatPage from './formatPage.svelte'
 import { importUtilityModel } from './import.ts'
 
-// FIXME: Temp patch until Blockbench updates
-// eslint-disable-next-line @typescript-eslint/naming-convention
-declare const ModelLoader: typeof Blockbench.ModelLoader
-
 export const UTILITY_JSON_LOADER_ID = `utility-engine:model_loader/utility-model-json-loader`
 
 export const UTILITY_JSON_LOADER = registerDeletableHandlerPatch({

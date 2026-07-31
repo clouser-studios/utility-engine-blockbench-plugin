@@ -1,3 +1,4 @@
+import { BB } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { observable } from 'svelte-observable-store'
 import { SvelteDialog } from 'svelte-patching-tools/blockbench'
@@ -25,7 +26,7 @@ export function openAnimationPropertiesDialog(animation: _Animation) {
 		disableKeybinds: true,
 		onConfirm() {
 			animation.name = animationName.get()
-			animation.createUniqueName(Blockbench.Animation.all)
+			animation.createUniqueName(BB.Animation.all)
 			animation.utility_model_animation_type = animationType.get()
 			animation.path = animationPath.get()
 			animation.loop = loopMode.get() as typeof animation.loop

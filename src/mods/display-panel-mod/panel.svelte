@@ -62,8 +62,8 @@
 	}
 
 	const resetReferenceModel = () => {
-		display_area.removeFromParent()
-		scene.add(display_area)
+		DisplayMode.display_area.removeFromParent()
+		scene.add(DisplayMode.display_area)
 
 		updateCanvas()
 
@@ -95,15 +95,15 @@
 		const rightArm = arms.find(arm => arm.name === 'right_arm')
 
 		if (displaySlot?.slot_id === 'thirdperson_lefthand' && leftArm) {
-			display_area.removeFromParent()
+			DisplayMode.display_area.removeFromParent()
 			const x = model.variant === 'alex' ? -1.5 : -2
 			DisplayMode.setBase(x, -10, -2, -90, 0, 0, 1, 1, 1)
-			leftArm.add(display_area)
+			leftArm.add(DisplayMode.display_area)
 		} else if (displaySlot?.slot_id === 'thirdperson_righthand' && rightArm) {
-			display_area.removeFromParent()
+			DisplayMode.display_area.removeFromParent()
 			const x = model.variant === 'alex' ? 1.5 : 2
 			DisplayMode.setBase(x, -10, -2, -90, 0, 0, 1, 1, 1)
-			rightArm.add(display_area)
+			rightArm.add(DisplayMode.display_area)
 		}
 
 		return model

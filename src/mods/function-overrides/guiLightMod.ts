@@ -4,7 +4,7 @@ import { registerPatch } from 'blockbench-patch-manager'
 registerPatch({
 	id: 'utility-engine:gui-light/condition',
 	apply: () => {
-		const barSelect = BarItems.gui_light as BarSelect<string>
+		const barSelect = BarItems.gui_light as BarSelect
 		const original = barSelect.condition
 
 		barSelect.condition = () => {

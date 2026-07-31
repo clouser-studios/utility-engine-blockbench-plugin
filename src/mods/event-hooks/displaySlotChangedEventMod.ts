@@ -1,4 +1,5 @@
 import EVENTS from '@events'
+import { displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 registerPatch({
@@ -28,9 +29,9 @@ registerPatch({
 		for (const [key, oldFunc] of Object.entries(originalLoadDisplayFunctions)) {
 			// @ts-expect-error - No type is defined for this function
 			DisplayMode[key] = function () {
-				const previous = DisplayMode.display_slot
+				const previous = displayModeCompat.display_slot
 				oldFunc.call()
-				const slot = DisplayMode.display_slot
+				const slot = displayModeCompat.display_slot
 				EVENTS.DISPLAY_SLOT_CHANGED.publish({ slot, previous })
 			}
 		}

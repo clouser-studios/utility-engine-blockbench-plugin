@@ -28,7 +28,7 @@ class UtilityDisplaySlot extends DisplaySlot {
 	right_arm_rotation_when_offhand_occupied?: ArrayVector3
 
 	constructor(id: DisplaySlotName, data?: DisplaySlotOptions) {
-		super(id, data)
+		super(id, data ?? {})
 		this.extend(data)
 	}
 
