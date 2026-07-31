@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"command": "yarn check-formatting",
+			"command": "bun run check-formatting",
 			"label": "Check formatting",
 			"detail": "Reports any formatting issues via the problems view",
 			"group": "test",

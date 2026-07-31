@@ -26,8 +26,8 @@
 	"private": true,
 	"scripts": {
 		"build:scripts": "esbuild --log-level=warning --bundle --platform=node --outfile=dist/build.cjs --packages=external ./.scripts/esbuild.ts",
-		"dev": "yarn build:scripts && node ./dist/build.cjs --mode=dev",
-		"prod": "yarn build:scripts && node ./dist/build.cjs",
+		"dev": "bun run build:scripts && node ./dist/build.cjs --mode=dev",
+		"prod": "bun run build:scripts && node ./dist/build.cjs",
 		"format": "prettier --write .",
 		"check-formatting": "prettier . --check",
 		"lint": "eslint . --max-warnings=0 --no-warn-ignored"
@@ -66,5 +66,5 @@
 		"svelte-observable-store": "^1.0.1"
 	},
 	"license": "MIT",
-	"packageManager": "yarn@4.9.4+sha512.7b1cb0b62abba6a537b3a2ce00811a843bea02bcf53138581a6ae5b1bf563f734872bd47de49ce32a9ca9dcaff995aa789577ffb16811da7c603dcf69e73750b"
+	"packageManager": "bun@1.3.14"
 }

@@ -19,13 +19,13 @@ Includes everything you need to get started and more with Blockbench plugin deve
 ## Setup
 
 - Create a new repo using this template
-- Run `yarn` to initialize the development enviornment
+- Run `bun install` to initialize the development enviornment
 - Configure the package.json to use your information
 - Configure the plugin definition in `index.ts`
 - Rename the global variable in `global.d.ts` to match your plugin's name
 
 ## Build commands
 
-- `yarn build:dev` - Builds in dev mode and watches for file changes
-- `yarn build:prod` - Builds a production version of the plugin and exits
-- `yarn format` - Formats all of the source files using Prettier
+- `bun run dev` - Builds in dev mode and watches for file changes
+- `bun run prod` - Builds a production version of the plugin and exits
+- `bun run format` - Formats all of the source files using Prettier

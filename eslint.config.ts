@@ -17,10 +17,12 @@ const IGNORE_PATTERNS = [
 	// Blockbench Plugin Template
 	'dist/**/*',
 
-	// Ignore files for PNPM, NPM and YARN
+	// Ignore files for PNPM, NPM, YARN and Bun
 	'pnpm-lock.yaml',
 	'package-lock.json',
 	'yarn.lock',
+	'bun.lock',
+	'bun.lockb',
 ]
 
 const CUSTOM_RULES: ConfigWithExtends['rules'] = {

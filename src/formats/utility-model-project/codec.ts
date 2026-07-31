@@ -362,9 +362,9 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 
 				if (Object.keys(Project.display_settings).length > 0) {
 					const displaySettings: Record<string, any> = {}
-					for (const [slot, settings] of Object.entries(Project.display_settings) as Array<
-						[DisplaySlotName, DisplaySlot]
-					>) {
+					for (const [slot, settings] of Object.entries(
+						Project.display_settings
+					) as Array<[DisplaySlotName, DisplaySlot]>) {
 						displaySettings[slot] = settings.export()
 						console.log(
 							'Exported display settings for slot',
