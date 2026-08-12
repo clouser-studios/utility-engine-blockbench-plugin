@@ -24,14 +24,7 @@ function buildOutliner(
 	meshes?: UtilityModel.Mesh[]
 ) {
 	function importCube(element: UtilityModel.Element, parent?: Group) {
-		// Logic to import a single element
-		console.log(`Importing element: ${element.uuid}`)
-
-		const saveCopy: UtilityModel.Element & { type: 'cube' } = {
-			...element,
-			type: 'cube',
-		}
-		for (const [name, face] of Object.entries(saveCopy.faces ?? {}) as Array<
+		for (const [name, face] of Object.entries(element.faces ?? {}) as Array<
 			[string, Omit<UtilityModel.ElementFace, 'texture'> & { texture: string | Texture }]
 		>) {
 			if (face.texture === undefined) continue
@@ -43,15 +36,23 @@ function buildOutliner(
 			face.texture = texture
 			face.uv = face.uv.map((v, i) => (v / 16) * UVEditor.getResolution(i % 2))
 		}
-		const newElement = OutlinerElement.fromSave(saveCopy).init() as Cube
 
-		newElement.addTo(parent)
+		const baseCube = new Cube(element as any)
+
+		if (typeof element.rotation == 'object') {
+			if (element.rotation.origin) {
+				baseCube.extend({ origin: element.rotation.origin })
+			}
+			if (element.rotation.euler) {
+				baseCube.extend({ rotation: element.rotation.euler })
+			}
+		}
+
+		baseCube.init()
+		baseCube.addTo(parent)
 	}
 
 	function importMesh(mesh: UtilityModel.Mesh, parent?: Group) {
-		// Logic to import a single mesh
-		console.log(`Importing mesh: ${mesh.uuid}`)
-
 		const saveCopy: UtilityModel.MeshSaveCopy & { type: 'mesh' } = {
 			type: 'mesh',
 			name: mesh.name,
@@ -105,9 +106,6 @@ function buildOutliner(
 	}
 
 	function importBone(bone: UtilityModel.Bone, parent?: Group) {
-		// Logic to import a single bone
-		console.log(`Importing bone: ${bone.name}`)
-
 		const group = new Group({
 			name: bone.name,
 			rotation: bone.rotation?.euler,
@@ -167,7 +165,7 @@ function importTextures(textures: UtilityModel.Json['textures'], projectPath = '
 			continue
 		}
 
-		const resourceLocationPath = resourceLocation.split(':').at(-1)!
+		const resourceLocationPath = 'textures/' + resourceLocation.split(':').at(-1)!
 		const path = PathModule.join(parsedProjectPath.namespacePath, resourceLocationPath + '.png')
 		if (fs.existsSync(path)) {
 			console.log(`Found texture file for ${id} under ${path}`)
@@ -264,8 +262,6 @@ function processBoneKeyframes(bone: UtilityModel.AnimationBone) {
 
 function importAnimations(animations: UtilityModel.Json['animations']) {
 	for (const animation of animations ?? []) {
-		console.log(`Importing animation: ${animation.name}`)
-
 		const saveCopy: AnimationOptions = {
 			name: animation.name,
 			loop: animation.loop_mode,
@@ -327,6 +323,12 @@ export function createUtilityModelProjectFromUtilityModel(
 	Canvas.updateAll()
 }
 
+export function importUtilityModelFile(file: Filesystem.FileResult) {
+	console.group('Importing Utility Model as Utility Model Project')
+	createUtilityModelProjectFromUtilityModel(JSON.parse(file.content!.toString()), file.path)
+	console.groupEnd()
+}
+
 export function importUtilityModel() {
 	Blockbench.import(
 		{
@@ -336,13 +338,7 @@ export function importUtilityModel() {
 		(files: Filesystem.FileResult[]) => {
 			const file = files.at(0)
 			if (!file) return
-
-			console.group('Importing Utility Model as Utility Model Project')
-			createUtilityModelProjectFromUtilityModel(
-				JSON.parse(file.content!.toString()),
-				file.path
-			)
-			console.groupEnd()
+			importUtilityModelFile(file)
 		}
 	)
 }

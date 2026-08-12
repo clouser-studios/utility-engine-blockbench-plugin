@@ -5,7 +5,11 @@ import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
 import { resetAllConsoleGroups } from '@utility/util/misc.ts'
-import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
+import {
+	registerDeletableHandlerPatch,
+	registerPropertyOverridePatch,
+} from 'blockbench-patch-manager'
+import { importUtilityModelFile } from '../utility-model/import.ts'
 import { updateUtilityProject } from './dfu.ts'
 import { UTILITY_MODEL_PROJECT_FORMAT, UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
 import { type UtilityModelProject } from './versions/latest.ts'
@@ -31,6 +35,120 @@ export function addProjectToRecentProjects(
 	}
 }
 
+registerPropertyOverridePatch({
+	id: 'utility-engine:codec/loadModelFile',
+	target: window,
+	key: 'loadModelFile',
+
+	get() {
+		return (file, args) => {
+			const existingTab =
+				isApp &&
+				ModelProject.all.find(
+					project => project.save_path == file.path || project.export_path == file.path
+				)
+
+			const extension = pathToExtension(file.path)
+
+			function loadIfCompatible(codec: Codec, type: string, content: any) {
+				if (codec.load_filter?.type == type) {
+					const extensions =
+						typeof codec.load_filter.extensions == 'function'
+							? codec.load_filter.extensions()
+							: (codec.load_filter.extensions ?? [])
+					if (
+						extensions.includes(extension) &&
+						(Condition(codec.load_filter.condition, { content, file }) ||
+							Condition(codec.load_filter.condition, content))
+					) {
+						if (existingTab && !codec.multiple_per_file) {
+							existingTab.select()
+						} else {
+							codec.load(content, file, args)
+						}
+						return true
+					}
+				}
+			}
+
+			const model = autoParseJSON(file.content, { file_path: file.path })
+			// Utility
+			const success = loadIfCompatible(UTILITY_MODEL_PROJECT_CODEC.get()!, 'json', model)
+			if (success) return
+
+			// Image
+			for (const id in Codecs) {
+				const success = loadIfCompatible(Codecs[id], 'image', file.content)
+				if (success) return
+			}
+			// Text
+			for (const id in Codecs) {
+				const success = loadIfCompatible(Codecs[id], 'text', file.content)
+				if (success) return
+			}
+			// JSON
+			for (const id in Codecs) {
+				const success = loadIfCompatible(Codecs[id], 'json', model)
+				if (success) return
+			}
+			unsupportedFileFormatMessage(file.path)
+		}
+	},
+})
+
+declare global {
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	let recent_projects: any
+}
+
+registerPropertyOverridePatch({
+	id: 'utility-engine:codec/open-model',
+	target: BarItems.open_model as Action,
+	key: 'click',
+
+	get() {
+		return () => {
+			let startpath
+			if (isApp && recent_projects?.length) {
+				const firstRecentProject =
+					recent_projects.find((p: any) => !p.favorite) ?? recent_projects[0]
+				startpath = firstRecentProject.path
+				if (typeof startpath == 'string') {
+					startpath = startpath.replace(/[\\\/][^\\\/]+$/, '')
+				}
+			}
+			Blockbench.import(
+				{
+					resource_id: 'model',
+					extensions: Codec.getAllExtensions(),
+					type: 'Model',
+					readtype: (file: any) => {
+						if (typeof file == 'string' && file.search(/\.png$/i) > 0) {
+							return 'image'
+						}
+					},
+					startpath,
+					multiple: true,
+				},
+				function (files: any) {
+					const imageExtensions = Texture.getAllExtensions()
+					if (
+						files.allAre((file: any) =>
+							imageExtensions.includes(pathToExtension(file.name).toLowerCase())
+						)
+					) {
+						void loadImages(files)
+					} else {
+						files.forEach((file: any) => {
+							loadModelFile(file)
+						})
+					}
+				}
+			)
+		}
+	},
+})
+
 export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 	id: `utility-engine:codec/utility-model-project`,
 	create() {
@@ -39,12 +157,22 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 			extension: 'utilityproject',
 			remember: true,
 			load_filter: {
-				extensions: ['utilityproject'],
+				extensions: ['utilityproject', 'utility.json', 'json'],
 				type: 'json',
+				condition({ file }) {
+					return (
+						!!file?.path?.endsWith('.utilityproject') ||
+						!!file?.path?.endsWith('.utility.json')
+					)
+				},
 			},
 
 			// region load
 			load(model: UtilityModelProject.Json, file) {
+				if (file.path.endsWith('.utility.json')) {
+					return importUtilityModelFile(file)
+				}
+
 				console.log(`Loading Utility Model from '${file.name}'...`)
 				try {
 					model = updateUtilityProject(model)
@@ -275,7 +403,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				}
 
 				model.elements = []
-				for (const element of elements) {
+				for (const element of Outliner.elements) {
 					if (options.collection_only && !allCollectionChildren.includes(element)) return
 					if (element instanceof Mesh) {
 						model.elements.push(element.getSaveCopy?.())

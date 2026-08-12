@@ -71,7 +71,7 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 				console.log('Utility Model format activated')
 			},
 
-			animated_textures: false,
+			animated_textures: true,
 			animation_controllers: false,
 			animation_files: true,
 			texture_mcmeta: true,
