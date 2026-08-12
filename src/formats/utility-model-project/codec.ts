@@ -292,12 +292,19 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 								break
 							}
 						}
+						newElement.init()
+					}
+				}
+
+				if (model.groups) {
+					for (const template of model.groups) {
+						// @ts-expect-error - missing UUID arg
+						new Group(template, template.uuid).init()
 					}
 				}
 
 				if (model.outliner) {
-					// The upstream type for `loadJSON` is `(array: [], ...)`, an empty tuple - a typo.
-					Outliner.loadJSON(model.outliner as never)
+					Outliner.loadJSON(model.outliner as any)
 				}
 
 				if (model.animations) {
@@ -408,11 +415,18 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 					if (element instanceof Mesh) {
 						model.elements.push(element.getSaveCopy?.())
 					} else {
-						model.elements.push(element.getSaveCopy?.(model.meta))
+						model.elements.push(element.getSaveCopy?.(!!model.meta))
 					}
 				}
 
-				model.outliner = compileGroups(true)
+				model.groups = []
+				for (const group of Group.all) {
+					// @ts-expect-error - missing arg
+					model.groups.push(group.getSaveCopy(false))
+				}
+
+				model.outliner = Outliner.toJSON()
+
 				if (options.collection_only) {
 					const filterList = (list: any[]) => {
 						list.forEachReverse(item => {

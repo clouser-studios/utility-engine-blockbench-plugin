@@ -33,3 +33,21 @@ export const toolbarsCompat = Toolbars as unknown as Record<
 	string,
 	Omit<Toolbar, 'add'> & { add(action: any, position?: number): Toolbar }
 >
+
+/**
+ * `@blockbench-types` types `Locator` without its `position` property and `Billboard`
+ * without its `facing_mode` property, even though both are real `Property` declarations
+ * assigned at runtime in `js/outliner/types/locator.js` and
+ * `js/outliner/types/billboard.js` respectively.
+ */
+declare global {
+	interface LocatorOptions {
+		position?: ArrayVector3
+	}
+	interface Locator {
+		position: ArrayVector3
+	}
+	interface Billboard {
+		facing_mode: 'lookat' | 'lookat_y' | 'rotate' | 'rotate_y'
+	}
+}

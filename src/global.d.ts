@@ -77,6 +77,37 @@ interface RecentProjectData {
 declare function addRecentProject(data: Partial<RecentProjectData>): void
 declare function updateRecentProjectThumbnail(): Promise<void>
 
+/**
+ * `BoundingBox` (`js/outliner/types/bounding_box.ts`) isn't exposed by `@blockbench-types`
+ * at all yet, unlike its sibling outliner types (`Locator`, `Billboard`, `Armature`,
+ * `ArmatureBone`), which are all generated.
+ */
+type BoundingBoxFunction = 'collision' | 'hitbox'
+
+interface BoundingBoxOptions {
+	name?: string
+	from?: ArrayVector3
+	to?: ArrayVector3
+	size?: ArrayVector3
+	visibility?: boolean
+	color?: number
+	function?: BoundingBoxFunction[]
+}
+
+declare class BoundingBox extends OutlinerElement {
+	visibility: boolean
+	color: number
+	function: BoundingBoxFunction[]
+	from: ArrayVector3
+	to: ArrayVector3
+
+	constructor(data?: BoundingBoxOptions, uuid?: string)
+	extend(object: BoundingBoxOptions): this
+
+	static all: BoundingBox[]
+	static selected: BoundingBox[]
+}
+
 declare module '*.png' {
 	const value: string
 	export default value

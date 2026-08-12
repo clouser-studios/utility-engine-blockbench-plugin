@@ -112,6 +112,97 @@ function renderMesh(mesh: Mesh): UtilityModel.Mesh {
 	}
 }
 
+const BILLBOARD_MODE_TO_FILE: Record<string, UtilityModel.IBillboard['billboard_mode']> = {
+	lookat: 'look_at',
+	lookat_y: 'look_at_y',
+	rotate: 'rotate',
+	rotate_y: 'rotate_y',
+}
+
+function renderLocator(locator: Locator): UtilityModel.ILocator {
+	return {
+		name: locator.name,
+		uuid: locator.uuid,
+		position: [...locator.position],
+	}
+}
+
+function renderBillboard(billboard: Billboard): UtilityModel.IBillboard {
+	const rendered: UtilityModel.IBillboard = {
+		name: billboard.name,
+		uuid: billboard.uuid,
+		position: [...billboard.position] as ArrayVector3,
+		size: [...billboard.size] as ArrayVector2,
+		offset: [...billboard.offset] as ArrayVector2,
+		billboard_mode: BILLBOARD_MODE_TO_FILE[billboard.facing_mode] ?? 'look_at',
+	}
+
+	const face = billboard.faces.front
+	if (face?.texture) {
+		const renderedFace = {} as UtilityModel.ElementFace
+		if (face.enabled) {
+			renderedFace.uv = face.uv
+				.slice()
+				.map((v, i) => (v * 16) / UVEditor.getResolution(i % 2))
+		}
+		if (face.rotation) renderedFace.rotation = face.rotation
+		const texture = face.getTexture()
+		if (!texture) throw new Error('Texture not found')
+		renderedFace.texture = '#' + texture.id
+		if (face.cullface) renderedFace.cullface = face.cullface
+		if (face.tint >= 0) renderedFace.tintindex = face.tint
+		rendered.face = renderedFace
+	}
+
+	return rendered
+}
+
+function renderBoundingBox(box: BoundingBox): UtilityModel.IBoundingBox {
+	const rendered: UtilityModel.IBoundingBox = {
+		name: box.name,
+		uuid: box.uuid,
+		from: [...box.from],
+		to: [...box.to],
+	}
+	if (box.function?.length) rendered.function = [...box.function]
+	return rendered
+}
+
+function renderArmatureBone(bone: ArmatureBone): UtilityModel.IArmatureBone {
+	const rendered: UtilityModel.IArmatureBone = {
+		name: bone.name,
+		uuid: bone.uuid,
+		origin: [...bone.origin],
+		rotation: [...bone.rotation],
+		length: bone.length,
+		width: bone.width,
+	}
+	if (Object.keys(bone.vertex_weights ?? {}).length) {
+		rendered.vertex_weights = { ...bone.vertex_weights }
+	}
+	const childBones = bone.children.filter((c): c is ArmatureBone => c instanceof ArmatureBone)
+	if (childBones.length) {
+		rendered.children = childBones.map(renderArmatureBone)
+	}
+	return rendered
+}
+
+function renderArmature(armature: Armature): UtilityModel.IArmature {
+	const rootBones = armature.children.filter((c): c is ArmatureBone => c instanceof ArmatureBone)
+	const strayChildren = armature.children.filter(c => !(c instanceof ArmatureBone))
+	if (strayChildren.length) {
+		console.warn(
+			`Armature '${armature.name}' has children that aren't attached to a bone. These will not be exported:`,
+			strayChildren
+		)
+	}
+	return {
+		name: armature.name,
+		uuid: armature.uuid,
+		bones: rootBones.map(renderArmatureBone),
+	}
+}
+
 function recurseStructure(
 	model: UtilityModel.Json,
 	children: OutlinerNode[]
@@ -145,6 +236,30 @@ function recurseStructure(
 				structure.elements.push(element.uuid)
 				model.elements.push(element)
 			}
+		} else if (child instanceof Locator) {
+			const locator = renderLocator(child)
+			model.locators ??= []
+			model.locators.push(locator)
+			structure.locators ??= []
+			structure.locators.push(locator.uuid)
+		} else if (child instanceof Billboard) {
+			const billboard = renderBillboard(child)
+			model.billboards ??= []
+			model.billboards.push(billboard)
+			structure.billboards ??= []
+			structure.billboards.push(billboard.uuid)
+		} else if (child instanceof BoundingBox) {
+			const boundingBox = renderBoundingBox(child)
+			model.bounding_boxes ??= []
+			model.bounding_boxes.push(boundingBox)
+			structure.bounding_boxes ??= []
+			structure.bounding_boxes.push(boundingBox.uuid)
+		} else if (child instanceof Armature) {
+			const armature = renderArmature(child)
+			model.armatures ??= []
+			model.armatures.push(armature)
+			structure.armatures ??= []
+			structure.armatures.push(armature.uuid)
 		} else {
 			console.warn(`Skipping unknown outliner node type when generating children:`, child)
 		}

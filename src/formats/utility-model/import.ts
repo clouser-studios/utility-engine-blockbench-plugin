@@ -15,13 +15,25 @@ export class ImportError extends Error {
 	}
 }
 
+const BILLBOARD_MODE_FROM_FILE: Record<UtilityModel.IBillboard['billboard_mode'], string> = {
+	look_at: 'lookat',
+	look_at_y: 'lookat_y',
+	rotate: 'rotate',
+	rotate_y: 'rotate_y',
+}
+
 /**
- * Imports the structure, elements, and meshes of a utility model.
+ * Imports the structure, elements, meshes, locators, billboards, bounding boxes, and
+ * armatures of a utility model.
  */
 function buildOutliner(
 	structure: UtilityModel.Structure,
 	elements?: UtilityModel.Element[],
-	meshes?: UtilityModel.Mesh[]
+	meshes?: UtilityModel.Mesh[],
+	locators?: UtilityModel.ILocator[],
+	billboards?: UtilityModel.IBillboard[],
+	boundingBoxes?: UtilityModel.IBoundingBox[],
+	armatures?: UtilityModel.IArmature[]
 ) {
 	function importCube(element: UtilityModel.Element, parent?: Group) {
 		for (const [name, face] of Object.entries(element.faces ?? {}) as Array<
@@ -81,6 +93,91 @@ function buildOutliner(
 		newMesh.addTo(parent)
 	}
 
+	function importLocator(locator: UtilityModel.ILocator, parent?: Group) {
+		const newLocator = new Locator(
+			{
+				name: locator.name,
+				position: locator.position,
+			},
+			locator.uuid
+		).init()
+		newLocator.addTo(parent)
+	}
+
+	function importBillboard(billboard: UtilityModel.IBillboard, parent?: Group) {
+		const faceData: any = {}
+		if (billboard.face) {
+			if (billboard.face.uv) {
+				faceData.uv = billboard.face.uv.map(
+					(v, i) => (v / 16) * UVEditor.getResolution(i % 2)
+				)
+			}
+			if (billboard.face.rotation) faceData.rotation = billboard.face.rotation
+			if (billboard.face.texture !== undefined) {
+				const texture = Texture.all.find(t => billboard.face!.texture.endsWith(t.id))
+				if (texture) {
+					faceData.texture = texture
+				} else {
+					console.warn(`Texture not found for billboard face in ${billboard.uuid}`)
+				}
+			}
+		}
+
+		const newBillboard = new Billboard(
+			{
+				name: billboard.name,
+				position: billboard.position,
+				size: billboard.size,
+				offset: billboard.offset,
+				facing_mode: BILLBOARD_MODE_FROM_FILE[billboard.billboard_mode] ?? 'lookat',
+				faces: { front: faceData },
+			},
+			billboard.uuid
+		).init()
+		newBillboard.addTo(parent)
+	}
+
+	function importBoundingBox(box: UtilityModel.IBoundingBox, parent?: Group) {
+		const newBox = new BoundingBox(
+			{
+				name: box.name,
+				from: box.from,
+				to: box.to,
+				function: box.function,
+			},
+			box.uuid
+		).init()
+		newBox.addTo(parent)
+	}
+
+	function importArmatureBone(bone: UtilityModel.IArmatureBone, parent: Armature | ArmatureBone) {
+		const newBone = new ArmatureBone(
+			{
+				name: bone.name,
+				origin: bone.origin,
+				rotation: bone.rotation,
+				length: bone.length,
+				width: bone.width,
+				vertex_weights: bone.vertex_weights,
+			},
+			bone.uuid
+		).init()
+		newBone.addTo(parent)
+
+		for (const child of bone.children ?? []) {
+			importArmatureBone(child, newBone)
+		}
+	}
+
+	function importArmature(armature: UtilityModel.IArmature, parent?: Group) {
+		const newArmature = new Armature({ name: armature.name }, armature.uuid).init()
+		newArmature.addTo(parent)
+
+		for (const bone of armature.bones) {
+			importArmatureBone(bone, newArmature)
+		}
+	}
+
 	function importStructure(struct: UtilityModel.Structure, parent?: Group) {
 		for (const uuid of struct.elements ?? []) {
 			const element = elements?.find(e => e.uuid === uuid)
@@ -98,6 +195,42 @@ function buildOutliner(
 				continue
 			}
 			importMesh(mesh, parent)
+		}
+
+		for (const uuid of struct.locators ?? []) {
+			const locator = locators?.find(l => l.uuid === uuid)
+			if (!locator) {
+				console.warn(`Locator not found: ${uuid}`)
+				continue
+			}
+			importLocator(locator, parent)
+		}
+
+		for (const uuid of struct.billboards ?? []) {
+			const billboard = billboards?.find(b => b.uuid === uuid)
+			if (!billboard) {
+				console.warn(`Billboard not found: ${uuid}`)
+				continue
+			}
+			importBillboard(billboard, parent)
+		}
+
+		for (const uuid of struct.bounding_boxes ?? []) {
+			const boundingBox = boundingBoxes?.find(b => b.uuid === uuid)
+			if (!boundingBox) {
+				console.warn(`Bounding box not found: ${uuid}`)
+				continue
+			}
+			importBoundingBox(boundingBox, parent)
+		}
+
+		for (const uuid of struct.armatures ?? []) {
+			const armature = armatures?.find(a => a.uuid === uuid)
+			if (!armature) {
+				console.warn(`Armature not found: ${uuid}`)
+				continue
+			}
+			importArmature(armature, parent)
 		}
 
 		for (const bone of struct.bones ?? []) {
@@ -307,7 +440,15 @@ export function createUtilityModelProjectFromUtilityModel(
 	}
 
 	importTextures(model.textures, projectPath)
-	buildOutliner(model.structure, model.elements, model.meshes)
+	buildOutliner(
+		model.structure,
+		model.elements,
+		model.meshes,
+		model.locators,
+		model.billboards,
+		model.bounding_boxes,
+		model.armatures
+	)
 	importAnimations(model.animations)
 
 	if (model.front_gui_light) {

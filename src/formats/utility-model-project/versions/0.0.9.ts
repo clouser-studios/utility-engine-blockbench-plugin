@@ -35,6 +35,7 @@ export namespace v0_0_9 {
 
 		elements: any[]
 		outliner: any[]
+		groups: any[]
 		textures: Array<TextureData | ISkinTextureData>
 		animations: UtilityModelAnimationOptions[]
 		animation_controllers?: AnimationControllerOptions[]

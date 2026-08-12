@@ -21,6 +21,7 @@ registerPatch({
 
 			if (currentFormatIsUtilityModelProject()) {
 				codec.export()
+				Project.saved = true
 			} else {
 				originalClick?.(event)
 			}

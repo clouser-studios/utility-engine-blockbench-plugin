@@ -54,6 +54,51 @@ export namespace v0_0_2 {
 		enableBackfaceCulling?: boolean
 	}
 
+	export interface ILocator {
+		name: string
+		uuid: string
+		position: ArrayVector3
+	}
+
+	export interface IBillboard {
+		name: string
+		uuid: string
+		position: ArrayVector3
+		size: ArrayVector2
+		offset: ArrayVector2
+		billboard_mode: 'look_at' | 'look_at_y' | 'rotate' | 'rotate_y'
+		/** Omitted if the billboard has no texture assigned, same as `Element.faces`. */
+		face?: ElementFace
+	}
+
+	export type BoundingBoxFunction = 'collision' | 'hitbox'
+
+	export interface IBoundingBox {
+		name: string
+		uuid: string
+		from: ArrayVector3
+		to: ArrayVector3
+		function?: BoundingBoxFunction[]
+	}
+
+	export interface IArmatureBone {
+		name: string
+		uuid: string
+		origin: ArrayVector3
+		rotation: ArrayVector3
+		length: number
+		width: number
+		/** Keyed the same way Blockbench keys them internally: `<mesh.uuid[0:6]>:<vertex_key>`. */
+		vertex_weights?: Record<string, number>
+		children?: IArmatureBone[]
+	}
+
+	export interface IArmature {
+		name: string
+		uuid: string
+		bones: IArmatureBone[]
+	}
+
 	export type KeyframeData =
 		| ArrayVector3
 		| {
@@ -101,6 +146,10 @@ export namespace v0_0_2 {
 	export interface Structure {
 		elements?: string[]
 		meshes?: string[]
+		locators?: string[]
+		billboards?: string[]
+		bounding_boxes?: string[]
+		armatures?: string[]
 		bones?: Bone[]
 	}
 
@@ -114,6 +163,10 @@ export namespace v0_0_2 {
 		elements: Element[]
 		structure: Structure
 		meshes?: Mesh[]
+		locators?: ILocator[]
+		billboards?: IBillboard[]
+		bounding_boxes?: IBoundingBox[]
+		armatures?: IArmature[]
 		animations?: Animation[]
 		front_gui_light?: boolean
 		display?: DisplayContainer

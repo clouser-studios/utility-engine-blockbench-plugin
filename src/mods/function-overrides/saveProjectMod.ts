@@ -14,6 +14,7 @@ registerPatch({
 			if (!Project || !Format) return
 			if (currentFormatIsUtilityModelProject()) {
 				saveUtilityModelProject()
+				Project.saved = true
 			} else {
 				originalClick?.(event)
 			}
