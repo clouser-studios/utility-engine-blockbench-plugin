@@ -130,49 +130,32 @@ export default {
 			if (!animation.bones) continue
 			for (const bone of Object.values(animation.bones)) {
 				if (bone.rotation) {
-					for (const [time, value] of Object.entries(bone.rotation)) {
+					for (const value of Object.values(bone.rotation)) {
 						if (Array.isArray(value)) {
-							bone.rotation[time] = [
-								invertMolang(value[0]),
-								invertMolang(value[1]),
-								value[2],
-							] as ArrayVector3
+							value[0] = invertMolang(value[0])
+							value[1] = invertMolang(value[1])
 						} else if (typeof value === 'object') {
-							bone.rotation[time] = {
-								pre: [
-									invertMolang(value.pre[0]),
-									invertMolang(value.pre[1]),
-									value.pre[2],
-								] as ArrayVector3,
-								post: [
-									invertMolang(value.post[0]),
-									invertMolang(value.post[1]),
-									value.post[2],
-								] as ArrayVector3,
-								lerp_mode: value.lerp_mode,
+							if (value.pre != undefined) {
+								value.pre[0] = invertMolang(value.pre[0])
+								value.pre[1] = invertMolang(value.pre[1])
+							}
+							if (value.post != undefined) {
+								value.post[0] = invertMolang(value.post[0])
+								value.post[1] = invertMolang(value.post[1])
 							}
 						}
 					}
-					for (const [time, value] of Object.entries(bone.position)) {
+				}
+				if (bone.position) {
+					for (const value of Object.values(bone.position)) {
 						if (Array.isArray(value)) {
-							bone.position[time] = [
-								invertMolang(value[0]),
-								value[1],
-								value[2],
-							] as ArrayVector3
+							value[0] = invertMolang(value[0])
 						} else if (typeof value === 'object') {
-							bone.position[time] = {
-								pre: [
-									invertMolang(value.pre[0]),
-									value.pre[1],
-									value.pre[2],
-								] as ArrayVector3,
-								post: [
-									invertMolang(value.post[0]),
-									value.post[1],
-									value.post[2],
-								] as ArrayVector3,
-								lerp_mode: value.lerp_mode,
+							if (value.pre != undefined) {
+								value.pre[0] = invertMolang(value.pre[0])
+							}
+							if (value.post != undefined) {
+								value.post[0] = invertMolang(value.post[0])
 							}
 						}
 					}

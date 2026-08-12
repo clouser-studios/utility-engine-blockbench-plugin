@@ -1,10 +1,10 @@
 import EVENTS from '@events'
 import PACKAGE from '@package' with { type: 'json' }
 import { SkinTexture } from '@utility/textures/skin-texture/index.ts'
+import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
 import { resetAllConsoleGroups } from '@utility/util/misc.ts'
-import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { updateUtilityProject } from './dfu.ts'
 import { UTILITY_MODEL_PROJECT_FORMAT, UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
@@ -245,7 +245,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 
 			// region compile
 			compile(options) {
-				if (!options) options = {}
+				options ??= {}
 				console.log(`Compiling Utility Model from ${Project!.name}...`)
 				if (!Project) throw new Error('No project to compile.')
 
@@ -325,7 +325,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				}
 
 				for (const textureGroup of TextureGroup.all) {
-					if (!model.texture_groups) model.texture_groups = []
+					model.texture_groups ??= []
 					model.texture_groups.push(textureGroup.getSaveCopy())
 				}
 

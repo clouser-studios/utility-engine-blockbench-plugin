@@ -3,8 +3,8 @@ import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { mount, unmount } from 'svelte'
 import { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 import FormatPage from './formatPage.svelte'
-import './icon'
-import './settings'
+import './icon.ts'
+import './settings.ts'
 export { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 
 const localize = createScopedTranslator('model_format.utility_model')

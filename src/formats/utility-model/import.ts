@@ -1,9 +1,9 @@
 import Icon from '@assets/icons/nobackground.png'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project/index.ts'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
+import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { parsePackPath } from '@utility/util/minecraftUtil.ts'
-import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { updateUtilityModel } from './dfu.ts'
 import { type UtilityModel } from './versions/latest.ts'
@@ -223,12 +223,20 @@ function processBoneKeyframe(
 			z: data[2],
 		})
 	} else {
-		keyframe.data_points.push({
-			x: data.pre[0],
-			y: data.pre[1],
-			z: data.pre[2],
-		})
-		if (!data.pre.equals(data.post)) {
+		if (data.pre != undefined) {
+			keyframe.data_points.push({
+				x: data.pre[0],
+				y: data.pre[1],
+				z: data.pre[2],
+			})
+			if (!data.pre.equals(data.post)) {
+				keyframe.data_points.push({
+					x: data.post[0],
+					y: data.post[1],
+					z: data.post[2],
+				})
+			}
+		} else if (data.post != undefined) {
 			keyframe.data_points.push({
 				x: data.post[0],
 				y: data.post[1],
@@ -242,13 +250,13 @@ function processBoneKeyframe(
 
 function processBoneKeyframes(bone: UtilityModel.AnimationBone) {
 	const keyframes: KeyframeOptions[] = []
-	for (const [time, data] of Object.entries(bone.position)) {
+	for (const [time, data] of Object.entries(bone.position ?? {})) {
 		keyframes.push(processBoneKeyframe(time, data, 'position'))
 	}
-	for (const [time, data] of Object.entries(bone.rotation)) {
+	for (const [time, data] of Object.entries(bone.rotation ?? {})) {
 		keyframes.push(processBoneKeyframe(time, data, 'rotation'))
 	}
-	for (const [time, data] of Object.entries(bone.scale)) {
+	for (const [time, data] of Object.entries(bone.scale ?? {})) {
 		keyframes.push(processBoneKeyframe(time, data, 'scale'))
 	}
 	return keyframes

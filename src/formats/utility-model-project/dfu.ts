@@ -5,6 +5,7 @@ import { type UtilityModelProject } from '../utility-model-project/versions/late
 import v0_0_5 from './versions/0.0.5.ts'
 import v0_0_7 from './versions/0.0.7.ts'
 import v0_0_8 from './versions/0.0.8.ts'
+import v0_0_9 from './versions/0.0.9.ts'
 
 /**
  * Takes a utility model and returns a new utility model that has been upgraded to the latest version of the utility model format.
@@ -23,6 +24,8 @@ export function updateUtilityProject(model: any): UtilityModelProject.Json {
 				newModel = v0_0_7.upgrade(newModel)
 			case compareLongVersions('0.0.8.0', modelVersion):
 				newModel = v0_0_8.upgrade(newModel)
+			case compareLongVersions('0.0.9.0', modelVersion):
+				newModel = v0_0_9.upgrade(newModel)
 		}
 	}
 

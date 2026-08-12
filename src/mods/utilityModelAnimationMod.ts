@@ -60,6 +60,7 @@ type AnimationType = keyof typeof ANIMATION_TYPES
 
 export interface UtilityModelAnimationOptions extends AnimationOptions {
 	utility_model_animation_type?: AnimationType
+	animators?: Record<string, GeneralAnimator>
 }
 
 class UtilityModelAnimation extends BB.Animation {
@@ -68,17 +69,13 @@ class UtilityModelAnimation extends BB.Animation {
 
 	constructor(data?: UtilityModelAnimationOptions) {
 		data ??= {}
-		if (!data?.name) {
-			data.name = 'new_animation'
-		}
+		data.name ??= 'new_animation'
 		super(data)
 	}
 
 	extend(data?: UtilityModelAnimationOptions) {
 		data ??= {}
-		if (!data?.name) {
-			data.name = 'new_animation'
-		}
+		data.name ??= 'new_animation'
 
 		super.extend(data)
 
