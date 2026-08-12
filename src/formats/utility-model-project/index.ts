@@ -84,7 +84,7 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 			edit_mode: true,
 			integer_size: false,
 			java_face_properties: true,
-			locators: false,
+			locators: true,
 			meshes: true,
 			model_identifier: false,
 			optional_box_uv: true,
@@ -99,6 +99,10 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 			texture_folder: false,
 			texture_meshes: false,
 			uv_rotation: true,
+			billboards: true,
+			cullfaces: true,
+			armature_rig: true,
+			bounding_boxes: true,
 			vertex_color_ambient_occlusion: true,
 		})
 
