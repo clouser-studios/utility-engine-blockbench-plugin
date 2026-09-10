@@ -61,6 +61,9 @@ function buildOutliner(
 
 		const baseCube = new Cube(element as any)
 
+		if (element.skin_model) baseCube.skin_model = element.skin_model
+		if (element.render_passes) baseCube.render_passes = [...element.render_passes]
+
 		if (typeof element.rotation == 'object') {
 			if (element.rotation.origin) {
 				baseCube.extend({ origin: element.rotation.origin })
@@ -99,6 +102,8 @@ function buildOutliner(
 
 		const newMesh = OutlinerElement.fromSave(saveCopy).init() as Mesh
 		newMesh.enableBackfaceCulling = mesh.enableBackfaceCulling
+		if (mesh.skin_model) newMesh.skin_model = mesh.skin_model
+		if (mesh.render_passes) newMesh.render_passes = [...mesh.render_passes]
 
 		newMesh.addTo(parent)
 	}

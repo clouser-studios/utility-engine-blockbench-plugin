@@ -52,6 +52,16 @@ function renderCube(cube: Cube) {
 
 	element.enableBackfaceCulling = cube.enableBackfaceCulling
 
+	// `skin_model` defaults to 'all', which is the absence of a constraint - omit it.
+	if (cube.skin_model && cube.skin_model !== 'all') {
+		element.skin_model = cube.skin_model
+	}
+
+	const renderPasses = cube.render_passes?.filter(Boolean)
+	if (renderPasses?.length) {
+		element.render_passes = renderPasses
+	}
+
 	if (cube.inflate) {
 		element.from.V3_subtract(cube.inflate, cube.inflate, cube.inflate)
 		element.to.V3_add(cube.inflate, cube.inflate, cube.inflate)
@@ -103,7 +113,7 @@ function renderMesh(mesh: Mesh): UtilityModel.Mesh {
 		face.texture = '#' + texture.id
 	}
 
-	return {
+	const rendered: UtilityModel.Mesh = {
 		name: saveCopy.name,
 		uuid: mesh.uuid,
 		rotation: {
@@ -114,6 +124,18 @@ function renderMesh(mesh: Mesh): UtilityModel.Mesh {
 		faces: saveCopy.faces,
 		enableBackfaceCulling: mesh.enableBackfaceCulling,
 	}
+
+	// `skin_model` defaults to 'all', which is the absence of a constraint - omit it.
+	if (mesh.skin_model && mesh.skin_model !== 'all') {
+		rendered.skin_model = mesh.skin_model
+	}
+
+	const renderPasses = mesh.render_passes?.filter(Boolean)
+	if (renderPasses?.length) {
+		rendered.render_passes = renderPasses
+	}
+
+	return rendered
 }
 
 const BILLBOARD_MODE_TO_FILE: Record<string, UtilityModel.IBillboard['billboard_mode']> = {

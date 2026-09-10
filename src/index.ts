@@ -5,6 +5,7 @@ import './publicApi.ts'
 
 // Formats
 import './formats//'
+import './panels//'
 
 // Mods
 import './mods//'

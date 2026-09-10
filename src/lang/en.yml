@@ -123,6 +123,21 @@ dialog:
       label: Loop Delay
       description: The loop delay of the animation.
 
+element_properties:
+  skin_model:
+    label: Skin Model
+    description: Which player skin model this element is rendered for.
+    options:
+      all: All
+      wide: Wide Only
+      slim: Slim Only
+  render_passes:
+    label: Render Passes
+    description: Custom render passes to apply to this element.
+    add: Add render pass
+    remove: Remove render pass
+    placeholder: Pass ID
+
 model_format:
   utility_model:
     name: Utility Model
