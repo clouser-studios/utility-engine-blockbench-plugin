@@ -2,15 +2,17 @@ import {
 	currentFormatIsUtilityModelProject,
 	UTILITY_MODEL_PROJECT_CODEC,
 } from '@utility/formats/utility-model-project/index.ts'
-import { registerPatch } from 'blockbench-patch-manager'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-registerPatch({
+registerPropertyOverridePatch({
 	id: `utility-engine:export-over-mod`,
-	apply: () => {
-		const action = BarItems.export_over as Action
-		const originalClick = action.click
+	target: BarItems.export_over as Action,
+	key: 'click',
 
-		action.click = (event?: Event) => {
+	getCondition: () => currentFormatIsUtilityModelProject(),
+
+	get: () => {
+		return () => {
 			if (!Project || !Format) return
 			const codec = UTILITY_MODEL_PROJECT_CODEC.get()
 			if (!codec) {
@@ -19,25 +21,13 @@ registerPatch({
 				)
 			}
 
-			if (currentFormatIsUtilityModelProject()) {
-				const path = Project?.save_path
-				if (path) {
-					Blockbench.writeFile(path, {
-						content: codec.compile(),
-					})
-					Project.save_path = path
-					// codec.write(codec.compile(), path)
-				} else {
-					codec.export()
-				}
+			const path = Project.save_path
+			if (path) {
+				Blockbench.writeFile(path, { content: codec.compile() })
+				Project.save_path = path
 			} else {
-				originalClick?.(event)
+				codec.export()
 			}
 		}
-
-		return { action, originalClick }
-	},
-	revert: ({ action, originalClick }) => {
-		action.click = originalClick
 	},
 })
