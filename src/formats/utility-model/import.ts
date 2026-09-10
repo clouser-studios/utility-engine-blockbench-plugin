@@ -23,6 +23,16 @@ const BILLBOARD_MODE_FROM_FILE: Record<UtilityModel.IBillboard['billboard_mode']
 }
 
 /**
+ * Resolves a face's texture reference (written as `#<id>` on export) to the matching
+ * loaded {@link Texture}. Matches the id exactly - `endsWith` would let `#1` match
+ * texture `11`.
+ */
+function resolveFaceTexture(ref: string): Texture | undefined {
+	const id = ref.replace(/^#/, '')
+	return Texture.all.find(t => t.id === id)
+}
+
+/**
  * Imports the structure, elements, meshes, locators, billboards, bounding boxes, and
  * armatures of a utility model.
  */
@@ -40,7 +50,7 @@ function buildOutliner(
 			[string, Omit<UtilityModel.ElementFace, 'texture'> & { texture: string | Texture }]
 		>) {
 			if (face.texture === undefined) continue
-			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
+			const texture = resolveFaceTexture(face.texture as string)
 			if (!texture) {
 				console.warn(`Texture not found for face: ${name} in element ${element.uuid}`)
 				continue
@@ -79,7 +89,7 @@ function buildOutliner(
 			[string, Omit<UtilityModel.MeshFace, 'texture'> & { texture: string | Texture }]
 		>) {
 			if (face.texture === undefined) continue
-			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
+			const texture = resolveFaceTexture(face.texture as string)
 			if (!texture) {
 				console.warn(`Texture not found for face: ${name} in mesh ${mesh.uuid}`)
 				continue
@@ -114,7 +124,7 @@ function buildOutliner(
 			}
 			if (billboard.face.rotation) faceData.rotation = billboard.face.rotation
 			if (billboard.face.texture !== undefined) {
-				const texture = Texture.all.find(t => billboard.face!.texture.endsWith(t.id))
+				const texture = resolveFaceTexture(billboard.face.texture)
 				if (texture) {
 					faceData.texture = texture
 				} else {
@@ -326,6 +336,7 @@ function importTextures(textures: UtilityModel.Json['textures'], projectPath = '
 			})
 				.fromPath(relativePath)
 				.add(false)
+			continue
 		}
 
 		console.warn(`Cannot find texture file for ${id}: ${resourceLocation}`)
@@ -418,7 +429,7 @@ function importAnimations(animations: UtilityModel.Json['animations']) {
 		}
 
 		const anim = new BB.Animation().extend(saveCopy).add()
-		anim.loop_delay = animation.loop_delay.toString()
+		anim.loop_delay = (animation.loop_delay ?? 0).toString()
 	}
 }
 

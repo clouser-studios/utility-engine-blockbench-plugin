@@ -145,11 +145,13 @@ registerPatch({
 		Mesh.prototype.menu!.addAction(BACKFACE_CULLING_TOGGLE, 7)
 		Mesh.prototype.menu!.addAction(USE_DEFAULT_BACKFACE_CULLING, 7)
 
-		return { cubeInit, meshInit }
+		return { cubeInit, meshInit, openCubeMenu, openMeshMenu }
 	},
-	revert: ({ cubeInit, meshInit }) => {
+	revert: ({ cubeInit, meshInit, openCubeMenu, openMeshMenu }) => {
 		Cube.prototype.init = cubeInit
 		Mesh.prototype.init = meshInit
+		Cube.prototype.menu!.open = openCubeMenu
+		Mesh.prototype.menu!.open = openMeshMenu
 
 		Cube.prototype.menu!.removeAction(BACKFACE_CULLING_TOGGLE)
 		Cube.prototype.menu!.removeAction(USE_DEFAULT_BACKFACE_CULLING)

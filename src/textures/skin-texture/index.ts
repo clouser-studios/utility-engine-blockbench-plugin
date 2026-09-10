@@ -163,6 +163,7 @@ export class SkinTexture extends OverrideTexture {
 		// Add skin indicator icon
 		requestAnimationFrame(() => {
 			const e = $(`li.texture[texid="${this.uuid}"]`)[0]
+			if (!e) return
 			const icon = document.createElement('i')
 			icon.title = localize('texture.skin')
 			icon.className = 'material-icons texture_particle_icon'

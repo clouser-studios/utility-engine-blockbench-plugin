@@ -12,7 +12,10 @@ const localize = createScopedTranslator('model_format.utility_model')
 export const UTILITY_MODEL_PROJECT_FORMAT_ID = 'utility-engine:format/utility-model-project'
 
 export const currentFormatIsUtilityModelProject = () => {
-	return Format === UTILITY_MODEL_PROJECT_FORMAT.get()
+	// Compare by id, not instance: blockbench-patch-manager can re-create the
+	// format (a new `ModelFormat`) when patches re-apply, leaving an already-open
+	// project pointing at the previous instance.
+	return Format?.id === UTILITY_MODEL_PROJECT_FORMAT_ID
 }
 
 export function saveUtilityModelProject() {

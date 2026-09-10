@@ -8,7 +8,7 @@ import type { ModelLoader } from '@blockbench-types/generated/io/model_loader.js
  * still affect the real global.
  */
 export const BB = Blockbench as typeof Blockbench & {
-	Animation: typeof _Animation
+	Animation: typeof BBAnimation
 	AnimationController: typeof AnimationController
 	ModelFormat: typeof ModelFormat
 	ModelLoader: typeof ModelLoader

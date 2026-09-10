@@ -7,7 +7,7 @@ registerPatch({
 	id: `utility-engine:animation-properties-action`,
 	apply: () => {
 		const original = BB.Animation.prototype.propertiesDialog
-		BB.Animation.prototype.propertiesDialog = function (this: _Animation) {
+		BB.Animation.prototype.propertiesDialog = function (this: BBAnimation) {
 			if (currentFormatIsUtilityModelProject()) {
 				if (!BB.Animation.selected) {
 					Blockbench.showQuickMessage('No animation selected')

@@ -298,7 +298,6 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 
 				if (model.groups) {
 					for (const template of model.groups) {
-						// @ts-expect-error - missing UUID arg
 						new Group(template, template.uuid).init()
 					}
 				}
@@ -411,12 +410,11 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 
 				model.elements = []
 				for (const element of Outliner.elements) {
-					if (options.collection_only && !allCollectionChildren.includes(element)) return
-					if (element instanceof Mesh) {
-						model.elements.push(element.getSaveCopy?.())
-					} else {
-						model.elements.push(element.getSaveCopy?.(!!model.meta))
+					if (options.collection_only && !allCollectionChildren.includes(element)) {
+						continue
 					}
+					// Every element type's getSaveCopy() ignores arguments.
+					model.elements.push(element.getSaveCopy?.())
 				}
 
 				model.groups = []
@@ -590,7 +588,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 			// region filename
 			fileName() {
 				if (!Project?.name) return 'unnamed_project.utilityproject'
-				return `${Project.name}.utilityproject'`
+				return `${Project.name}.utilityproject`
 			},
 		})
 	},

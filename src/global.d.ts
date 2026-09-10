@@ -1,19 +1,9 @@
 /// <reference path="/var/mnt/ssd2/repos/snavesutit/blockbench/types/index.d.ts"/>
 //// <reference types="blockbench-types"/>
-/**
- * `@blockbench-types/generated/main.d.ts` never imports `./util/molang`, so its
- * `declare global { const invertMolang }` augmentation is otherwise never picked up.
- */
+// Ensure invertMolang is available globally
 /// <reference path="/var/mnt/ssd2/repos/snavesutit/blockbench/types/generated/util/molang.d.ts"/>
 
-/**
- * The following are real Blockbench globals that are missing from `@blockbench-types`,
- * either because their source file was converted to a real TS module without a matching
- * `.d.ts` being generated (`Menu`, `MenuSeparator`, `Preview`), or because the generated
- * `.d.ts` for them was never wired into `main.d.ts` (`addRecentProject`,
- * `updateRecentProjectThumbnail`). See `src/util/blockbenchCompat.ts` for the other class
- * of gap: real globals whose *existing* ambient type is incomplete.
- */
+/** Blockbench globals missing from `@blockbench-types`. */
 type MenuItem =
 	| string
 	| Action
@@ -107,6 +97,88 @@ declare class BoundingBox extends OutlinerElement {
 	static all: BoundingBox[]
 	static selected: BoundingBox[]
 }
+
+/**
+ * Remove these when blockbench-types updates to add them.
+ */
+interface CodecLoadOptions {
+	import_to_current_project?: boolean
+	externalDataLoader?: (path: string) => any
+	[key: string]: unknown
+}
+
+interface CodecOptions {
+	name?: string
+	load?(model: any, file: Filesystem.FileResult, args?: CodecLoadOptions): void
+	compile?(options?: any): string | ArrayBuffer | any
+	parse?(data: any, path: string, args?: CodecLoadOptions): void
+	export?(): void
+	fileName?(): string
+	startPath?(): string
+	write?(content: any, path: string): void
+	overwrite?(content: any, path: string, callback: (path: any) => void): void
+	afterDownload?(path: any): void
+	afterSave?(path: any): void
+	exportCollection?(collection: Collection): void
+	writeCollection?(collection: Collection): void
+	dispatchEvent?(event_name: string, data: any): void
+	extension?: string
+	remember?: boolean
+	multiple_per_file?: boolean
+	support_partial_export?: boolean
+	support_offset?: boolean
+	load_filter?: {
+		extensions: string[] | (() => string[])
+		type: 'json' | 'text' | 'image'
+		condition?: ConditionResolvable
+	}
+	export_options?: Record<string, any>
+	export_action?: Action
+	format?: ModelFormat
+	plugin?: string
+}
+
+declare class Codec extends EventSystem {
+	constructor(id: string, data?: CodecOptions)
+	static getAllExtensions(): string[]
+}
+
+// Instance members are merged in separately so the rest of the file's snake_case
+// Blockbench API surface isn't flagged as non-camelCase class properties.
+interface Codec {
+	id: string
+	name: string
+	extension: string
+	remember: boolean
+	multiple_per_file?: boolean
+	support_partial_export: boolean
+	support_offset: boolean
+	load_filter?: CodecOptions['load_filter']
+	export_action?: Action
+	export_options: Record<string, any>
+	format?: ModelFormat
+	plugin?: string
+	context: any
+
+	load(model: any, file?: Filesystem.FileResult, args?: CodecLoadOptions): boolean | void
+	parse?(data: any, path: string, args?: CodecLoadOptions): void
+	compile(options?: any): any
+	export(): void
+	write(content: any, path: string): void
+	overwrite?(content: any, path: string, callback: (path: string) => void): void
+	fileName(): string
+	startPath(): string
+	afterDownload(path: string): void
+	afterSave(path: string): void
+	getExportOptions(): Record<string, any>
+	dispatchEvent(eventName: string, data?: any): void
+	delete(): void
+
+	[key: string]: any
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const Codecs: Record<string, Codec>
 
 declare module '*.png' {
 	const value: string

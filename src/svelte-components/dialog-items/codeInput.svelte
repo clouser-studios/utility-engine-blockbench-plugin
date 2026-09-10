@@ -37,8 +37,7 @@
 				bind:value={actualValue}
 				{onchange}
 				{disabled}
-				style={disabled ? 'color: var(--color-subtle_text);' : ''}
-			></textarea>
+				style={disabled ? 'color: var(--color-subtle_text);' : ''}></textarea>
 		</div>
 	{/snippet}
 </BaseDialogItem>

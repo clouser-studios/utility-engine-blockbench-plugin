@@ -4,12 +4,12 @@ import { observable } from 'svelte-observable-store'
 import { SvelteDialog } from 'svelte-patching-tools/blockbench'
 import AnimationProperties from './animationProperties.svelte'
 
-export function openAnimationPropertiesDialog(animation: _Animation) {
+export function openAnimationPropertiesDialog(animation: BBAnimation) {
 	const animationName = observable(animation.name ?? 'new_animation')
 	const animationPath = observable(animation.path ?? 'custom')
 	const animationType = observable(animation.utility_model_animation_type ?? 'custom')
 	const loopMode = observable(animation.loop as string)
-	const loopDelay = observable(Number(animation.loop_delay) ?? 0)
+	const loopDelay = observable(Number(animation.loop_delay) || 0)
 
 	new SvelteDialog({
 		id: `utility-engine:animation-properties-dialog`,

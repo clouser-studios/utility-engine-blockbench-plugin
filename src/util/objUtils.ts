@@ -42,8 +42,8 @@ export function scrubUndefined<T extends Record<string, any>>(obj: T, recursive 
 	for (const key in obj) {
 		if (obj[key] === undefined) {
 			delete obj[key]
-		} else if (recursive && typeof obj[key] === 'object') {
-			obj[key]?.scrubUndefined(recursive)
+		} else if (recursive && obj[key] !== null && typeof obj[key] === 'object') {
+			scrubUndefined(obj[key], recursive)
 		}
 	}
 	return obj

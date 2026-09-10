@@ -56,8 +56,13 @@ export default {
 		// Invert pos X axis and rot X & Y axis in animations
 		for (const animation of fixed.animations ?? []) {
 			if (!animation.animators) continue
-			for (const animator of Object.values(animation.animators) as Array<{
-				keyframes: _Keyframe[]
+			// Raw keyframe JSON from the file - data point axes are molang strings or numbers.
+			for (const animator of Object.values(animation.animators) as unknown as Array<{
+				keyframes: Array<{
+					channel: string
+					uuid?: string
+					data_points: Array<{ x: any; y: any; z: any }>
+				}>
 			}>) {
 				for (const keyframe of animator.keyframes) {
 					if (keyframe.channel === 'rotation') {

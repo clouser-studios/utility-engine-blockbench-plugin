@@ -1,10 +1,10 @@
 import Icon from '@assets/icons/nobackground.png'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
+import { BB } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
 import { parsePackPath } from '@utility/util/minecraftUtil.ts'
-import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { type UtilityModel } from './versions/latest.ts'
 
@@ -17,6 +17,10 @@ export class ExportError extends Error {
 	}
 }
 
+/**
+ * Ensures every texture used by the model is saved inside of a valid resource pack.
+ * Throws an {@link ExportError} for the first texture that isn't, aborting the export.
+ */
 function validateTextures() {
 	for (const texture of Texture.all) {
 		// Skin textures are always internal
@@ -24,16 +28,16 @@ function validateTextures() {
 		if (texture.path === undefined || texture.path === '') {
 			texture.save()
 		}
-		const parsed = parsePackPath('assets', texture.path!, true)
+		if (!texture.path) {
+			throw new ExportError('export.error.texture_not_saved', texture.name)
+		}
+		const parsed = parsePackPath('assets', texture.path, true)
 		if (parsed === undefined) {
-			Blockbench.showMessageBox({
-				title: localize('export.error.invalid_resource_pack_path.title'),
-				message: localize(
-					'export.error.invalid-resource-pack-path.description',
-					texture.name,
-					texture.path!
-				),
-			})
+			throw new ExportError(
+				'export.error.invalid_resource_pack_path.description',
+				texture.name,
+				texture.path
+			)
 		}
 	}
 }
@@ -283,7 +287,8 @@ function createUtilityModel(): UtilityModel.Json {
 
 	const particleTexture = Texture.all.find(v => v.particle)
 	if (particleTexture) {
-		// Path and Parsed should always be defined after validating textures.
+		// Path and parsed should always be defined; validateTextures() already
+		// verified every texture is saved inside of a valid resource pack.
 		const parsed = parsePackPath('assets', particleTexture.path!, true)!
 		model.textures.particle = parsed.resourceLocation
 	}
@@ -292,13 +297,10 @@ function createUtilityModel(): UtilityModel.Json {
 			model.textures[texture.id] = SKIN_TEXTURE_NAME
 			continue
 		}
-		// Path and Parsed should always be defined after validating textures.
-		const parsed = parsePackPath('assets', texture.path!, true)
-		if (parsed === undefined) {
-			model.textures[texture.id] = texture.name
-		} else {
-			model.textures[texture.id] = parsed.resourceLocation
-		}
+		// Path and parsed should always be defined; validateTextures() already
+		// verified every texture is saved inside of a valid resource pack.
+		const parsed = parsePackPath('assets', texture.path!, true)!
+		model.textures[texture.id] = parsed.resourceLocation
 	}
 
 	model.structure = recurseStructure(model, Outliner.root)
@@ -310,7 +312,8 @@ function createUtilityModel(): UtilityModel.Json {
 			name: animation.name,
 			animation_length: bedrock.animation_length,
 			loop_mode: animation.loop,
-			loop_delay: !animation.loop_delay ? '0' : animation.loop_delay,
+			// Blockbench stores loop_delay as a string; an empty value means "no delay".
+			loop_delay: (animation.loop_delay as string) || '0',
 			bones: bedrock.bones,
 		})
 	}

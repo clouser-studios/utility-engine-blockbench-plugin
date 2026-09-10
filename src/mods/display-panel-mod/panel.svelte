@@ -68,7 +68,7 @@
 		updateCanvas()
 
 		const model = displayReferenceObjects.active
-		if (!(model && model.id === 'player')) {
+		if (model?.id !== 'player') {
 			log.warn('No player ref model to reset display area of')
 			return
 		}
@@ -83,7 +83,7 @@
 		resetReferenceModel()
 
 		const model = displayReferenceObjects.active
-		if (!(model && model.id === 'player')) {
+		if (model?.id !== 'player') {
 			log.warn('No player ref model to attach display area to')
 			return
 		}
@@ -172,9 +172,7 @@
 
 			EVENTS.REF_MODEL_CHANGED.subscribe(({ refModel }) => {
 				if (!currentFormatIsUtilityModelProject()) return
-				isPlayerRefModel = !!(
-					refModel && refModel.id === displayReferenceObjects.refmodels.player.id
-				)
+				isPlayerRefModel = refModel?.id === displayReferenceObjects.refmodels.player.id
 				updatePreview()
 				requestAnimationFrame(() => {
 					updatePreview()

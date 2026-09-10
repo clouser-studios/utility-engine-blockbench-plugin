@@ -16,8 +16,7 @@ declare namespace SharedConfig {
 		| 'writable'
 		| /** @deprecated use `'writable'` */ 'writeable'
 	export type GlobalVariableOptionBoolean =
-		| /** @deprecated use `'readonly'` */ false
-		| /** @deprecated use `'writable'` */ true
+		/** @deprecated use `'readonly'` */ false | /** @deprecated use `'writable'` */ true
 	export type GlobalVariableOption = GlobalVariableOptionBase | GlobalVariableOptionBoolean
 
 	export type GlobalsConfig = Record<string, GlobalVariableOption>

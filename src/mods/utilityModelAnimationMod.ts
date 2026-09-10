@@ -154,7 +154,7 @@ registerPatch({
 					.propertiesDialog()
 				return
 			}
-			return originalAddAnimation.apply(this, groupName, args)
+			return originalAddAnimation.apply(this, [groupName, ...args])
 		}
 
 		const originalAnimation = BB.Animation

@@ -3,8 +3,7 @@ import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 declare global {
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	interface _Animation {
+	interface BBAnimation {
 		utility_model_animation_type?: string
 	}
 }
@@ -15,6 +14,10 @@ registerPatch({
 		// The animation menu's structure is always a static array, never the dynamic-menu function variant.
 		const structure = BB.Animation.prototype.menu.structure as MenuItem[]
 		const index = structure.findIndex(item => item === 'rename')
+		if (index === -1) {
+			console.warn('Utility Engine: no "rename" item in the animation menu to override.')
+			return { index, structure }
+		}
 
 		structure.splice(index, 1, {
 			id: 'rename',
@@ -37,6 +40,7 @@ registerPatch({
 		return { index, structure }
 	},
 	revert: ({ index, structure }) => {
+		if (index === -1) return
 		structure.splice(index, 1, 'rename')
 	},
 })

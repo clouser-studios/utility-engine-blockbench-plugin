@@ -175,14 +175,18 @@ message:
 
 export:
   error:
-    texture_not_saved: The texture %s is not saved to disk!
+    texture_not_saved: The texture "%s" is not saved to disk!
+    texture_not_found: 'A mesh face references a texture that could not be found (UUID: %s).'
     invalid_resource_pack_path:
-      title: Texture Not Saved in Resource Pack
       description: |-
+        [Markdown]
         Texture "%s" is not saved inside of a valid resource pack!
+
         In order for Utility Engine to use this texture, it must be saved inside of a resource pack.
+
         Please save the texture to a valid resource pack before exporting for use in Utility Engine.
-        Texture Save Path: %s
+
+        Texture Save Path: `%s`
 
 error:
   utility_model_format:
