@@ -1,139 +1,96 @@
+<script lang="ts" module>
+	import type { PickValues } from '@utility/util/objUtils.ts'
+
+	export type ArmChannel = keyof PickValues<DisplaySlot, ArrayVector3 | undefined>
+
+	const AXIS_COLORS = ['var(--color-axis-x)', 'var(--color-axis-y)', 'var(--color-axis-z)']
+</script>
+
 <script lang="ts">
 	import DisplaySectionToolbar from '@components/panel-items/displaySectionToolbar.svelte'
 	import Slider from '@components/panel-items/slider.svelte'
 	import EVENTS from '@events'
-	import type { PickValues } from '@utility/util/objUtils.ts'
-	import { onMount } from 'svelte'
+	import { onMount, untrack } from 'svelte'
 
 	interface Props {
-		displaySlotChannel: keyof PickValues<DisplaySlot, ArrayVector3 | undefined>
+		displaySlot: DisplaySlot
+		channel: ArmChannel
 		label: string
-		onpreviewChange: (
-			displaySlotChannel: keyof PickValues<DisplaySlot, ArrayVector3 | undefined>,
-			rotation: ArrayVector3 | undefined
-		) => void
+		onpreviewChange: (channel: ArmChannel, rotation: ArrayVector3 | undefined) => void
 	}
 
-	const { displaySlotChannel, label, onpreviewChange }: Props = $props()
+	const { displaySlot, channel, label, onpreviewChange }: Props = $props()
 
-	let enableRotation = $state(false)
-	let rotationX = $state(0)
-	let rotationY = $state(0)
-	let rotationZ = $state(0)
+	let enabled = $state(false)
+	let rotation = $state<ArrayVector3>([0, 0, 0])
 
-	const displaySlot = Project!.display_settings[DisplayMode.display_slot]
-
-	const loadChannelRotation = (shouldForceDisable = false) => {
-		if (displaySlot[displaySlotChannel]) {
-			enableRotation = true
-			rotationX = displaySlot[displaySlotChannel][0]
-			rotationY = displaySlot[displaySlotChannel][1]
-			rotationZ = displaySlot[displaySlotChannel][2]
-		} else {
-			if (shouldForceDisable) enableRotation = false
-			rotationX = 0
-			rotationY = 0
-			rotationZ = 0
-		}
-	}
-	loadChannelRotation()
-
-	const saveChannelRotation = (value: ArrayVector3 | undefined) => {
-		// @ts-expect-error - Key type isn't granular enough
-		displaySlot[displaySlotChannel] = value?.slice()
+	/** Mirror the saved channel value into the local editing state. */
+	const load = () => {
+		const saved = displaySlot[channel]
+		enabled = !!saved
+		rotation = saved ? [...saved] : [0, 0, 0]
 	}
 
-	const getRotation = (): ArrayVector3 | undefined => {
-		return enableRotation
-			? [Number(rotationX), Number(rotationY), Number(rotationZ)]
-			: undefined
+	/** Write the local editing state back onto the displaySlot (outside any undo transaction). */
+	const store = (value: ArrayVector3 | undefined) => {
+		// @ts-expect-error - the key type isn't granular enough
+		displaySlot[channel] = value?.slice()
 	}
 
-	const onchangeFinished = () => {
-		const rotation = getRotation()
+	const currentRotation = (): ArrayVector3 | undefined =>
+		enabled ? (rotation.map(Number) as ArrayVector3) : undefined
 
-		console.log('Finished changing rotation:', rotation)
+	const commit = (undoLabel: string, value = currentRotation()) => {
 		Undo.initEdit({ display_slots: [displaySlot.slot_id] })
-
-		console.log('%cArm rotation overwritten:', 'color: orange;', displaySlotChannel, rotation)
-		saveChannelRotation(getRotation())
-
-		Undo.finishEdit('Set arm rotation')
+		store(value)
+		Undo.finishEdit(undoLabel)
 	}
 
-	onMount(() => {
-		const unsubs = [
-			EVENTS.UNDO.subscribe(entry => {
-				const undoData = entry.before?.display_slots?.[displaySlot.slot_id]
-				if (!undoData) return
-				console.log('UNDO affecting display slot:', displaySlot.slot_id, entry)
-				saveChannelRotation(undoData[displaySlotChannel])
-				loadChannelRotation(true)
-			}),
-
-			EVENTS.REDO.subscribe(entry => {
-				const redoData = entry.post?.display_slots?.[displaySlot.slot_id]
-				if (!redoData) return
-				console.log('REDO affecting display slot:', displaySlot.slot_id, entry)
-				saveChannelRotation(redoData[displaySlotChannel])
-				loadChannelRotation(true)
-			}),
-		]
-
-		onpreviewChange(displaySlotChannel, getRotation())
-
-		return () => {
-			unsubs.forEach(unsub => unsub())
-		}
+	// Seed the local state from the slot on mount, and re-seed whenever the active slot
+	// changes (this replaces the parent's `{#key displaySlot}` remount).
+	$effect(() => {
+		void displaySlot
+		untrack(load)
 	})
 
+	// Live-update the 3D preview as the sliders move.
 	$effect(() => {
-		onpreviewChange(displaySlotChannel, getRotation())
+		onpreviewChange(channel, currentRotation())
+	})
+
+	onMount(() => {
+		// Blockbench restores the slot's arm rotations itself (see
+		// utilityDisplaySettingsDisplaySlotMod); just re-seed the sliders from it.
+		const reloadIfSlotChanged = (entry: UndoEntry) => {
+			if (entry.before?.display_slots || entry.post?.display_slots) load()
+		}
+		const unsubs = [
+			EVENTS.UNDO.subscribe(reloadIfSlotChanged),
+			EVENTS.REDO.subscribe(reloadIfSlotChanged),
+		]
+		return () => unsubs.forEach(unsub => unsub())
 	})
 
 	const onreset = () => {
-		rotationX = 0
-		rotationY = 0
-		rotationZ = 0
-
-		Undo.initEdit({ display_slots: [displaySlot.slot_id] })
-		saveChannelRotation([0, 0, 0])
-		Undo.finishEdit('Reset arm rotation to default')
+		rotation = [0, 0, 0]
+		commit('Reset arm rotation to default', [0, 0, 0])
 	}
 </script>
 
 <DisplaySectionToolbar {label} {onreset}>
-	<input type="checkbox" bind:checked={enableRotation} onchange={() => onchangeFinished()} />
+	<input type="checkbox" bind:checked={enabled} onchange={() => commit('Set arm rotation')} />
 </DisplaySectionToolbar>
 
-{#if enableRotation}
-	<Slider
-		max={180}
-		min={-180}
-		numberSliderStep={0.5}
-		step={1}
-		thumbColor={'var(--color-axis-x)'}
-		{onchangeFinished}
-		bind:value={rotationX}
-	/>
-
-	<Slider
-		max={180}
-		min={-180}
-		numberSliderStep={0.5}
-		step={1}
-		thumbColor={'var(--color-axis-y)'}
-		{onchangeFinished}
-		bind:value={rotationY}
-	/>
-
-	<Slider
-		max={180}
-		min={-180}
-		numberSliderStep={0.5}
-		step={1}
-		thumbColor={'var(--color-axis-z)'}
-		{onchangeFinished}
-		bind:value={rotationZ}
-	/>
+{#if enabled}
+	{#each AXIS_COLORS as thumbColor, axis (axis)}
+		<Slider
+			max={180}
+			min={-180}
+			numberSliderStep={0.5}
+			step={1}
+			{thumbColor}
+			onchangeFinished={() => commit('Set arm rotation')}
+			bind:value={rotation[axis]}
+		/>
+	{/each}
 {/if}

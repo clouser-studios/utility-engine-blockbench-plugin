@@ -1,6 +1,4 @@
-import EVENTS from '@events'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
-import { scrubUndefined } from '@utility/util/objUtils.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 declare global {
@@ -10,118 +8,95 @@ declare global {
 		right_arm_rotation?: ArrayVector3
 		right_arm_rotation_when_offhand_occupied?: ArrayVector3
 	}
-	// interface ModelProject {
-	// 	display_settings: Record<DisplaySlotName, UtilityDisplaySlot>
-	// }
 }
 
-class UtilityDisplaySlot extends DisplaySlot {
-	private disableUpdates = false
+const ARM_ROTATION_KEYS = [
+	'left_arm_rotation',
+	'left_arm_rotation_when_offhand_occupied',
+	'right_arm_rotation',
+	'right_arm_rotation_when_offhand_occupied',
+] as const
 
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	left_arm_rotation?: ArrayVector3
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	left_arm_rotation_when_offhand_occupied?: ArrayVector3
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	right_arm_rotation?: ArrayVector3
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	right_arm_rotation_when_offhand_occupied?: ArrayVector3
+const cloneVec = (vec: ArrayVector3 | undefined): ArrayVector3 | undefined =>
+	vec ? [vec[0], vec[1], vec[2]] : undefined
 
-	constructor(id: DisplaySlotName, data?: DisplaySlotOptions) {
-		super(id, data ?? {})
-		this.extend(data)
-	}
+/** Where the untouched native methods are stashed, so a botched hot-reload can't nest wrappers. */
+const ORIGINALS = Symbol('utility-engine:display-slot-arm-rotation-originals')
 
-	default() {
-		super.default()
-		if (currentFormatIsUtilityModelProject()) {
-			this.left_arm_rotation = undefined
-			this.left_arm_rotation_when_offhand_occupied = undefined
-			this.right_arm_rotation = undefined
-			this.right_arm_rotation_when_offhand_occupied = undefined
-		}
-		return this
-	}
+type PatchedMethods = Pick<DisplaySlot, 'copy' | 'extend' | 'export' | 'default'>
 
-	copy() {
-		const base = super.copy()
-		if (!currentFormatIsUtilityModelProject()) return base
-		return {
-			...base,
-			left_arm_rotation: this.left_arm_rotation?.slice(),
-			left_arm_rotation_when_offhand_occupied:
-				this.left_arm_rotation_when_offhand_occupied?.slice(),
-			right_arm_rotation: this.right_arm_rotation?.slice(),
-			right_arm_rotation_when_offhand_occupied:
-				this.right_arm_rotation_when_offhand_occupied?.slice(),
-		}
-	}
-
-	extend(data?: any): this {
-		if (currentFormatIsUtilityModelProject()) {
-			this.disableUpdates = true
-			super.extend(data)
-			this.disableUpdates = false
-
-			this.left_arm_rotation = data?.left_arm_rotation?.slice()
-			this.left_arm_rotation_when_offhand_occupied =
-				data?.left_arm_rotation_when_offhand_occupied?.slice()
-			this.right_arm_rotation = data?.right_arm_rotation?.slice()
-			this.right_arm_rotation_when_offhand_occupied =
-				data?.right_arm_rotation_when_offhand_occupied?.slice()
-
-			this.update()
-		} else {
-			super.extend(data)
-		}
-
-		return this
-	}
-
-	export() {
-		if (currentFormatIsUtilityModelProject()) {
-			const build = super.export() ?? ({} as any)
-
-			build.left_arm_rotation = this.left_arm_rotation?.slice()
-			build.left_arm_rotation_when_offhand_occupied =
-				this.left_arm_rotation_when_offhand_occupied?.slice()
-			build.right_arm_rotation = this.right_arm_rotation?.slice()
-			build.right_arm_rotation_when_offhand_occupied =
-				this.right_arm_rotation_when_offhand_occupied?.slice()
-
-			scrubUndefined(build)
-
-			if (Object.keys(build).length > 0) {
-				return build
-			}
-		} else {
-			return super.export()
-		}
-	}
-
-	update(): this {
-		if (this.disableUpdates) return this
-
-		super.update()
-
-		if (Modes.display && this === DisplayMode.slot && currentFormatIsUtilityModelProject()) {
-			EVENTS.DISPLAY_SETTINGS_UPDATED.publish(this)
-		}
-
-		return this
-	}
-}
-
+/**
+ * Blockbench's `DisplaySlot` knows nothing about the custom per-hand arm rotations the
+ * utility format adds. Patch the prototype so `copy`, `extend`, `export` and `default`
+ * carry those fields.
+ *
+ * Prototype patching (rather than subclassing + swapping the global) is deliberate:
+ * Blockbench constructs slots from a closure-scoped `DisplaySlot` reference a plugin
+ * can't reach, so a subclass swap only ever applied to slots the plugin itself built.
+ *
+ * With this, the fields survive undo/redo (Blockbench snapshots the `display_slots`
+ * aspect via `copy()` and restores it via `extend()`) and `.utilityproject` save/load.
+ */
 registerPatch({
-	id: 'utility-engine:utility-display-settings-display-slot',
+	id: 'utility-engine:display-slot-arm-rotations',
 	apply: () => {
-		const original = DisplaySlot
-		// @ts-expect-error
-		DisplaySlot = UtilityDisplaySlot
-		return { original }
+		const proto = DisplaySlot.prototype as DisplaySlot & { [ORIGINALS]?: PatchedMethods }
+
+		const original: PatchedMethods = proto[ORIGINALS] ?? {
+			copy: proto.copy,
+			extend: proto.extend,
+			export: proto.export,
+			default: proto.default,
+		}
+		proto[ORIGINALS] = original
+
+		proto.copy = function (this: DisplaySlot) {
+			const base = original.copy.call(this) as Record<string, unknown>
+			if (currentFormatIsUtilityModelProject()) {
+				// Keep the key even when unset so `extend()` can clear it on undo.
+				for (const key of ARM_ROTATION_KEYS) base[key] = cloneVec(this[key])
+			}
+			return base as ReturnType<DisplaySlot['copy']>
+		}
+
+		proto.extend = function (this: DisplaySlot, data?: DisplaySlotOptions) {
+			// Native `extend` no-ops on a nullish argument; the `!` only quiets the lint.
+			original.extend.call(this, data!)
+			if (currentFormatIsUtilityModelProject() && data) {
+				const source = data as Record<string, ArrayVector3 | undefined>
+				for (const key of ARM_ROTATION_KEYS) {
+					if (key in source) this[key] = cloneVec(source[key])
+				}
+			}
+			return this
+		}
+
+		proto.export = function (this: DisplaySlot) {
+			const base = original.export.call(this)
+			if (!currentFormatIsUtilityModelProject()) return base
+			const build = (base ?? {}) as Record<string, unknown>
+			for (const key of ARM_ROTATION_KEYS) {
+				const value = cloneVec(this[key])
+				if (value) build[key] = value
+			}
+			return (Object.keys(build).length ? build : undefined) as ReturnType<
+				DisplaySlot['export']
+			>
+		}
+
+		proto.default = function (this: DisplaySlot) {
+			original.default.call(this)
+			if (currentFormatIsUtilityModelProject()) {
+				for (const key of ARM_ROTATION_KEYS) this[key] = undefined
+			}
+			return this
+		}
+
+		return { proto, original }
 	},
-	revert: ({ original }) => {
-		// @ts-expect-error
-		DisplaySlot = original
+
+	revert: ({ proto, original }) => {
+		Object.assign(proto, original)
+		delete (proto as DisplaySlot & { [ORIGINALS]?: PatchedMethods })[ORIGINALS]
 	},
 })
