@@ -442,8 +442,9 @@ export function createUtilityModelProjectFromUtilityModel(
 	newProject(UTILITY_MODEL_PROJECT_FORMAT.get()!)
 
 	Project!.export_path = projectPath
-
 	Project!.box_uv = false
+
+	Project!.model_identifier = PathModule.basename(projectPath, '.utility.json')
 
 	if (model.texture_size) {
 		Project!.texture_width = model.texture_size[0]
