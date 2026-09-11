@@ -82,6 +82,10 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	'@typescript-eslint/unbound-method': 'off',
 	'@typescript-eslint/no-non-null-assertion': 'off',
 	'@typescript-eslint/triple-slash-reference': 'off',
+	// The Blockbench types come from a local checkout that isn't present in CI, so many
+	// globals resolve to `any` there and this rule fires on intentional `|| fallback`
+	// (e.g. `Project.texture_width || 16`). Same bucket as the `no-unsafe-*` rules above.
+	'@typescript-eslint/prefer-nullish-coalescing': 'off',
 	// Naming conventions
 	'@typescript-eslint/naming-convention': [
 		'warn',
