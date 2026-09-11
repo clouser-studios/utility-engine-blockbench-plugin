@@ -1,16 +1,31 @@
 {
-	"1.0.0": {
-		"title": "v1.0.0",
+	"0.4.0": {
+		"title": "v0.4.0",
 		"author": "SnaveSutit",
-		"date": "2025-01-08",
+		"date": "2026-09-10",
 		"categories": [
 			{
-				"title": "Changes",
-				"list": ["Created the plugin!"]
+				"title": "New Features",
+				"list": [
+					"Locators, billboards, bounding boxes, and armatures/bones are now supported and round-trip through `.utility.json` export & import.",
+					"Cubes and meshes have `Skin Model` (All / Wide Only / Slim Only) and `Render Passes` properties in the element panel.",
+					"Display slots have a `Display Override` in the Display panel — point a slot at another model by resource location, with a file picker that turns a picked model file into its resource location (files outside a resource pack are rejected). Turning an override on hides that slot's transform and arm-rotation controls.",
+					"Older `.utility.json` files are upgraded automatically when imported."
+				]
 			},
 			{
 				"title": "Fixes",
-				"list": ["Fixed the plugin not existing!"]
+				"list": [
+					"Undo/redo of arm rotations and other custom display-slot settings now works, and those settings are saved to `.utilityproject` files.",
+					"Fixed a Display panel crash that could also leave the arm-rotation sliders missing.",
+					"Imported `.utility.json` models are now named after their file.",
+					"The custom animation type is only applied inside Utility Model projects.",
+					"Assorted `.utility.json` import fixes."
+				]
+			},
+			{
+				"title": "Other",
+				"list": ["Now requires Blockbench 5.1.6 or newer."]
 			}
 		]
 	}
