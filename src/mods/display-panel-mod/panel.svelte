@@ -25,6 +25,7 @@
 	let isPlayerRefModel = $state(false)
 	let displaySlot = $state<DisplaySlot | undefined>(undefined)
 	let previewOffhand = $state(false)
+	let overrideActive = $state(false)
 
 	let isThirdPersonSlot = $derived(
 		displaySlot?.slot_id === 'thirdperson_righthand' ||
@@ -139,8 +140,13 @@
 
 			EVENTS.DISPLAY_SLOT_CHANGED.subscribe(({ slot }) => {
 				displaySlot = Project?.display_settings[slot]
+				overrideActive = !!displaySlot?.overrides
 				if (!currentFormatIsUtilityModelProject()) resetReferenceModel()
 				else refreshPreview()
+			}),
+
+			EVENTS.DISPLAY_OVERRIDE_CHANGED.subscribe(active => {
+				overrideActive = active
 			}),
 
 			EVENTS.SELECT_MODE.subscribe(({ mode }) => {
@@ -158,6 +164,7 @@
 				isDisplayModeActive = false
 				isPlayerRefModel = false
 				previewOffhand = false
+				overrideActive = false
 			}),
 		]
 
@@ -195,7 +202,7 @@
 	/>
 {/snippet}
 
-{#if openProjectIsUtilityModelProject && isDisplayModeActive && isThirdPersonSlot && displaySlot}
+{#if openProjectIsUtilityModelProject && isDisplayModeActive && isThirdPersonSlot && displaySlot && !overrideActive}
 	<p class="bar display_slot_section_bar title" title={localize('description')}>
 		{localize('title')}
 		{@render visibilityButton(!previewOffhand)}

@@ -27,6 +27,8 @@ const EVENTS = {
 		refModel: refModel<keyof typeof displayReferenceObjects.refmodels>
 	}>(),
 	DISPLAY_SETTINGS_UPDATED: subscribable<DisplaySlot>(),
+	/** Fired when the active display slot's model override is toggled on or off. */
+	DISPLAY_OVERRIDE_CHANGED: subscribable<boolean>(),
 
 	UNDO: subscribable<UndoEntry>(),
 	REDO: subscribable<UndoEntry>(),

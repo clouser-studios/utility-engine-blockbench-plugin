@@ -26,6 +26,14 @@ menu:
     remove_preview_skin: Remove Preview Skin
 
 panel:
+  overrides:
+    label: Display Override
+    description: |-
+      A reference to another model to use for this display slot instead.
+    placeholder: namespace:path/to/model
+    pick_file: Pick a model file and use its resource location
+    not_in_resource_pack: The selected file is not inside a valid resource pack.
+
   arm_rotation:
     title: Arm Rotation
     description: |-

@@ -14,6 +14,7 @@ export namespace v0_0_9 {
 		left_arm_rotation_when_offhand_occupied?: ArrayVector3
 		right_arm_rotation?: ArrayVector3
 		right_arm_rotation_when_offhand_occupied?: ArrayVector3
+		overrides?: string
 	}
 
 	export interface Json {

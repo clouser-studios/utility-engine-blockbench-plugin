@@ -379,6 +379,9 @@ function createUtilityModel(): UtilityModel.Json {
 				...settings.right_arm_rotation_when_offhand_occupied,
 			]
 		}
+		if (settings.overrides) {
+			reducedSettings.overrides = settings.overrides
+		}
 
 		if (Object.keys(reducedSettings).length === 0) continue
 
