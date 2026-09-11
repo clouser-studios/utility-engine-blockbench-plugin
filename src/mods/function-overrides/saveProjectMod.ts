@@ -1,27 +1,21 @@
-import { registerMod } from '@blockbench-tools'
 import {
 	currentFormatIsUtilityModelProject,
 	saveUtilityModelProject,
-} from '@utility/formats/utility-model-project'
+} from '@utility/formats/utility-model-project/index.ts'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPropertyOverridePatch({
 	id: `utility-engine:save-project`,
-	apply: () => {
-		const action = BarItems.save_project as Action
-		const originalClick = action.click
+	target: BarItems.save_project as Action,
+	key: 'click',
 
-		action.click = (event: Event) => {
+	getCondition: () => currentFormatIsUtilityModelProject(),
+
+	get: () => {
+		return () => {
 			if (!Project || !Format) return
-			if (currentFormatIsUtilityModelProject()) {
-				saveUtilityModelProject()
-			} else {
-				originalClick.call(action, event)
-			}
+			saveUtilityModelProject()
+			Project.saved = true
 		}
-
-		return { action, originalClick }
-	},
-	revert: ({ action, originalClick }) => {
-		action.click = originalClick
 	},
 })

@@ -1,7 +1,8 @@
-import type { UtilityModelAnimationOptions } from '@utility/mods/utilityModelAnimationMod'
-import type { ISkinTextureData } from '@utility/textures/skin-texture'
-import type { UTILITY_MODEL_PROJECT_FORMAT_ID } from '..'
-import type { v0_0_5 } from './0.0.5'
+import type { CollectionOptions } from '@blockbench-types/generated/outliner/collections.js'
+import type { UtilityModelAnimationOptions } from '@utility/mods/utilityModelAnimationMod.ts'
+import type { ISkinTextureData } from '@utility/textures/skin-texture/index.ts'
+import type { UTILITY_MODEL_PROJECT_FORMAT_ID } from '../index.ts'
+import type { v0_0_5 } from './0.0.5.ts'
 
 export namespace v0_0_7 {
 	export interface Settings {
@@ -42,7 +43,7 @@ export namespace v0_0_7 {
 		collections?: CollectionOptions[]
 		texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
 		front_gui_light?: boolean
-		display_settings?: Record<DisplaySlotName, DisplaySettings>
+		display_settings?: Record<DisplaySlotName, DisplaySlotOptions>
 		utility_display_settings?: Record<DisplaySlotName, UtilityDisplaySettings>
 	}
 }

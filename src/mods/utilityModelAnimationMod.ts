@@ -1,5 +1,7 @@
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { localize } from '@utility/util/lang'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { BB } from '@utility/util/blockbenchCompat.ts'
+import { localize } from '@utility/util/lang.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
 export const ANIMATION_TYPES = {
 	custom: 'loop',
@@ -58,25 +60,22 @@ type AnimationType = keyof typeof ANIMATION_TYPES
 
 export interface UtilityModelAnimationOptions extends AnimationOptions {
 	utility_model_animation_type?: AnimationType
+	animators?: Record<string, GeneralAnimator>
 }
 
-class UtilityModelAnimation extends Blockbench.Animation {
+class UtilityModelAnimation extends BB.Animation {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	utility_model_animation_type: AnimationType = 'custom'
 
 	constructor(data?: UtilityModelAnimationOptions) {
 		data ??= {}
-		if (!data?.name) {
-			data.name = 'new_animation'
-		}
+		data.name ??= 'new_animation'
 		super(data)
 	}
 
 	extend(data?: UtilityModelAnimationOptions) {
 		data ??= {}
-		if (!data?.name) {
-			data.name = 'new_animation'
-		}
+		data.name ??= 'new_animation'
 
 		super.extend(data)
 
@@ -110,7 +109,7 @@ class UtilityModelAnimation extends Blockbench.Animation {
 	setLength(len = this.length) {
 		this.length = 0
 		this.length = limitNumber(len, this.getMaxLength(), 1e4)
-		if (Blockbench.Animation.selected == this) {
+		if (BB.Animation.selected == this) {
 			// @ts-expect-error
 			Timeline.vue._data.animation_length = this.length
 			// @ts-expect-error
@@ -135,7 +134,48 @@ UtilityModelAnimation.prototype.file_menu = new Menu([
 	},
 ])
 
-// @ts-expect-error
-Animation = UtilityModelAnimation
-// @ts-expect-error
-Blockbench.Animation = UtilityModelAnimation
+registerPatch({
+	id: 'utility-engine:utility-model-animation-override',
+
+	apply: () => {
+		const originalAddAnimation = Panels.animations.vue.addAnimation
+		Panels.animations.vue.addAnimation = function (
+			this: any,
+			groupName: string,
+			...args: any[]
+		) {
+			if (currentFormatIsUtilityModelProject()) {
+				new UtilityModelAnimation({
+					name: groupName,
+					utility_model_animation_type: groupName === 'utility' ? 'main_loop' : 'custom',
+					path: groupName,
+				})
+					.add(true)
+					.propertiesDialog()
+				return
+			}
+			return originalAddAnimation.apply(this, [groupName, ...args])
+		}
+
+		const originalAnimation = BB.Animation
+
+		// @ts-expect-error - UtilityModelAnimation is not assignable to libdom's Animation type
+		globalThis.Animation = UtilityModelAnimation
+		// @ts-expect-error - UtilityModelAnimation is not assignable to libdom's Animation type
+		window.Animation = UtilityModelAnimation
+		// `BB` is just a typed view of the same `Blockbench` object, so this also updates
+		// `window.Blockbench.Animation` / `globalThis.Blockbench.Animation`.
+		BB.Animation = UtilityModelAnimation
+
+		return { originalAddAnimation, originalAnimation }
+	},
+
+	revert: ({ originalAddAnimation, originalAnimation }) => {
+		Panels.animations.vue.addAnimation = originalAddAnimation
+		// @ts-expect-error - originalAnimation is not assignable to libdom's Animation type
+		globalThis.Animation = originalAnimation
+		// @ts-expect-error - originalAnimation is not assignable to libdom's Animation type
+		window.Animation = originalAnimation
+		BB.Animation = originalAnimation
+	},
+})

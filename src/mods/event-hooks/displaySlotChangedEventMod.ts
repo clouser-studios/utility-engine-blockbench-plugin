@@ -1,7 +1,8 @@
-import EVENTS from '@utility/util/events'
-import { registerMod } from '@utility/util/moddingTools'
+import EVENTS from '@events'
+import { displayModeCompat } from '@utility/util/blockbenchCompat.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPatch({
 	id: 'utility-engine:display-slot-changed-event',
 	apply: () => {
 		const originalLoadDisplayFunctions = {
@@ -28,9 +29,9 @@ registerMod({
 		for (const [key, oldFunc] of Object.entries(originalLoadDisplayFunctions)) {
 			// @ts-expect-error - No type is defined for this function
 			DisplayMode[key] = function () {
-				const previous = display_slot
+				const previous = displayModeCompat.display_slot
 				oldFunc.call()
-				const slot = display_slot
+				const slot = displayModeCompat.display_slot
 				EVENTS.DISPLAY_SLOT_CHANGED.publish({ slot, previous })
 			}
 		}

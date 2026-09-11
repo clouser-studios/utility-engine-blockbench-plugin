@@ -45,22 +45,19 @@ jobs:
           git checkout main
           git checkout ${{ github.head_ref }}
 
-      - name: Set Node.js 22.x
-        uses: actions/setup-node@v3
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22.x
-
-      - name: Enable Corepack
-        run: corepack enable
+          bun-version: latest
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: 🔍 Inspect Code Formatting
-        run: yarn check-formatting
+        run: bun run check-formatting
 
       - name: 🔍 Inspect Code Practices
-        run: yarn lint
+        run: bun run lint
 
   # build-and-test:
   #   name: 🏗️ Build & Test
@@ -70,34 +67,26 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v3
 
-  #     - name: Set Node.js 22.x
-  #       uses: actions/setup-node@v3
+  #     - name: Set up Bun
+  #       uses: oven-sh/setup-bun@v2
   #       with:
-  #         node-version: 22.x
+  #         bun-version: latest
 
   #     - name: Clean node_modules
   #       run: rm -rf node_modules
 
   #     - name: Run install
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: install --frozen-lockfile
+  #       run: bun install --frozen-lockfile
 
   #     #   env:
   #     #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
 
   #     - name: Build production bundle
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: prod
+  #       run: bun run prod
 
   #     # - name: Test the app
-  #     #   uses: borales/actions-yarn@v4
-  #     #   with:
-  #     #       cmd: test # will run `yarn test` command
+  #     #   run: bun test
 
   #     # - name: Run test in sub-folder
-  #     #   uses: borales/actions-yarn@v4
-  #     #   with:
-  #     #       cmd: test
-  #     #       dir: 'frontend' # will run `yarn test` in `frontend` sub folder
+  #     #   run: bun test
+  #     #   working-directory: frontend

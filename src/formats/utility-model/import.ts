@@ -1,40 +1,56 @@
 import Icon from '@assets/icons/nobackground.png'
-import { registerAction } from '@blockbench-tools'
-import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project'
-import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture'
-import { localize } from '@utility/util/lang'
-import { parsePackPath } from '@utility/util/minecraftUtil'
-import { updateUtilityModel } from './dfu'
-import { type UtilityModel } from './versions/latest'
+import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project/index.ts'
+import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
+import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
+import { localize } from '@utility/util/lang.ts'
+import { parsePackPath } from '@utility/util/minecraftUtil.ts'
+import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
+import { updateUtilityModel } from './dfu.ts'
+import { type UtilityModel } from './versions/latest.ts'
 
 export class ImportError extends Error {
 	constructor(key: string, ...args: string[]) {
 		super(localize(key, ...args))
-		this.name = 'ExportError'
+		this.name = 'ImportError'
 	}
 }
 
+const BILLBOARD_MODE_FROM_FILE: Record<UtilityModel.IBillboard['billboard_mode'], string> = {
+	look_at: 'lookat',
+	look_at_y: 'lookat_y',
+	rotate: 'rotate',
+	rotate_y: 'rotate_y',
+}
+
 /**
- * Imports the structure, elements, and meshes of a utility model.
+ * Resolves a face's texture reference (written as `#<id>` on export) to the matching
+ * loaded {@link Texture}. Matches the id exactly - `endsWith` would let `#1` match
+ * texture `11`.
+ */
+function resolveFaceTexture(ref: string): Texture | undefined {
+	const id = ref.replace(/^#/, '')
+	return Texture.all.find(t => t.id === id)
+}
+
+/**
+ * Imports the structure, elements, meshes, locators, billboards, bounding boxes, and
+ * armatures of a utility model.
  */
 function buildOutliner(
 	structure: UtilityModel.Structure,
 	elements?: UtilityModel.Element[],
-	meshes?: UtilityModel.Mesh[]
+	meshes?: UtilityModel.Mesh[],
+	locators?: UtilityModel.ILocator[],
+	billboards?: UtilityModel.IBillboard[],
+	boundingBoxes?: UtilityModel.IBoundingBox[],
+	armatures?: UtilityModel.IArmature[]
 ) {
 	function importCube(element: UtilityModel.Element, parent?: Group) {
-		// Logic to import a single element
-		console.log(`Importing element: ${element.uuid}`)
-
-		const saveCopy: UtilityModel.Element & { type: 'cube' } = {
-			...element,
-			type: 'cube',
-		}
-		for (const [name, face] of Object.entries(saveCopy.faces ?? {}) as Array<
+		for (const [name, face] of Object.entries(element.faces ?? {}) as Array<
 			[string, Omit<UtilityModel.ElementFace, 'texture'> & { texture: string | Texture }]
 		>) {
 			if (face.texture === undefined) continue
-			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
+			const texture = resolveFaceTexture(face.texture as string)
 			if (!texture) {
 				console.warn(`Texture not found for face: ${name} in element ${element.uuid}`)
 				continue
@@ -42,15 +58,26 @@ function buildOutliner(
 			face.texture = texture
 			face.uv = face.uv.map((v, i) => (v / 16) * UVEditor.getResolution(i % 2))
 		}
-		const newElement = OutlinerElement.fromSave(saveCopy).init() as Cube
 
-		newElement.addTo(parent)
+		const baseCube = new Cube(element as any)
+
+		if (element.skin_model) baseCube.skin_model = element.skin_model
+		if (element.render_passes) baseCube.render_passes = [...element.render_passes]
+
+		if (typeof element.rotation == 'object') {
+			if (element.rotation.origin) {
+				baseCube.extend({ origin: element.rotation.origin })
+			}
+			if (element.rotation.euler) {
+				baseCube.extend({ rotation: element.rotation.euler })
+			}
+		}
+
+		baseCube.init()
+		baseCube.addTo(parent)
 	}
 
 	function importMesh(mesh: UtilityModel.Mesh, parent?: Group) {
-		// Logic to import a single mesh
-		console.log(`Importing mesh: ${mesh.uuid}`)
-
 		const saveCopy: UtilityModel.MeshSaveCopy & { type: 'mesh' } = {
 			type: 'mesh',
 			name: mesh.name,
@@ -65,7 +92,7 @@ function buildOutliner(
 			[string, Omit<UtilityModel.MeshFace, 'texture'> & { texture: string | Texture }]
 		>) {
 			if (face.texture === undefined) continue
-			const texture = Texture.all.find(t => (face.texture as string).endsWith(t.id))
+			const texture = resolveFaceTexture(face.texture as string)
 			if (!texture) {
 				console.warn(`Texture not found for face: ${name} in mesh ${mesh.uuid}`)
 				continue
@@ -75,8 +102,95 @@ function buildOutliner(
 
 		const newMesh = OutlinerElement.fromSave(saveCopy).init() as Mesh
 		newMesh.enableBackfaceCulling = mesh.enableBackfaceCulling
+		if (mesh.skin_model) newMesh.skin_model = mesh.skin_model
+		if (mesh.render_passes) newMesh.render_passes = [...mesh.render_passes]
 
 		newMesh.addTo(parent)
+	}
+
+	function importLocator(locator: UtilityModel.ILocator, parent?: Group) {
+		const newLocator = new Locator(
+			{
+				name: locator.name,
+				position: locator.position,
+			},
+			locator.uuid
+		).init()
+		newLocator.addTo(parent)
+	}
+
+	function importBillboard(billboard: UtilityModel.IBillboard, parent?: Group) {
+		const faceData: any = {}
+		if (billboard.face) {
+			if (billboard.face.uv) {
+				faceData.uv = billboard.face.uv.map(
+					(v, i) => (v / 16) * UVEditor.getResolution(i % 2)
+				)
+			}
+			if (billboard.face.rotation) faceData.rotation = billboard.face.rotation
+			if (billboard.face.texture !== undefined) {
+				const texture = resolveFaceTexture(billboard.face.texture)
+				if (texture) {
+					faceData.texture = texture
+				} else {
+					console.warn(`Texture not found for billboard face in ${billboard.uuid}`)
+				}
+			}
+		}
+
+		const newBillboard = new Billboard(
+			{
+				name: billboard.name,
+				position: billboard.position,
+				size: billboard.size,
+				offset: billboard.offset,
+				facing_mode: BILLBOARD_MODE_FROM_FILE[billboard.billboard_mode] ?? 'lookat',
+				faces: { front: faceData },
+			},
+			billboard.uuid
+		).init()
+		newBillboard.addTo(parent)
+	}
+
+	function importBoundingBox(box: UtilityModel.IBoundingBox, parent?: Group) {
+		const newBox = new BoundingBox(
+			{
+				name: box.name,
+				from: box.from,
+				to: box.to,
+				function: box.function,
+			},
+			box.uuid
+		).init()
+		newBox.addTo(parent)
+	}
+
+	function importArmatureBone(bone: UtilityModel.IArmatureBone, parent: Armature | ArmatureBone) {
+		const newBone = new ArmatureBone(
+			{
+				name: bone.name,
+				origin: bone.origin,
+				rotation: bone.rotation,
+				length: bone.length,
+				width: bone.width,
+				vertex_weights: bone.vertex_weights,
+			},
+			bone.uuid
+		).init()
+		newBone.addTo(parent)
+
+		for (const child of bone.children ?? []) {
+			importArmatureBone(child, newBone)
+		}
+	}
+
+	function importArmature(armature: UtilityModel.IArmature, parent?: Group) {
+		const newArmature = new Armature({ name: armature.name }, armature.uuid).init()
+		newArmature.addTo(parent)
+
+		for (const bone of armature.bones) {
+			importArmatureBone(bone, newArmature)
+		}
 	}
 
 	function importStructure(struct: UtilityModel.Structure, parent?: Group) {
@@ -98,15 +212,48 @@ function buildOutliner(
 			importMesh(mesh, parent)
 		}
 
+		for (const uuid of struct.locators ?? []) {
+			const locator = locators?.find(l => l.uuid === uuid)
+			if (!locator) {
+				console.warn(`Locator not found: ${uuid}`)
+				continue
+			}
+			importLocator(locator, parent)
+		}
+
+		for (const uuid of struct.billboards ?? []) {
+			const billboard = billboards?.find(b => b.uuid === uuid)
+			if (!billboard) {
+				console.warn(`Billboard not found: ${uuid}`)
+				continue
+			}
+			importBillboard(billboard, parent)
+		}
+
+		for (const uuid of struct.bounding_boxes ?? []) {
+			const boundingBox = boundingBoxes?.find(b => b.uuid === uuid)
+			if (!boundingBox) {
+				console.warn(`Bounding box not found: ${uuid}`)
+				continue
+			}
+			importBoundingBox(boundingBox, parent)
+		}
+
+		for (const uuid of struct.armatures ?? []) {
+			const armature = armatures?.find(a => a.uuid === uuid)
+			if (!armature) {
+				console.warn(`Armature not found: ${uuid}`)
+				continue
+			}
+			importArmature(armature, parent)
+		}
+
 		for (const bone of struct.bones ?? []) {
 			importBone(bone, parent)
 		}
 	}
 
 	function importBone(bone: UtilityModel.Bone, parent?: Group) {
-		// Logic to import a single bone
-		console.log(`Importing bone: ${bone.name}`)
-
 		const group = new Group({
 			name: bone.name,
 			rotation: bone.rotation?.euler,
@@ -121,6 +268,14 @@ function buildOutliner(
 }
 
 function importTextures(textures: UtilityModel.Json['textures'], projectPath = '') {
+	const fs = requireNativeModule('fs', {
+		message: 'Utility requires this module in order to import Utility Models.',
+		optional: false,
+	})
+	if (!fs) {
+		throw new Error('User denied access to native fs module')
+	}
+
 	const particleResourceLocation = textures.particle ?? ''
 
 	const duplicateParticleTextureId = Object.entries(textures).find(([id, resourceLocation]) => {
@@ -158,7 +313,7 @@ function importTextures(textures: UtilityModel.Json['textures'], projectPath = '
 			continue
 		}
 
-		const resourceLocationPath = resourceLocation.split(':').at(-1)!
+		const resourceLocationPath = 'textures/' + resourceLocation.split(':').at(-1)!
 		const path = PathModule.join(parsedProjectPath.namespacePath, resourceLocationPath + '.png')
 		if (fs.existsSync(path)) {
 			console.log(`Found texture file for ${id} under ${path}`)
@@ -186,6 +341,7 @@ function importTextures(textures: UtilityModel.Json['textures'], projectPath = '
 			})
 				.fromPath(relativePath)
 				.add(false)
+			continue
 		}
 
 		console.warn(`Cannot find texture file for ${id}: ${resourceLocation}`)
@@ -214,12 +370,20 @@ function processBoneKeyframe(
 			z: data[2],
 		})
 	} else {
-		keyframe.data_points.push({
-			x: data.pre[0],
-			y: data.pre[1],
-			z: data.pre[2],
-		})
-		if (!data.pre.equals(data.post)) {
+		if (data.pre != undefined) {
+			keyframe.data_points.push({
+				x: data.pre[0],
+				y: data.pre[1],
+				z: data.pre[2],
+			})
+			if (!data.pre.equals(data.post)) {
+				keyframe.data_points.push({
+					x: data.post[0],
+					y: data.post[1],
+					z: data.post[2],
+				})
+			}
+		} else if (data.post != undefined) {
 			keyframe.data_points.push({
 				x: data.post[0],
 				y: data.post[1],
@@ -233,13 +397,13 @@ function processBoneKeyframe(
 
 function processBoneKeyframes(bone: UtilityModel.AnimationBone) {
 	const keyframes: KeyframeOptions[] = []
-	for (const [time, data] of Object.entries(bone.position)) {
+	for (const [time, data] of Object.entries(bone.position ?? {})) {
 		keyframes.push(processBoneKeyframe(time, data, 'position'))
 	}
-	for (const [time, data] of Object.entries(bone.rotation)) {
+	for (const [time, data] of Object.entries(bone.rotation ?? {})) {
 		keyframes.push(processBoneKeyframe(time, data, 'rotation'))
 	}
-	for (const [time, data] of Object.entries(bone.scale)) {
+	for (const [time, data] of Object.entries(bone.scale ?? {})) {
 		keyframes.push(processBoneKeyframe(time, data, 'scale'))
 	}
 	return keyframes
@@ -247,8 +411,6 @@ function processBoneKeyframes(bone: UtilityModel.AnimationBone) {
 
 function importAnimations(animations: UtilityModel.Json['animations']) {
 	for (const animation of animations ?? []) {
-		console.log(`Importing animation: ${animation.name}`)
-
 		const saveCopy: AnimationOptions = {
 			name: animation.name,
 			loop: animation.loop_mode,
@@ -271,8 +433,8 @@ function importAnimations(animations: UtilityModel.Json['animations']) {
 			saveCopy.animators[group.uuid] = animator
 		}
 
-		const anim = new Blockbench.Animation().extend(saveCopy).add()
-		anim.loop_delay = animation.loop_delay.toString()
+		const anim = new BB.Animation().extend(saveCopy).add()
+		anim.loop_delay = (animation.loop_delay ?? 0).toString()
 	}
 }
 
@@ -285,8 +447,9 @@ export function createUtilityModelProjectFromUtilityModel(
 	newProject(UTILITY_MODEL_PROJECT_FORMAT.get()!)
 
 	Project!.export_path = projectPath
-
 	Project!.box_uv = false
+
+	Project!.model_identifier = PathModule.basename(projectPath, '.utility.json')
 
 	if (model.texture_size) {
 		Project!.texture_width = model.texture_size[0]
@@ -294,7 +457,15 @@ export function createUtilityModelProjectFromUtilityModel(
 	}
 
 	importTextures(model.textures, projectPath)
-	buildOutliner(model.structure, model.elements, model.meshes)
+	buildOutliner(
+		model.structure,
+		model.elements,
+		model.meshes,
+		model.locators,
+		model.billboards,
+		model.bounding_boxes,
+		model.armatures
+	)
 	importAnimations(model.animations)
 
 	if (model.front_gui_light) {
@@ -304,10 +475,16 @@ export function createUtilityModelProjectFromUtilityModel(
 	}
 
 	if (model.display) {
-		DisplayMode.loadJSON(model.display)
+		displayModeCompat.loadJSON(model.display)
 	}
 
 	Canvas.updateAll()
+}
+
+export function importUtilityModelFile(file: Filesystem.FileResult) {
+	console.group('Importing Utility Model as Utility Model Project')
+	createUtilityModelProjectFromUtilityModel(JSON.parse(file.content!.toString()), file.path)
+	console.groupEnd()
 }
 
 export function importUtilityModel() {
@@ -316,27 +493,27 @@ export function importUtilityModel() {
 			type: 'Utility Model',
 			extensions: ['utility.json'],
 		},
-		files => {
+		(files: Filesystem.FileResult[]) => {
 			const file = files.at(0)
 			if (!file) return
-
-			console.group('Importing Utility Model as Utility Model Project')
-			createUtilityModelProjectFromUtilityModel(
-				JSON.parse(file.content.toString()),
-				file.path
-			)
-			console.groupEnd()
+			importUtilityModelFile(file)
 		}
 	)
 }
 
-export const IMPORT_UTILITY_MODEL_ACTION = registerAction(`utility-engine:import-utility-model`, {
-	name: localize('action.import_utility_model.label'),
-	icon: Icon,
-	click() {
-		importUtilityModel()
+export const IMPORT_UTILITY_MODEL_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/import-utility-model`,
+	create() {
+		const action = new Action(`utility-engine:import-utility-model`, {
+			name: localize('action.import_utility_model.label'),
+			icon: Icon,
+			click() {
+				importUtilityModel()
+			},
+		})
+
+		MenuBar.addAction(action, 'file.import.0')
+
+		return action
 	},
-})
-IMPORT_UTILITY_MODEL_ACTION.onCreated(action => {
-	MenuBar.addAction(action, 'file.import.0')
 })

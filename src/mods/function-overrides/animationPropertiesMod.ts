@@ -1,25 +1,22 @@
-import { registerMod } from '@blockbench-tools'
-import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
+import { openAnimationPropertiesDialog } from '@utility/dialogs/animation-properties/index.ts'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { BB } from '@utility/util/blockbenchCompat.ts'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPropertyOverridePatch({
 	id: `utility-engine:animation-properties-action`,
-	apply: () => {
-		const original = Blockbench.Animation.prototype.propertiesDialog
-		Blockbench.Animation.prototype.propertiesDialog = function (this: _Animation) {
-			if (currentFormatIsUtilityModelProject()) {
-				if (!Blockbench.Animation.selected) {
-					Blockbench.showQuickMessage('No animation selected')
-					return
-				}
-				openAnimationPropertiesDialog(Blockbench.Animation.selected)
-			} else {
-				original.call(this)
+	target: BB.Animation.prototype,
+	key: 'propertiesDialog',
+
+	getCondition: () => currentFormatIsUtilityModelProject(),
+
+	get: () => {
+		return function (this: BBAnimation) {
+			if (!BB.Animation.selected) {
+				Blockbench.showQuickMessage('No animation selected')
+				return
 			}
+			openAnimationPropertiesDialog(BB.Animation.selected)
 		}
-		return { original }
-	},
-	revert: ({ original }) => {
-		Blockbench.Animation.prototype.propertiesDialog = original
 	},
 })

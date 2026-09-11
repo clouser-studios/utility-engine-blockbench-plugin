@@ -1,8 +1,8 @@
-import EVENTS from '@utility/util/events'
-import { registerMod } from '@utility/util/moddingTools'
+import EVENTS from '@events'
+import { registerPatch } from 'blockbench-patch-manager'
 
 // Triggers the REF_MODEL_CHANGED event when a reference model is loaded, or it's variant is changed.
-registerMod({
+registerPatch({
 	id: 'utility-engine:ref-model-changed-event',
 	apply: () => {
 		const refModelPrototype = displayReferenceObjects.refmodels.player.constructor.prototype
@@ -27,9 +27,10 @@ registerMod({
 			return result
 		}
 
-		return { refModelPrototype, originalLoad }
+		return { refModelPrototype, originalLoad, originalSetModelVariant }
 	},
-	revert: ({ refModelPrototype, originalLoad }) => {
+	revert: ({ refModelPrototype, originalLoad, originalSetModelVariant }) => {
 		refModelPrototype.load = originalLoad
+		refModelPrototype.setModelVariant = originalSetModelVariant
 	},
 })

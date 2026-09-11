@@ -1,9 +1,10 @@
 import SteveSkin from '@assets/steve.png'
-import { registerAction, registerMod } from '@blockbench-tools'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { SvelteDialog } from '@utility/svelte/dialog'
-import { localize } from '@utility/util/lang'
-import { syncable } from '@utility/util/stores'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { toolbarsCompat } from '@utility/util/blockbenchCompat.ts'
+import { localize } from '@utility/util/lang.ts'
+import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-manager'
+import { observable } from 'svelte-observable-store'
+import { SvelteDialog } from 'svelte-patching-tools/blockbench'
 import UsernamePrompt from './usernamePrompt.svelte'
 
 const SKIN_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
@@ -51,8 +52,9 @@ async function autoUpdateSkinFormat(skinUrl: string) {
 }
 
 async function promptForUsername() {
-	const username = syncable<string | undefined>('')
-	return new Promise<string | undefined>(resolve => {
+	const username = observable<string>('')
+	console.log(username)
+	return new Promise<string>(resolve => {
 		new SvelteDialog({
 			id: `utility-engine:username-prompt`,
 			title: '',
@@ -65,25 +67,30 @@ async function promptForUsername() {
 	})
 }
 
-export const CREATE_SKIN_TEXTURE_ACTION = registerAction(`utility-engine:create-skin-texture`, {
-	name: localize('action.create_skin_texture.label'),
-	icon: 'portrait',
-	condition() {
-		return (
-			currentFormatIsUtilityModelProject() &&
-			// Project can only have one skin texture
-			!Texture.all.some(v => v instanceof SkinTexture)
-		)
-	},
-	click() {
-		new SkinTexture().add(true)
+export const CREATE_SKIN_TEXTURE_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/create-skin-texture`,
+	create() {
+		return new Action(`utility-engine:action/create-skin-texture`, {
+			name: localize('action.create_skin_texture.label'),
+			icon: 'portrait',
+			condition() {
+				return (
+					currentFormatIsUtilityModelProject() &&
+					// Project can only have one skin texture
+					!Texture.all.some(v => v instanceof SkinTexture)
+				)
+			},
+			click() {
+				new SkinTexture().add(true)
+			},
+		})
 	},
 })
 CREATE_SKIN_TEXTURE_ACTION.onCreated(action => {
-	Toolbars.texturelist.add(action)
+	toolbarsCompat.texturelist.add(action)
 })
 CREATE_SKIN_TEXTURE_ACTION.onDeleted(action => {
-	Toolbars.texturelist.remove(action)
+	toolbarsCompat.texturelist.remove(action)
 })
 
 declare global {
@@ -107,7 +114,7 @@ class OverrideTexture extends Texture {
 	}
 }
 
-registerMod({
+registerPatch({
 	id: `utility-engine:skin-texture/override-texture-class`,
 	apply: () => {
 		const original = Texture
@@ -156,6 +163,7 @@ export class SkinTexture extends OverrideTexture {
 		// Add skin indicator icon
 		requestAnimationFrame(() => {
 			const e = $(`li.texture[texid="${this.uuid}"]`)[0]
+			if (!e) return
 			const icon = document.createElement('i')
 			icon.title = localize('texture.skin')
 			icon.className = 'material-icons texture_particle_icon'
@@ -188,7 +196,6 @@ export class SkinTexture extends OverrideTexture {
 	getSaveCopy() {
 		const copy = Texture.prototype.getSaveCopy.call(this) as TextureData
 		for (const key in SkinTexture.properties) {
-			// @ts-expect-error
 			SkinTexture.properties[key].copy(this, copy)
 		}
 		copy.isSkinTexture = true
@@ -282,7 +289,7 @@ SkinTexture.prototype.menu = new Menu([
 		icon: 'folder',
 		name: 'menu.texture.folder',
 		condition: function (texture: Texture) {
-			return isApp && texture.path
+			return !!(isApp && texture.path)
 		},
 		click(texture: Texture) {
 			texture.openFolder()
@@ -292,7 +299,7 @@ SkinTexture.prototype.menu = new Menu([
 		icon: 'save',
 		name: 'menu.texture.save',
 		condition: function (texture: Texture) {
-			return !texture.saved && texture.path
+			return !!(!texture.saved && texture.path)
 		},
 		click(texture: Texture) {
 			texture.save()
@@ -314,7 +321,6 @@ SharedActions.add('duplicate', {
 	// prettier-ignore
 	condition: () =>
 		!!(
-			// @ts-expect-error
 			Prop.active_panel == 'textures' &&
 			Texture.selected &&
 			Texture.selected instanceof SkinTexture

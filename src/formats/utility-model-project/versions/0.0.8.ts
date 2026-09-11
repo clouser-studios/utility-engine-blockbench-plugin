@@ -1,14 +1,16 @@
-import type { UtilityModelAnimationOptions } from '@utility/mods/utilityModelAnimationMod'
-import type { ISkinTextureData } from '@utility/textures/skin-texture'
-import type { UTILITY_MODEL_PROJECT_FORMAT_ID } from '..'
-import type { v0_0_7 } from './0.0.7'
+import type { CollectionOptions } from '@blockbench-types/generated/outliner/collections.js'
+import { displayModeCompat } from '@utility/util/blockbenchCompat.ts'
+import type { UtilityModelAnimationOptions } from '@utility/mods/utilityModelAnimationMod.ts'
+import type { ISkinTextureData } from '@utility/textures/skin-texture/index.ts'
+import type { UTILITY_MODEL_PROJECT_FORMAT_ID } from '../index.ts'
+import type { v0_0_7 } from './0.0.7.ts'
 
 export namespace v0_0_8 {
 	export interface Settings {
 		model_identifier: string
 	}
 
-	export type UtilityDisplaySettings = Partial<DisplaySettings> & {
+	export type UtilityDisplaySettings = Partial<DisplaySlotOptions> & {
 		left_arm_rotation?: ArrayVector3
 		left_arm_rotation_when_offhand_occupied?: ArrayVector3
 		right_arm_rotation?: ArrayVector3
@@ -41,7 +43,7 @@ export namespace v0_0_8 {
 		backgrounds?: Record<string, any>
 		collections?: CollectionOptions[]
 		texture_groups?: Array<Omit<TextureGroupOptions, 'is_material'>>
-		front_gui_light?: boolean
+		front_gui_light?: 'front'
 		display_settings?: Partial<Record<DisplaySlotName, UtilityDisplaySettings>>
 	}
 }
@@ -64,7 +66,7 @@ export default {
 		>
 
 		const mergedDisplaySettings: v0_0_8.Json['display_settings'] = {}
-		for (const slot of DisplayMode.slots) {
+		for (const slot of displayModeCompat.slots) {
 			mergedDisplaySettings[slot] = {}
 
 			Object.assign(mergedDisplaySettings[slot], model.display_settings[slot])

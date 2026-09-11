@@ -1,22 +1,15 @@
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { registerMod } from '@utility/util/moddingTools'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPropertyOverridePatch({
 	id: 'utility-engine:gui-light/condition',
-	apply: () => {
-		const barSelect = BarItems.gui_light as BarSelect<string>
-		const original = barSelect.condition
+	target: BarItems.gui_light as BarSelect,
+	key: 'condition',
 
-		barSelect.condition = () => {
-			if (Modes.display && display_slot === 'gui' && currentFormatIsUtilityModelProject()) {
-				return true
-			}
-			return Condition(original)
-		}
+	// Force the GUI light selector visible in the GUI display slot for Utility
+	// Model projects; other formats keep their original condition.
+	getCondition: () =>
+		Modes.display && DisplayMode.display_slot === 'gui' && currentFormatIsUtilityModelProject(),
 
-		return { barSelect, original }
-	},
-	revert: ({ barSelect, original }) => {
-		barSelect.condition = original
-	},
+	get: () => true,
 })

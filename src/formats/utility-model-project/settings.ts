@@ -1,31 +1,33 @@
 import Icon from '@assets/icons/nobackground.png'
-import { registerAction, registerMod } from '@blockbench-tools'
-import { createScopedTranslator, localize } from '@utility/util/lang'
-import { currentFormatIsUtilityModelProject } from '.'
-import type { UtilityModelProject } from './versions/latest'
+import { createScopedTranslator, localize } from '@utility/util/lang.ts'
+import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-manager'
+import { currentFormatIsUtilityModelProject } from './index.ts'
+import type { UtilityModelProject } from './versions/latest.ts'
 
-declare global {
-	interface ModelProject {
+declare module '@blockbench-types/generated/io/project.js' {
+	export interface ModelProject {
 		utility_model: UtilityModelProject.Settings
 		default_backface_culling_mode?: 'no_culling' | 'cull_backfaces'
 	}
 }
 
-export const OPEN_PROJECT_SETTINGS_ACTION = registerAction(
-	`utility-engine:open-utility-model-settings`,
-	{
-		name: localize('action.open_utility_model_settings.label'),
-		icon: Icon,
-		condition: () => currentFormatIsUtilityModelProject(),
-		click() {
-			Project?.openSettings()
-		},
-	}
-)
+export const OPEN_PROJECT_SETTINGS_ACTION = registerDeletableHandlerPatch({
+	id: `utility-engine:action/open-utility-model-settings`,
+	create: () => {
+		return new Action(`utility-engine:action/open-utility-model-settings`, {
+			name: localize('action.open_utility_model_settings.label'),
+			icon: Icon,
+			condition: () => currentFormatIsUtilityModelProject(),
+			click() {
+				Project?.openSettings()
+			},
+		})
+	},
+})
 
 const localizeSettings = createScopedTranslator('model_format.utility_model.project_settings')
 
-registerMod({
+registerPatch({
 	id: `utility-engine:model-format-properties`,
 	apply: () => {
 		const modelIdentifier = new Property(ModelProject, 'string', 'model_identifier', {

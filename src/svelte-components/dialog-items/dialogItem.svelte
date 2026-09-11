@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { localize } from '@utility/util/lang'
+	import { localize } from '@utility/util/lang.ts'
 	import type { Snippet } from 'svelte'
 
 	export interface Props extends Omit<DialogItemProps<any>, 'validate'> {

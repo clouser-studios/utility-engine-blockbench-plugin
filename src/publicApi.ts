@@ -1,5 +1,5 @@
-import EVENTS from './util/events'
-import { registerMod } from './util/moddingTools'
+import EVENTS from '@events'
+import { registerPatch } from 'blockbench-patch-manager'
 
 // Provide a global object for other plugins to interact with
 const API = {
@@ -11,7 +11,7 @@ declare global {
 	const UtilityEngine: typeof API
 }
 
-registerMod({
+registerPatch({
 	id: 'utility-engine:public-api',
 	apply: () => {
 		// @ts-expect-error

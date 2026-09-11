@@ -5,7 +5,7 @@ import { LANGUAGES } from 'LANGUAGES'
 console.log('Available languages:', LANGUAGES)
 
 function getCurrentLanguage() {
-	const langName = settings.language.value
+	const langName = settings.language.value as string
 	let lang = LANGUAGES[langName]
 	if (!lang) {
 		console.warn(`Unknown language '${langName}'`)

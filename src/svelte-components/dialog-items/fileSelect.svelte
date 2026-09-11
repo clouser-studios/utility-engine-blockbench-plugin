@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { type Syncable } from '@utility/util/stores'
 	import type { FileFilter } from 'electron'
+	import { type Observable } from 'svelte-observable-store'
 	import BaseDialogItem from './dialogItem.svelte'
 
 	interface Props extends DialogItemProps<string> {
-		value: Syncable<string>
+		value: Observable<string>
 		defaultValue: string
 		filters?: FileFilter[]
 		fileSelectMessage?: string

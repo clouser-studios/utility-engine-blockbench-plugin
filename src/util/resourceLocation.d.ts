@@ -1,4 +1,4 @@
-import type { Chars, RestrictString } from './stringUtils'
+import type { Chars, RestrictString } from './stringUtils.ts'
 
 // Underscore is purposefully excluded. Get over it :)
 type NamespaceChars = Chars.LowercaseAlphaNumeric | '.' | '-'

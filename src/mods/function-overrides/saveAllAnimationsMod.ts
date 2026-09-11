@@ -1,25 +1,14 @@
-import { registerMod } from '@blockbench-tools'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPropertyOverridePatch({
 	id: `utility-engine:save-all-animations`,
-	apply: () => {
-		const action = BarItems.save_all_animations as Action
-		const originalCondition = action.condition!
+	target: BarItems.save_all_animations as Action,
+	key: 'condition',
 
-		action.condition = function (this: Action, context: any) {
-			if (currentFormatIsUtilityModelProject()) {
-				return false
-			}
-			if (typeof originalCondition === 'function') {
-				return originalCondition.apply(this, [context])
-			}
-			return Condition(originalCondition)
-		}
+	getCondition: () => currentFormatIsUtilityModelProject(),
 
-		return { action, originalCondition }
-	},
-	revert: ({ action, originalCondition }) => {
-		action.condition = originalCondition
-	},
+	// Hide "Save All Animations" for Utility Model projects; other formats keep
+	// their original condition.
+	get: () => false,
 })

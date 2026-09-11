@@ -1,31 +1,27 @@
-# Blockbench Plugin Template
+# Utility Engine
 
-A TypeScript & ESBuild Blockbench plugin template.
+A [Blockbench](https://blockbench.net) plugin for creating [Utility Engine](https://www.utility-engine.com) models.
 
-Includes everything you need to get started and more with Blockbench plugin development!
+Requires Blockbench `5.1.6` or newer, desktop.
 
-## Utilities
+## Features
 
-- SnaveSutit/blockbench-types - The most up-to-date Blockbench types available, improvements and fixes almost every week!
+- **Utility Model** format and **Utility Model Project** files (`.utilityproject`) that keep every bit of project data for future editing
+- Import and export `.utility.json` models
+- **Animation Properties** dialog with typed animations — main loop, custom, and the full set of held / placed / consume / charging / swimming states — plus loop mode and loop delay
+- **Skin textures** with a preview skin loaded from a file or a Minecraft username
+- **Arm Rotation** display panel for posing the player's arms around a held item, including a separate pose for when the offhand is occupied
+- Per-element backface culling with a project-wide default, and a model identifier in project settings
+- Display-mode helpers: rotation lock and pose-angle sliders
 
-- util/console - Adds a couple functions for wrapping the console output of a function in a console group without having to remember to open and close it properly.
+## Development
 
-- util/subscribable - A simple typed subscribable class.
+- `bun install` — set up the dev environment
+- `bun run dev` — build in dev mode and watch for changes
+- `bun run prod` — build a production plugin and exit
+- `bun run test` — production build, then the Jest suite
+- `bun run lint` / `bun run format` — ESLint / Prettier
 
-- util/moddingTools - A library of tools that make modding Blockbench much easier. From the simple action of creating an .. Action, to the advanced trickery of injecting custom code into built-in class functions. This library will be super helpful to practically anyone attempting to build a plugin!
-
-- util/events - A simple event manager. that provides much better type completion than the built-in one in Blockbench.
-
-## Setup
-
-- Create a new repo using this template
-- Run `yarn` to initialize the development enviornment
-- Configure the package.json to use your information
-- Configure the plugin definition in `index.ts`
-- Rename the global variable in `global.d.ts` to match your plugin's name
-
-## Build commands
-
-- `yarn build:dev` - Builds in dev mode and watches for file changes
-- `yarn build:prod` - Builds a production version of the plugin and exits
-- `yarn format` - Formats all of the source files using Prettier
+Runtime patches (function overrides, property overrides, format-conditional behavior) go through
+[`blockbench-patch-manager`](https://github.com/SnaveSutit/blockbench-patch-manager) so they apply and
+revert cleanly and compose with other plugins that patch the same members — see `src/mods/`.

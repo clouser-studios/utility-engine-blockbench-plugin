@@ -26,6 +26,14 @@ menu:
     remove_preview_skin: Remove Preview Skin
 
 panel:
+  overrides:
+    label: Display Override
+    description: |-
+      A reference to another model to use for this display slot instead.
+    placeholder: namespace:path/to/model
+    pick_file: Pick a model file and use its resource location
+    not_in_resource_pack: The selected file is not inside a valid resource pack.
+
   arm_rotation:
     title: Arm Rotation
     description: |-
@@ -123,6 +131,21 @@ dialog:
       label: Loop Delay
       description: The loop delay of the animation.
 
+element_properties:
+  skin_model:
+    label: Skin Model
+    description: Which player skin model this element is rendered for.
+    options:
+      all: All
+      wide: Wide Only
+      slim: Slim Only
+  render_passes:
+    label: Render Passes
+    description: Custom render passes to apply to this element.
+    add: Add render pass
+    remove: Remove render pass
+    placeholder: Pass ID
+
 model_format:
   utility_model:
     name: Utility Model
@@ -132,6 +155,7 @@ model_format:
       ### Getting Started
 
       Check out the [Utility Engine Docs](https://www.utility-engine.com) for more information on how to use this model format.
+    format_page_start_button: Create new Utility Model
     project_settings:
       model_identifier: Model Identifier
       default_backface_culling_mode:
@@ -143,6 +167,22 @@ model_format:
     element_settings:
       use_default_backface_culling: Use Default Backface Culling
       backface_culling: Backface Culling
+
+model_loader:
+  utility_model_json_loader:
+    name: Import .utility.json
+    description: Import a Utility Model from a .utility.json file.
+    format_page: |-
+      [Markdown]
+      ### Importing a .utility.json File
+
+      This will import a Utility Model from a .utility.json file, which is the model format used by Utility Engine.
+
+      ### Please note
+      This may not import textures, as .utility.json files do not contain texture data.
+
+      It is recommended to save all of your Utility Model Projects as .utilityproject files to ensure that all data is preserved for future editing.
+    format_page_start_button: Import .utility.json
 
 format_category:
   utility_engine: Utility Engine
@@ -158,14 +198,18 @@ message:
 
 export:
   error:
-    texture_not_saved: The texture %s is not saved to disk!
+    texture_not_saved: The texture "%s" is not saved to disk!
+    texture_not_found: 'A mesh face references a texture that could not be found (UUID: %s).'
     invalid_resource_pack_path:
-      title: Texture Not Saved in Resource Pack
       description: |-
+        [Markdown]
         Texture "%s" is not saved inside of a valid resource pack!
+
         In order for Utility Engine to use this texture, it must be saved inside of a resource pack.
+
         Please save the texture to a valid resource pack before exporting for use in Utility Engine.
-        Texture Save Path: %s
+
+        Texture Save Path: `%s`
 
 error:
   utility_model_format:

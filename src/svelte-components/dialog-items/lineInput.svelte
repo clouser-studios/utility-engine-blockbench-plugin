@@ -1,21 +1,21 @@
 <script lang="ts">
-	import { type Syncable } from '@utility/util/stores'
+	import { type Observable } from 'svelte-observable-store'
 	import DialogItem from './dialogItem.svelte'
 
 	interface Props extends DialogItemProps<string> {
-		value: Syncable<string>
+		value: Observable<string>
 		defaultValue: string
 	}
 
 	const { label, tooltip = '', value, defaultValue, disabled = false, validate }: Props = $props()
 
-	let actualValue: string = $state(value.get())
+	let actualValue: string = $state($value)
 	let statusMessage = $state<StatusMessage | undefined>()
 
 	function onValueChange() {
 		statusMessage = validate?.(actualValue)
-		value.set(actualValue)
-		actualValue = value.get()
+		$value = actualValue
+		actualValue = $value
 	}
 
 	function onreset() {

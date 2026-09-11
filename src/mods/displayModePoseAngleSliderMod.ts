@@ -1,6 +1,6 @@
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import EVENTS from '@utility/util/events'
-import { registerMod } from '@utility/util/moddingTools'
+import EVENTS from '@events'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { registerPatch } from 'blockbench-patch-manager'
 
 const getPoseAngleLabel = () => {
 	return $(
@@ -18,7 +18,7 @@ const getPoseAngleSlider = (element: HTMLElement) => {
 }
 
 // Forces the pose angle label and slider to be hidden when in a Utility Model Project
-registerMod({
+registerPatch({
 	id: 'utility-engine:display-mode-pose-angle-slider',
 	apply: () => {
 		const defaultLabelDisplay = '' as string

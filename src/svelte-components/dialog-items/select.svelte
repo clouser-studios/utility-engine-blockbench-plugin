@@ -1,39 +1,43 @@
 <script lang="ts">
-	import { type Syncable } from '@utility/util/stores'
+	import { onMount } from 'svelte'
+	import { type Observable } from 'svelte-observable-store'
 	import BaseDialogItem from './dialogItem.svelte'
 
 	interface Props extends DialogItemProps<string> {
 		options: Record<string, string>
 		defaultOption: string
-		value: Syncable<string>
+		value: Observable<string>
 	}
 
 	const { label, tooltip = '', options, defaultOption, value }: Props = $props()
 
 	let container: HTMLDivElement
-
-	if (value.get() === undefined || options[value.get()] === undefined) {
-		value.set(defaultOption)
-	}
-
-	const SELECT_INPUT = new Interface.CustomElements.SelectInput('dialog-select', {
-		options,
-		value: value.get(),
-		onChange() {
-			const v = SELECT_INPUT.node.getAttribute('value') ?? ''
-			value.set(v)
-		},
-	})
+	let selectInput: Interface.CustomElements.SelectInput<typeof options>
 
 	function onreset() {
-		value.set(defaultOption)
-		if (SELECT_INPUT.node) {
-			SELECT_INPUT.set(defaultOption)
+		$value = defaultOption
+		if (selectInput.node) {
+			selectInput.set(defaultOption)
 		}
 	}
 
-	requestAnimationFrame(() => {
-		container.appendChild(SELECT_INPUT.node)
+	onMount(() => {
+		if ($value === undefined || options[$value] === undefined) {
+			$value = defaultOption
+		}
+
+		selectInput = new Interface.CustomElements.SelectInput('dialog-select', {
+			get options() {
+				return options
+			},
+			value: $value,
+			onChange() {
+				const v = selectInput.node.getAttribute('value') ?? ''
+				$value = v
+			},
+		})
+
+		container.appendChild(selectInput.node)
 	})
 </script>
 

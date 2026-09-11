@@ -1,6 +1,6 @@
-import { createPropertySubscribable, registerMod } from '@blockbench-tools'
-import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project'
-import { localize } from '@utility/util/lang'
+import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { localize } from '@utility/util/lang.ts'
+import { overrideAccessors, registerPatch } from 'blockbench-patch-manager'
 
 declare global {
 	interface Cube {
@@ -13,6 +13,7 @@ declare global {
 
 const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
 	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
+	icon: 'settings_backup_restore',
 	onChange: (value: boolean) => {
 		if (value) {
 			for (const cube of Cube.selected) {
@@ -29,6 +30,7 @@ const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-back
 
 const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-toggle', {
 	name: localize('model_format.utility_model.element_settings.backface_culling'),
+	icon: 'texture',
 	onChange: (value: boolean) => {
 		console.log('Toggling backface culling for selected cubes & meshes', value)
 		if (Cube.selected.length !== 0) {
@@ -46,7 +48,19 @@ const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-togg
 	condition: () => currentFormatIsUtilityModelProject(),
 })
 
-registerMod({
+function updateBackfaceCulling(material: THREE.Material, enableBackfaceCulling?: boolean) {
+	if (enableBackfaceCulling === true) {
+		material.side = THREE.FrontSide
+	} else if (enableBackfaceCulling === false) {
+		material.side = THREE.DoubleSide
+	} else if (Project!.default_backface_culling_mode === 'cull_backfaces') {
+		material.side = THREE.FrontSide
+	} else {
+		material.side = THREE.DoubleSide
+	}
+}
+
+registerPatch({
 	id: `utility-engine:cube/material-renderside`,
 	apply: () => {
 		const cubeInit = Cube.prototype.init
@@ -57,28 +71,13 @@ registerMod({
 		Cube.prototype.init = function (this: Cube, ...args) {
 			const result = cubeInit.apply(this, args)
 
-			const scope = this
-			const [, set] = createPropertySubscribable<THREE.ShaderMaterial>(this.mesh, 'material')
-			set.subscribe(value => {
-				switch (scope.enableBackfaceCulling) {
-					case true:
-						value.newValue.side = THREE.FrontSide
-						break
-					case false:
-						value.newValue.side = THREE.DoubleSide
-						break
-					default:
-						switch (Project!.default_backface_culling_mode) {
-							case 'cull_backfaces':
-								value.newValue.side = THREE.FrontSide
-								break
-							case 'no_culling':
-							default:
-								value.newValue.side = THREE.DoubleSide
-								break
-						}
-						break
-				}
+			overrideAccessors({
+				target: this.mesh,
+				key: 'material',
+				get: value => {
+					updateBackfaceCulling(value as THREE.Material, this.enableBackfaceCulling)
+					return value
+				},
 			})
 
 			return result
@@ -105,31 +104,16 @@ registerMod({
 			return result
 		}
 
-		Mesh.prototype.init = function (this: Mesh, ...args) {
+		Mesh.prototype.init = function (this: Mesh & { mesh: THREE.Mesh }, ...args) {
 			const result = meshInit.apply(this, args)
 
-			const scope = this
-			const [, set] = createPropertySubscribable<THREE.ShaderMaterial>(this.mesh, 'material')
-			set.subscribe(value => {
-				switch (scope.enableBackfaceCulling) {
-					case true:
-						value.newValue.side = THREE.FrontSide
-						break
-					case false:
-						value.newValue.side = THREE.DoubleSide
-						break
-					default:
-						switch (Project!.default_backface_culling_mode) {
-							case 'cull_backfaces':
-								value.newValue.side = THREE.FrontSide
-								break
-							case 'no_culling':
-							default:
-								value.newValue.side = THREE.DoubleSide
-								break
-						}
-						break
-				}
+			overrideAccessors({
+				target: this.mesh,
+				key: 'material',
+				get: value => {
+					updateBackfaceCulling(value as THREE.Material, this.enableBackfaceCulling)
+					return value
+				},
 			})
 
 			return result
@@ -161,11 +145,13 @@ registerMod({
 		Mesh.prototype.menu!.addAction(BACKFACE_CULLING_TOGGLE, 7)
 		Mesh.prototype.menu!.addAction(USE_DEFAULT_BACKFACE_CULLING, 7)
 
-		return { cubeInit, meshInit }
+		return { cubeInit, meshInit, openCubeMenu, openMeshMenu }
 	},
-	revert: ({ cubeInit, meshInit }) => {
+	revert: ({ cubeInit, meshInit, openCubeMenu, openMeshMenu }) => {
 		Cube.prototype.init = cubeInit
 		Mesh.prototype.init = meshInit
+		Cube.prototype.menu!.open = openCubeMenu
+		Mesh.prototype.menu!.open = openMeshMenu
 
 		Cube.prototype.menu!.removeAction(BACKFACE_CULLING_TOGGLE)
 		Cube.prototype.menu!.removeAction(USE_DEFAULT_BACKFACE_CULLING)

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { type Syncable } from '@utility/util/stores'
+	import { type Observable } from 'svelte-observable-store'
 	import BaseDialogItem from './dialogItem.svelte'
 
 	interface Props extends DialogItemProps<number> {
-		value: Syncable<number>
+		value: Observable<number>
 		defaultValue: number
 		min?: number
 		max?: number
@@ -19,8 +19,6 @@
 		max = undefined,
 		step = undefined,
 	}: Props = $props()
-
-	const MOLANG_PARSER = new Molang()
 
 	let input: HTMLInputElement
 	let slider: HTMLElement
@@ -53,7 +51,11 @@
 
 		addEventListeners(input, 'focusout dblclick', () => {
 			value.set(
-				Math.clamp(MOLANG_PARSER.parse(value.get()), min ?? -Infinity, max ?? Infinity) || 0
+				Math.clamp(
+					NumSlider.MolangParser.parse(value.get()),
+					min ?? -Infinity,
+					max ?? Infinity
+				) || 0
 			)
 		})
 	})

@@ -2,7 +2,7 @@ import checkFile from 'eslint-plugin-check-file'
 import svelteEslint from 'eslint-plugin-svelte'
 import svelteParser from 'svelte-eslint-parser'
 import tsESLint, { type ConfigWithExtends } from 'typescript-eslint'
-import type { NamingConventionRule } from './.scripts/tslintNamingConventionRule'
+import type { NamingConventionRule } from './.scripts/tslintNamingConventionRule.d.ts'
 
 console.log('⚙️  Loading ESLint config...')
 
@@ -17,10 +17,16 @@ const IGNORE_PATTERNS = [
 	// Blockbench Plugin Template
 	'dist/**/*',
 
-	// Ignore files for PNPM, NPM and YARN
+	// Test runner config (plain ESM, not part of any tsconfig)
+	'jest.config.mjs',
+	'blockbench.config.mjs',
+
+	// Ignore files for PNPM, NPM, YARN and Bun
 	'pnpm-lock.yaml',
 	'package-lock.json',
 	'yarn.lock',
+	'bun.lock',
+	'bun.lockb',
 ]
 
 const CUSTOM_RULES: ConfigWithExtends['rules'] = {
@@ -76,6 +82,10 @@ const CUSTOM_RULES: ConfigWithExtends['rules'] = {
 	'@typescript-eslint/unbound-method': 'off',
 	'@typescript-eslint/no-non-null-assertion': 'off',
 	'@typescript-eslint/triple-slash-reference': 'off',
+	// The Blockbench types come from a local checkout that isn't present in CI, so many
+	// globals resolve to `any` there and this rule fires on intentional `|| fallback`
+	// (e.g. `Project.texture_width || 16`). Same bucket as the `no-unsafe-*` rules above.
+	'@typescript-eslint/prefer-nullish-coalescing': 'off',
 	// Naming conventions
 	'@typescript-eslint/naming-convention': [
 		'warn',
@@ -199,7 +209,6 @@ export default tsESLint.config(
 		languageOptions: {
 			parser: tsESLint.parser,
 			parserOptions: {
-				project: './tsconfig.json',
 				extraFileExtensions: ['.svelte'],
 			},
 			globals: {

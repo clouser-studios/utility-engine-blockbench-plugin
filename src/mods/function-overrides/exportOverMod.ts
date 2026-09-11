@@ -1,48 +1,33 @@
-import { registerMod } from '@blockbench-tools'
 import {
 	currentFormatIsUtilityModelProject,
-	UTILITY_MODEL_CODEC,
-} from '@utility/formats/utility-model-project'
-import { log } from '@utility/util/log'
+	UTILITY_MODEL_PROJECT_CODEC,
+} from '@utility/formats/utility-model-project/index.ts'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-registerMod({
+registerPropertyOverridePatch({
 	id: `utility-engine:export-over-mod`,
-	apply: () => {
-		const action = BarItems.export_over as Action
-		const originalClick = action.click
+	target: BarItems.export_over as Action,
+	key: 'click',
 
-		action.click = (event: Event) => {
+	getCondition: () => currentFormatIsUtilityModelProject(),
+
+	get: () => {
+		return () => {
 			if (!Project || !Format) return
-			const codec = UTILITY_MODEL_CODEC.get()
+			const codec = UTILITY_MODEL_PROJECT_CODEC.get()
 			if (!codec) {
 				throw new Error(
 					'Tried to export as Utility Model, but the Utility Model codec was not found!'
 				)
 			}
 
-			if (currentFormatIsUtilityModelProject()) {
-				const path = Project?.save_path
-				if (path) {
-					if (fs.existsSync(PathModule.dirname(path))) {
-						Project.save_path = path
-						codec.write(codec.compile(), path)
-					} else {
-						log.error(
-							`Failed to export Utility Model, file location '${path}' does not exist!`
-						)
-						codec.export()
-					}
-				} else {
-					codec.export()
-				}
+			const path = Project.save_path
+			if (path) {
+				Blockbench.writeFile(path, { content: codec.compile() })
+				Project.save_path = path
 			} else {
-				originalClick.call(action, event)
+				codec.export()
 			}
 		}
-
-		return { action, originalClick }
-	},
-	revert: ({ action, originalClick }) => {
-		action.click = originalClick
 	},
 })
