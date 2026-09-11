@@ -9,9 +9,7 @@ registerPropertyOverridePatch({
 	// Force the GUI light selector visible in the GUI display slot for Utility
 	// Model projects; other formats keep their original condition.
 	getCondition: () =>
-		Modes.display &&
-		DisplayMode.display_slot === 'gui' &&
-		currentFormatIsUtilityModelProject(),
+		Modes.display && DisplayMode.display_slot === 'gui' && currentFormatIsUtilityModelProject(),
 
 	get: () => true,
 })
