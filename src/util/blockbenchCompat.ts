@@ -25,6 +25,16 @@ export const displayModeCompat = DisplayMode as typeof DisplayMode & {
 }
 
 /**
+ * `@blockbench-types` only exposes `StartScreen.loaders`/`open()`; `vue` and
+ * `getFormatCategories` exist at runtime but aren't typed.
+ */
+export const startScreenCompat = StartScreen as typeof StartScreen & {
+	vue: Vue & {
+		getFormatCategories(): Record<string, { name: string; entries: unknown[] }>
+	}
+}
+
+/**
  * `@blockbench-types` types `Toolbars` as `{}` since its members are assigned dynamically
  * at runtime instead of being statically analyzable. It also types `Toolbar.add`'s
  * `position` param as required, even though it's optional at runtime.

@@ -1,30 +1,35 @@
-import { UTILITY_MODEL_PROJECT_FORMAT_ID } from '@utility/formats/utility-model-project/index.ts'
+import { startScreenCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
-import { registerPatch } from 'blockbench-patch-manager'
+import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
-const UTILITY_CATEGORY_QUERY = `li.format_category:has(li[format="${UTILITY_MODEL_PROJECT_FORMAT_ID}"])`
-const GENERAL_CATEGORY_QUERY = `li.format_category:has(li[format="free"])`
+const UTILITY_CATEGORY = 'utility-engine'
+const GENERAL_CATEGORY = 'general'
 
 // @ts-expect-error
 Language.data['format_category.utility-engine'] = localize('format_category.utility_engine')
 
-// Modifies the format category sorting order to insert Utility directly below General
-registerPatch({
+// Reorders the New Project format category list to put "Utility Engine" directly below "General".
+registerPropertyOverridePatch({
 	id: `utility-engine:format-category`,
-	apply: () => {
-		const interval = setInterval(() => {
-			const utilityCategory = $(UTILITY_CATEGORY_QUERY).first()
-			if (utilityCategory.length === 0) return
+	target: startScreenCompat.vue,
+	key: 'getFormatCategories',
 
-			const generalCategory = $(GENERAL_CATEGORY_QUERY).first()
-			if (generalCategory.length === 0) return
+	get: original => {
+		return function (this: Vue) {
+			const categories: ReturnType<typeof original> = original.call(this)
+			const utilityCategory = categories[UTILITY_CATEGORY]
+			if (!utilityCategory) return categories
 
-			utilityCategory.insertAfter(generalCategory)
+			delete categories[UTILITY_CATEGORY]
+			const reordered: typeof categories = {}
+			for (const key in categories) {
+				reordered[key] = categories[key]
+				if (key === GENERAL_CATEGORY) reordered[UTILITY_CATEGORY] = utilityCategory
+			}
+			// "General" not present for some reason - keep Utility Engine rather than drop it.
+			reordered[UTILITY_CATEGORY] ??= utilityCategory
 
-			clearInterval(interval)
-		}, 16)
-	},
-	revert: () => {
-		//
+			return reordered
+		}
 	},
 })

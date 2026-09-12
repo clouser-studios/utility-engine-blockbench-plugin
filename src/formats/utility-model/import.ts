@@ -353,6 +353,23 @@ function importTextures(textures: UtilityModel.Json['textures'], projectPath = '
 	}
 }
 
+/**
+ * Bedrock's animation X axis is mirrored from Blockbench's, so `position.x` and
+ * `rotation.x`/`rotation.y` need inverting on the way in - exactly what Blockbench's own
+ * Bedrock animation importer does in `getKeyframeDataPoints` (`js/formats/bedrock/bedrock_animation.js`).
+ */
+function invertChannelAxes(
+	point: { x: number; y: number; z: number },
+	channel: 'position' | 'rotation' | 'scale'
+) {
+	if (channel === 'position') point.x = invertMolang(point.x)
+	if (channel === 'rotation') {
+		point.x = invertMolang(point.x)
+		point.y = invertMolang(point.y)
+	}
+	return point
+}
+
 function processBoneKeyframe(
 	time: string,
 	data: UtilityModel.KeyframeData,
@@ -364,49 +381,49 @@ function processBoneKeyframe(
 		data_points: [],
 	}
 	if (Array.isArray(data)) {
-		keyframe.data_points.push({
-			x: data[0],
-			y: data[1],
-			z: data[2],
-		})
+		keyframe.data_points.push(
+			invertChannelAxes({ x: data[0], y: data[1], z: data[2] }, channel)
+		)
 	} else {
 		if (data.pre != undefined) {
-			keyframe.data_points.push({
-				x: data.pre[0],
-				y: data.pre[1],
-				z: data.pre[2],
-			})
+			keyframe.data_points.push(
+				invertChannelAxes({ x: data.pre[0], y: data.pre[1], z: data.pre[2] }, channel)
+			)
 			if (!data.pre.equals(data.post)) {
-				keyframe.data_points.push({
-					x: data.post[0],
-					y: data.post[1],
-					z: data.post[2],
-				})
+				keyframe.data_points.push(
+					invertChannelAxes(
+						{ x: data.post[0], y: data.post[1], z: data.post[2] },
+						channel
+					)
+				)
 			}
 		} else if (data.post != undefined) {
-			keyframe.data_points.push({
-				x: data.post[0],
-				y: data.post[1],
-				z: data.post[2],
-			})
+			keyframe.data_points.push(
+				invertChannelAxes({ x: data.post[0], y: data.post[1], z: data.post[2] }, channel)
+			)
 		}
 		keyframe.interpolation = data.lerp_mode
 	}
 	return keyframe
 }
 
+/** A channel can also be a bare vector instead of a time-keyed map, meaning "constant for the
+ * whole animation" - same shorthand Bedrock's own animation format allows. */
+function processBoneChannel(
+	source: UtilityModel.AnimationBone['position'],
+	channel: 'position' | 'rotation' | 'scale'
+) {
+	if (source == undefined) return []
+	if (Array.isArray(source)) return [processBoneKeyframe('0', source, channel)]
+	return Object.entries(source).map(([time, data]) => processBoneKeyframe(time, data, channel))
+}
+
 function processBoneKeyframes(bone: UtilityModel.AnimationBone) {
-	const keyframes: KeyframeOptions[] = []
-	for (const [time, data] of Object.entries(bone.position ?? {})) {
-		keyframes.push(processBoneKeyframe(time, data, 'position'))
-	}
-	for (const [time, data] of Object.entries(bone.rotation ?? {})) {
-		keyframes.push(processBoneKeyframe(time, data, 'rotation'))
-	}
-	for (const [time, data] of Object.entries(bone.scale ?? {})) {
-		keyframes.push(processBoneKeyframe(time, data, 'scale'))
-	}
-	return keyframes
+	return [
+		...processBoneChannel(bone.position, 'position'),
+		...processBoneChannel(bone.rotation, 'rotation'),
+		...processBoneChannel(bone.scale, 'scale'),
+	]
 }
 
 function importAnimations(animations: UtilityModel.Json['animations']) {

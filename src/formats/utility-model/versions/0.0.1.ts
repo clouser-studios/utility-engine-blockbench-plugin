@@ -63,9 +63,10 @@ export namespace v0_0_1 {
 		  }
 
 	export interface AnimationBone {
-		position: Record<string | number, KeyframeData>
-		rotation: Record<string | number, KeyframeData>
-		scale: Record<string | number, KeyframeData>
+		/** A bare vector means "constant for the whole animation", same as Bedrock's own shorthand. */
+		position?: Record<string | number, KeyframeData> | ArrayVector3
+		rotation?: Record<string | number, KeyframeData> | ArrayVector3
+		scale?: Record<string | number, KeyframeData> | ArrayVector3
 	}
 
 	export interface Animation {

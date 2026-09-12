@@ -113,9 +113,10 @@ export namespace v0_0_3 {
 		  }
 
 	export interface AnimationBone {
-		position: Record<string | number, KeyframeData>
-		rotation: Record<string | number, KeyframeData>
-		scale: Record<string | number, KeyframeData>
+		/** A bare vector means "constant for the whole animation", same as Bedrock's own shorthand. */
+		position?: Record<string | number, KeyframeData> | ArrayVector3
+		rotation?: Record<string | number, KeyframeData> | ArrayVector3
+		scale?: Record<string | number, KeyframeData> | ArrayVector3
 	}
 
 	export interface Animation {
@@ -181,46 +182,8 @@ export namespace v0_0_3 {
 
 export default {
 	upgrade(model: any): v0_0_3.Json {
-		console.groupCollapsed('Updating utility model to 0.0.2')
+		console.groupCollapsed('Updating utility model to 0.0.3')
 		const fixed = JSON.parse(JSON.stringify(model)) as v0_0_3.Json
-
-		// Invert pos X axis and rot X & Y axis in animations
-		for (const animation of fixed.animations ?? []) {
-			if (!animation.bones) continue
-			for (const bone of Object.values(animation.bones)) {
-				if (bone.rotation) {
-					for (const value of Object.values(bone.rotation)) {
-						if (Array.isArray(value)) {
-							value[0] = invertMolang(value[0])
-							value[1] = invertMolang(value[1])
-						} else if (typeof value === 'object') {
-							if (value.pre != undefined) {
-								value.pre[0] = invertMolang(value.pre[0])
-								value.pre[1] = invertMolang(value.pre[1])
-							}
-							if (value.post != undefined) {
-								value.post[0] = invertMolang(value.post[0])
-								value.post[1] = invertMolang(value.post[1])
-							}
-						}
-					}
-				}
-				if (bone.position) {
-					for (const value of Object.values(bone.position)) {
-						if (Array.isArray(value)) {
-							value[0] = invertMolang(value[0])
-						} else if (typeof value === 'object') {
-							if (value.pre != undefined) {
-								value.pre[0] = invertMolang(value.pre[0])
-							}
-							if (value.post != undefined) {
-								value.post[0] = invertMolang(value.post[0])
-							}
-						}
-					}
-				}
-			}
-		}
 
 		for (const element of fixed.elements) {
 			// @ts-expect-error
@@ -234,7 +197,7 @@ export default {
 			delete element.metadata
 		}
 
-		fixed.format_version = '0.0.2'
+		fixed.format_version = '0.0.3'
 
 		console.groupEnd()
 		return fixed

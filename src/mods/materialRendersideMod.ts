@@ -11,41 +11,55 @@ declare global {
 	}
 }
 
+const condition = () => currentFormatIsUtilityModelProject()
+
+/** Registers `enableBackfaceCulling` as a Property so it survives undo/redo and `.utilityproject`
+ * save/load. Custom `merge` because it's tri-state and the built-in merge won't clear it. */
+function defineEnableBackfaceCullingProperty(target: typeof Cube | typeof Mesh) {
+	return new Property(target, 'boolean', 'enableBackfaceCulling', {
+		default: () => undefined,
+		condition,
+		exposed: false,
+		merge(instance: Cube | Mesh, data: Record<string, unknown>) {
+			if (!condition()) return
+			if (!('enableBackfaceCulling' in data)) return
+			instance.enableBackfaceCulling = data.enableBackfaceCulling as boolean | undefined
+		},
+	})
+}
+
 const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
 	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
 	icon: 'settings_backup_restore',
 	onChange: (value: boolean) => {
 		if (value) {
-			for (const cube of Cube.selected) {
-				cube.enableBackfaceCulling = undefined
-			}
-			for (const mesh of Mesh.selected) {
-				mesh.enableBackfaceCulling = undefined
+			const elements = [...Cube.selected, ...Mesh.selected]
+			if (elements.length) {
+				Undo.initEdit({ elements })
+				for (const cube of Cube.selected) cube.enableBackfaceCulling = undefined
+				for (const mesh of Mesh.selected) mesh.enableBackfaceCulling = undefined
+				Undo.finishEdit('Use default backface culling')
 			}
 		}
 		Canvas.updateAll()
 	},
-	condition: () => currentFormatIsUtilityModelProject(),
+	condition,
 })
 
 const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-toggle', {
 	name: localize('model_format.utility_model.element_settings.backface_culling'),
 	icon: 'texture',
 	onChange: (value: boolean) => {
-		console.log('Toggling backface culling for selected cubes & meshes', value)
-		if (Cube.selected.length !== 0) {
-			for (const cube of Cube.selected) {
-				cube.enableBackfaceCulling = value
-			}
-		}
-		if (Mesh.selected.length !== 0) {
-			for (const mesh of Mesh.selected) {
-				mesh.enableBackfaceCulling = value
-			}
+		const elements = [...Cube.selected, ...Mesh.selected]
+		if (elements.length) {
+			Undo.initEdit({ elements })
+			for (const cube of Cube.selected) cube.enableBackfaceCulling = value
+			for (const mesh of Mesh.selected) mesh.enableBackfaceCulling = value
+			Undo.finishEdit('Toggle backface culling')
 		}
 		Canvas.updateAll()
 	},
-	condition: () => currentFormatIsUtilityModelProject(),
+	condition,
 })
 
 function updateBackfaceCulling(material: THREE.Material, enableBackfaceCulling?: boolean) {
@@ -63,6 +77,9 @@ function updateBackfaceCulling(material: THREE.Material, enableBackfaceCulling?:
 registerPatch({
 	id: `utility-engine:cube/material-renderside`,
 	apply: () => {
+		const cubeProperty = defineEnableBackfaceCullingProperty(Cube)
+		const meshProperty = defineEnableBackfaceCullingProperty(Mesh)
+
 		const cubeInit = Cube.prototype.init
 		const openCubeMenu = Cube.prototype.menu!.open
 		const meshInit = Mesh.prototype.init
@@ -145,9 +162,9 @@ registerPatch({
 		Mesh.prototype.menu!.addAction(BACKFACE_CULLING_TOGGLE, 7)
 		Mesh.prototype.menu!.addAction(USE_DEFAULT_BACKFACE_CULLING, 7)
 
-		return { cubeInit, meshInit, openCubeMenu, openMeshMenu }
+		return { cubeInit, meshInit, openCubeMenu, openMeshMenu, cubeProperty, meshProperty }
 	},
-	revert: ({ cubeInit, meshInit, openCubeMenu, openMeshMenu }) => {
+	revert: ({ cubeInit, meshInit, openCubeMenu, openMeshMenu, cubeProperty, meshProperty }) => {
 		Cube.prototype.init = cubeInit
 		Mesh.prototype.init = meshInit
 		Cube.prototype.menu!.open = openCubeMenu
@@ -157,5 +174,8 @@ registerPatch({
 		Cube.prototype.menu!.removeAction(USE_DEFAULT_BACKFACE_CULLING)
 		Mesh.prototype.menu!.removeAction(BACKFACE_CULLING_TOGGLE)
 		Mesh.prototype.menu!.removeAction(USE_DEFAULT_BACKFACE_CULLING)
+
+		cubeProperty.delete()
+		meshProperty.delete()
 	},
 })

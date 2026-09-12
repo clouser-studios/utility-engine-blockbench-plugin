@@ -1,6 +1,7 @@
 import { log } from '@utility/util/log.ts'
 import v0_0_1 from './versions/0.0.1.ts'
 import v0_0_2 from './versions/0.0.2.ts'
+import v0_0_3 from './versions/0.0.3.ts'
 import { type UtilityModel } from './versions/latest.ts'
 
 /**
@@ -16,6 +17,8 @@ export function updateUtilityModel(model: any): UtilityModel.Json {
 			newModel = v0_0_1.upgrade(newModel)
 		case compareVersions('0.0.2', modelVersion):
 			newModel = v0_0_2.upgrade(newModel)
+		case compareVersions('0.0.3', modelVersion):
+			newModel = v0_0_3.upgrade(newModel)
 	}
 
 	log.info('Updated model to latest version:', newModel)

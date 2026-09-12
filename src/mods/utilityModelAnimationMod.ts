@@ -64,8 +64,10 @@ export interface UtilityModelAnimationOptions extends AnimationOptions {
 }
 
 class UtilityModelAnimation extends BB.Animation {
+	// `declare`, not a field: a real field (even uninitialized) clobbers what `extend()`
+	// sets during `super()`, since it runs its own assignment right after `super()` returns.
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	utility_model_animation_type: AnimationType = 'custom'
+	declare utility_model_animation_type: AnimationType
 
 	constructor(data?: UtilityModelAnimationOptions) {
 		data ??= {}
@@ -79,20 +81,24 @@ class UtilityModelAnimation extends BB.Animation {
 
 		super.extend(data)
 
-		if (!data?.utility_model_animation_type) {
-			if (this.name.startsWith('utility.')) {
-				this.name = this.name.slice(8)
-				this.path = 'utility'
-				this.utility_model_animation_type = this.name as AnimationType
-			} else if (Object.keys(ANIMATION_TYPES).includes(this.name)) {
-				this.path = 'utility'
-				this.utility_model_animation_type = this.name as AnimationType
-			} else {
-				this.path = 'custom'
-				this.utility_model_animation_type = 'custom'
-			}
-		} else {
+		// Reclassification below is Utility Model Project-specific.
+		if (!currentFormatIsUtilityModelProject()) {
+			this.utility_model_animation_type ??= 'custom'
+			return this
+		}
+
+		if (data.utility_model_animation_type) {
 			this.utility_model_animation_type = data.utility_model_animation_type
+		} else if (this.name.startsWith('utility.')) {
+			this.name = this.name.slice(8)
+			this.path = 'utility'
+			this.utility_model_animation_type = this.name as AnimationType
+		} else if (Object.keys(ANIMATION_TYPES).includes(this.name)) {
+			this.path = 'utility'
+			this.utility_model_animation_type = this.name as AnimationType
+		} else {
+			this.path = 'custom'
+			this.utility_model_animation_type = 'custom'
 		}
 
 		return this
