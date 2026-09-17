@@ -15,6 +15,9 @@ action:
   import_utility_model.label: Import Utility Model
   delete_animation_folder.label: Delete Animation Folder
   open_utility_model_settings.label: Project Settings
+  skin_model_preview_toggle:
+    label: Skin Model Preview
+    description: Show only elements marked for the wide or slim skin model in the viewport.
 
 menu:
   skin_texture:

@@ -1,7 +1,6 @@
-/// <reference path="/var/mnt/ssd2/repos/snavesutit/blockbench/types/index.d.ts"/>
-//// <reference types="blockbench-types"/>
+/// <reference types="blockbench-types"/>
 // Ensure invertMolang is available globally
-/// <reference path="/var/mnt/ssd2/repos/snavesutit/blockbench/types/generated/util/molang.d.ts"/>
+/// <reference path="../node_modules/blockbench-types/generated/util/molang.d.ts"/>
 
 /** Blockbench globals missing from `@blockbench-types`. */
 type MenuItem =

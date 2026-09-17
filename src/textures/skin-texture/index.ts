@@ -1,5 +1,7 @@
 import SteveSkin from '@assets/steve.png'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { setSkinModelPreviewMode } from '@utility/mods/skinModelPreviewToggleMod.ts'
+import type { SkinModel } from '@utility/panels/element-properties/index.ts'
 import { toolbarsCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-manager'
@@ -11,7 +13,13 @@ const SKIN_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
 const USERNAME_TO_UUID_URL = 'https://api.mojang.com/users/profiles/minecraft/'
 export const SKIN_TEXTURE_NAME = 'utility:current_skin'
 
-async function fetchSkinUrl(username: string) {
+interface FetchedSkin {
+	url: string
+	/** Derived from the profile's `textures.SKIN.metadata.model` field. */
+	skinModel: Extract<SkinModel, 'wide' | 'slim'>
+}
+
+async function fetchSkinData(username: string): Promise<FetchedSkin | undefined> {
 	const data = await fetch(USERNAME_TO_UUID_URL + username).catch(() => undefined)
 	if (!data) return
 	const json = await data.json()
@@ -25,7 +33,11 @@ async function fetchSkinUrl(username: string) {
 		const skinData = JSON.parse(
 			Buffer.from(profileData.properties[0].value as string, 'base64').toString()
 		)
-		return skinData.textures.SKIN.url as string
+		const skin = skinData.textures.SKIN
+		return {
+			url: skin.url as string,
+			skinModel: skin.metadata?.model === 'slim' ? 'slim' : 'wide',
+		}
 	} catch {
 		return
 	}
@@ -222,9 +234,10 @@ SkinTexture.prototype.menu = new Menu([
 				click(texture: SkinTexture) {
 					void promptForUsername().then(async username => {
 						if (!username) return
-						const url = await fetchSkinUrl(username)
-						if (url) {
-							texture.fromDataURL(await autoUpdateSkinFormat(url))
+						const skin = await fetchSkinData(username)
+						if (skin) {
+							texture.fromDataURL(await autoUpdateSkinFormat(skin.url))
+							setSkinModelPreviewMode(skin.skinModel)
 						} else {
 							Blockbench.showQuickMessage(
 								'Failed to fetch skin, please double check your username is correct, then try again',

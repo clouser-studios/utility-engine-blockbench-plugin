@@ -42,6 +42,9 @@ function defineProperties(target: typeof Cube | typeof Mesh) {
 						slim: localize('element_properties.skin_model.options.slim'),
 					},
 				},
+				// The skin model preview toggle only hides elements when the visibility
+				// aspect is recomputed, which a plain property change doesn't trigger.
+				onChange: () => Canvas.updateVisibility(),
 			},
 		},
 	})
