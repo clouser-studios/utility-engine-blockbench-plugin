@@ -20,8 +20,8 @@ export const SKIN_MODEL_PREVIEW_TOGGLE = registerDeletableHandlerPatch({
 			condition: () => currentFormatIsUtilityModelProject(),
 			options: {
 				all: { name: localizeOption('all'), icon: 'visibility' },
-				wide: { name: localizeOption('wide'), icon: 'accessibility' },
-				slim: { name: localizeOption('slim'), icon: 'accessibility_new' },
+				wide: { name: localizeOption('wide'), icon: 'highlighter_size_3' },
+				slim: { name: localizeOption('slim'), icon: 'highlighter_size_1' },
 			},
 			onChange() {
 				Canvas.updateVisibility()
