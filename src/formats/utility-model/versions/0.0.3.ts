@@ -119,12 +119,25 @@ export namespace v0_0_3 {
 		scale?: Record<string | number, KeyframeData> | ArrayVector3
 	}
 
+	export interface FunctionKeyframe {
+		commands: string[]
+		/** An `execute` subcommand chain the commands only run under. */
+		condition?: string
+	}
+
+	/** Keyed by timecode, like bone channels. */
+	export type FunctionKeyframes = Record<string, FunctionKeyframe>
+
 	export interface Animation {
 		name: string
 		animation_length: number
 		loop_mode: 'once' | 'loop' | 'hold'
 		loop_delay: number | string
 		bones: Record<string, AnimationBone>
+		/** Function keyframes on the Effects row. */
+		functions?: FunctionKeyframes
+		/** Function keyframes per locator, keyed by locator name like `bones`. */
+		locators?: Record<string, FunctionKeyframes>
 	}
 
 	export interface Display {

@@ -1,5 +1,6 @@
 import Icon from '@assets/icons/nobackground.png'
 import { UTILITY_MODEL_PROJECT_FORMAT } from '@utility/formats/utility-model-project/index.ts'
+import { COMMANDS_CHANNEL } from '@utility/mods/function-keyframes/channel.ts'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
 import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
@@ -426,6 +427,16 @@ function processBoneKeyframes(bone: UtilityModel.AnimationBone) {
 	]
 }
 
+function processFunctionKeyframes(keyframes: UtilityModel.FunctionKeyframes): KeyframeOptions[] {
+	return Object.entries(keyframes).map(([time, keyframe]) => ({
+		channel: COMMANDS_CHANNEL,
+		time: parseFloat(time),
+		data_points: [
+			{ commands: keyframe.commands.join('\n'), condition: keyframe.condition ?? '' },
+		],
+	}))
+}
+
 function importAnimations(animations: UtilityModel.Json['animations']) {
 	for (const animation of animations ?? []) {
 		const saveCopy: AnimationOptions = {
@@ -448,6 +459,25 @@ function importAnimations(animations: UtilityModel.Json['animations']) {
 				continue
 			}
 			saveCopy.animators[group.uuid] = animator
+		}
+
+		if (animation.functions) {
+			saveCopy.animators.effects = {
+				type: 'effect',
+				keyframes: processFunctionKeyframes(animation.functions),
+			}
+		}
+		for (const [name, keyframes] of Object.entries(animation.locators ?? {})) {
+			const locator = Locator.all.find(l => l.name === name)
+			if (!locator) {
+				console.warn(`Unknown locator ${name} in animation: ${animation.name}`)
+				continue
+			}
+			saveCopy.animators[locator.uuid] = {
+				name,
+				type: 'locator',
+				keyframes: processFunctionKeyframes(keyframes),
+			}
 		}
 
 		const anim = new BB.Animation().extend(saveCopy).add()

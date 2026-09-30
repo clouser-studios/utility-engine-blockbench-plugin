@@ -1,5 +1,6 @@
 import Icon from '@assets/icons/nobackground.png'
 import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-model-project/index.ts'
+import { COMMANDS_CHANNEL } from '@utility/mods/function-keyframes/channel.ts'
 import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/index.ts'
 import { BB } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
@@ -151,6 +152,43 @@ function renderLocator(locator: Locator): UtilityModel.ILocator {
 		uuid: locator.uuid,
 		position: [...locator.position],
 	}
+}
+
+/** Returns undefined when no keyframe has any commands, so empty maps stay out of the file. */
+function renderFunctionKeyframes(
+	keyframes: _Keyframe[] | undefined
+): UtilityModel.FunctionKeyframes | undefined {
+	const rendered: UtilityModel.FunctionKeyframes = {}
+	for (const keyframe of keyframes ?? []) {
+		const point = keyframe.data_points[0]
+		const commands = (point?.commands ?? '')
+			.split('\n')
+			.map(line => line.trim())
+			.filter(Boolean)
+		if (!commands.length) continue
+
+		const condition = point?.condition?.trim()
+		rendered[keyframe.getTimecodeString()] = condition ? { commands, condition } : { commands }
+	}
+	return Object.keys(rendered).length ? rendered : undefined
+}
+
+function renderAnimationFunctions(
+	animation: _Animation
+): Pick<UtilityModel.Animation, 'functions' | 'locators'> {
+	const result: Pick<UtilityModel.Animation, 'functions' | 'locators'> = {}
+
+	const effects = animation.animators.effects as EffectAnimator | undefined
+	const functions = renderFunctionKeyframes(effects?.[COMMANDS_CHANNEL])
+	if (functions) result.functions = functions
+
+	for (const [uuid, animator] of Object.entries(animation.animators)) {
+		const locator = OutlinerNode.uuids[uuid]
+		if (!(locator instanceof Locator)) continue
+		const keyframes = renderFunctionKeyframes(animator[COMMANDS_CHANNEL] as _Keyframe[])
+		if (keyframes) (result.locators ??= {})[locator.name] = keyframes
+	}
+	return result
 }
 
 function renderBillboard(billboard: Billboard): UtilityModel.IBillboard {
@@ -337,6 +375,7 @@ function createUtilityModel(): UtilityModel.Json {
 			// Blockbench stores loop_delay as a string; an empty value means "no delay".
 			loop_delay: (animation.loop_delay as string) || '0',
 			bones: bedrock.bones,
+			...renderAnimationFunctions(animation),
 		})
 	}
 	if (animations.length) model.animations = animations

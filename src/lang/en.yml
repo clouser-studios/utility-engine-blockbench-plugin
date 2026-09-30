@@ -28,7 +28,17 @@ menu:
 
     remove_preview_skin: Remove Preview Skin
 
+timeline:
+  commands: Function
+
 panel:
+  function_keyframe:
+    commands:
+      label: Commands
+      description: Commands to run when this keyframe is reached, one per line.
+    condition:
+      label: Condition
+      description: An execute subcommand chain the commands only run under, e.g. "if score @s x matches 1..".
   overrides:
     label: Display Override
     description: |-

@@ -32,6 +32,8 @@ const EVENTS = {
 
 	UNDO: subscribable<UndoEntry>(),
 	REDO: subscribable<UndoEntry>(),
+
+	UPDATE_KEYFRAME_SELECTION: subscribable<void>(),
 }
 export default EVENTS
 
@@ -66,4 +68,7 @@ Blockbench.on('undo', ({ entry }: { entry: UndoEntry }) => {
 })
 Blockbench.on('redo', ({ entry }: { entry: UndoEntry }) => {
 	EVENTS.REDO.publish(entry)
+})
+Blockbench.on('update_keyframe_selection', () => {
+	EVENTS.UPDATE_KEYFRAME_SELECTION.publish()
 })
