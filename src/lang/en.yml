@@ -208,6 +208,7 @@ message:
       Error: %s
 
   exported: Successfully exported!
+  converted_to_utility_project: Converted to a Utility Model Project. Save to create a .utilityproject file.
 
 export:
   error:
@@ -248,3 +249,21 @@ error:
       ```
 
     invalid_export_path: The export path is invalid!
+
+    failed_to_convert_bbmodel:
+      title: Failed to Convert Project!
+      description: |-
+        [Markdown]
+        This .bbmodel uses the Utility Model format, but it couldn't be converted to a Utility Model Project.
+
+        Utility Model Project parser:
+        ```
+        %s
+        ```
+
+        .bbmodel parser:
+        ```
+        %s
+        ```
+
+        The project may be incomplete. Continue editing at your own risk!

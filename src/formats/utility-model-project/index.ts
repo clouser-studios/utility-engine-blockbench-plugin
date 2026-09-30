@@ -3,6 +3,7 @@ import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { mount, unmount } from 'svelte'
 import { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 import FormatPage from './formatPage.svelte'
+import './conversion.ts'
 import './icon.ts'
 import './settings.ts'
 export { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
@@ -47,9 +48,6 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 			category: 'utility-engine',
 			target: 'Minecraft: Java Edition',
 			confidential: false,
-			convertTo() {
-				console.error('ConvertTo not implemented yet!')
-			},
 			condition: () => true,
 			show_on_start_screen: true,
 			format_page: {
