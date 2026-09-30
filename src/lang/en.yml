@@ -208,6 +208,7 @@ message:
       Error: %s
 
   exported: Successfully exported!
+  renamed_duplicate_names: Renamed %s nodes that shared a name with another node.
   converted_to_utility_project: Converted to a Utility Model Project. Save to create a .utilityproject file.
 
 export:

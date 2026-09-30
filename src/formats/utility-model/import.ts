@@ -5,6 +5,7 @@ import { SKIN_TEXTURE_NAME, SkinTexture } from '@utility/textures/skin-texture/i
 import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { parsePackPath } from '@utility/util/minecraftUtil.ts'
+import { dedupeNodeNames } from '@utility/util/uniqueNodeNames.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { updateUtilityModel } from './dfu.ts'
 import { type UtilityModel } from './versions/latest.ts'
@@ -515,6 +516,8 @@ export function createUtilityModelProjectFromUtilityModel(
 		model.armatures
 	)
 	importAnimations(model.animations)
+	// After animations, which resolve bones and locators by name.
+	dedupeNodeNames()
 
 	if (model.front_gui_light) {
 		Project!.front_gui_light = true

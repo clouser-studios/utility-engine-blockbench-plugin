@@ -1,6 +1,7 @@
 import { BB } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
+import { dedupeNodeNames } from '@utility/util/uniqueNodeNames.ts'
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 import { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 import { updateUtilityProject } from './dfu.ts'
@@ -15,6 +16,7 @@ export function adoptAsUtilityProject(notify = true) {
 	Project.save_path = ''
 	Project.name = Project.name.replace(/\.utility$/, '')
 	Project.saved = false
+	dedupeNodeNames()
 	if (notify) {
 		Blockbench.showQuickMessage(localize('message.converted_to_utility_project'), 3000)
 	}
