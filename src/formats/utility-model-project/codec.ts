@@ -159,11 +159,18 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 			load_filter: {
 				extensions: ['utilityproject', 'utility.json', 'json'],
 				type: 'json',
-				condition({ file }) {
-					return (
-						!!file?.path?.endsWith('.utilityproject') ||
-						!!file?.path?.endsWith('.utility.json')
-					)
+				/**
+				 * Our `loadModelFile` override passes `{ content, file }`, but Blockbench's module-scoped
+				 * one (drag-drop, collection "Open file") passes only the parsed content.
+				 * `.utility.json` files on the native path are handled by `javaBlockLoadMod.ts`.
+				 */
+				condition(arg: any) {
+					const path: string | undefined = arg?.file?.path
+					if (path) {
+						return path.endsWith('.utilityproject') || path.endsWith('.utility.json')
+					}
+					const format: unknown = arg?.meta?.format
+					return typeof format === 'string' && format.startsWith('utility-engine:')
 				},
 			},
 
@@ -230,6 +237,10 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				// Misc Project Properties
 				for (const key in ModelProject.properties) {
 					ModelProject.properties[key].merge(Project, model)
+				}
+				// Same as the .bbmodel codec: name after the file, except for autosave recovery.
+				if (path && path !== 'backup.bbmodel') {
+					Project.name = pathToName(path, false)
 				}
 
 				if (model.options) {
@@ -399,7 +410,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				} as UtilityModelProject.Json
 
 				for (const key in ModelProject.properties) {
-					if (ModelProject.properties[key].export)
+					if (ModelProject.properties[key].export !== false)
 						ModelProject.properties[key].copy(Project, model)
 				}
 

@@ -497,6 +497,7 @@ export function createUtilityModelProjectFromUtilityModel(
 	Project!.box_uv = false
 
 	Project!.model_identifier = PathModule.basename(projectPath, '.utility.json')
+	Project!.name = Project!.model_identifier
 
 	if (model.texture_size) {
 		Project!.texture_width = model.texture_size[0]

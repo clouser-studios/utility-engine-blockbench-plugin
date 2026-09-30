@@ -432,6 +432,16 @@ function createUtilityModel(): UtilityModel.Json {
 	return model
 }
 
+/**
+ * Makes `path` end in exactly one `.utility.json`. Blockbench's save dialog only compares the last
+ * extension (`json`), so it appends `.utility.json` to anything, turning `a.json` into
+ * `a.json.utility.json` and `a.utility.json` into `a.utility.json.utility.json`.
+ */
+export function withUtilityJsonExtension(path: string): string {
+	const base = path.replace(/(\.utility\.json)+$/i, '').replace(/\.(utility|json)$/i, '')
+	return base + '.utility.json'
+}
+
 export function exportUtilityModel(path?: string) {
 	try {
 		const model = createUtilityModel()
@@ -439,9 +449,11 @@ export function exportUtilityModel(path?: string) {
 
 		if (path) {
 			try {
+				path = withUtilityJsonExtension(path)
 				Blockbench.writeFile(path, {
 					content: autoStringify(model),
 				})
+				Project!.export_path = path
 				Blockbench.showQuickMessage(localize('message.exported'))
 				return
 			} catch {} // Ignore errors and continue with the file picker
@@ -455,12 +467,7 @@ export function exportUtilityModel(path?: string) {
 			content: autoStringify(model),
 			// eslint-disable-next-line @typescript-eslint/naming-convention
 			custom_writer: (content: string | ArrayBuffer | Blob, chosenPath: string) => {
-				console.log('chosenPath:', chosenPath)
-				if (!chosenPath.endsWith('.utility.json')) {
-					chosenPath += '.utility.json'
-				}
-				// Patch stupid bug with Blockbench exporter
-				chosenPath = chosenPath.replace(/\.utility\.json\.utility\.json$/, '.utility.json')
+				chosenPath = withUtilityJsonExtension(chosenPath)
 				Project!.export_path = chosenPath
 				Blockbench.writeFile(chosenPath, { content })
 				Blockbench.showQuickMessage(localize('message.exported'))

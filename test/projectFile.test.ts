@@ -8,6 +8,7 @@ import {
 	CODEC_ID,
 	FORMAT_ID,
 	settleUtilityFormat,
+	dropFile,
 	snapshotProject,
 } from './support'
 
@@ -72,5 +73,33 @@ describe('.utilityproject file save / load', () => {
 		)
 		expect(after.animations).toEqual(before.animations)
 		expect(after.groups).toEqual(before.groups)
+	})
+
+	it('opens when dropped onto the window', async () => {
+		await buildSampleProject()
+		const before = await snapshotProject()
+
+		const filePath = join(dir, 'dropped.utilityproject')
+		await settleUtilityFormat()
+		await blockbench.evaluate(
+			(codecId, p) => {
+				const codec = Codecs[codecId]
+				codec.write(codec.compile(), p)
+				void Project!.close(true)
+			},
+			CODEC_ID,
+			filePath
+		)
+		await blockbench.waitFor('ModelProject.all.length === 0')
+
+		await dropFile(filePath, readFileSync(filePath, 'utf-8'))
+		await blockbench.waitFor(`Project?.save_path === ${JSON.stringify(filePath)}`)
+
+		const format = await blockbench.evaluate(() => Format.id)
+		expect(format).toBe(FORMAT_ID)
+		const after = await snapshotProject()
+		expect(after.elements.map(e => e.name).sort()).toEqual(
+			before.elements.map(e => e.name).sort()
+		)
 	})
 })
