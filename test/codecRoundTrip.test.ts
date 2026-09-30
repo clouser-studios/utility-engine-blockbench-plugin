@@ -48,4 +48,15 @@ describe('utility-model-project codec round-trip', () => {
 		)
 		expect(model).toMatchObject({ meta: { format: FORMAT_ID } })
 	})
+
+	it('preserves project properties (regression: all were dropped on save)', async () => {
+		await buildSampleProject()
+		await blockbench.evaluate(() => {
+			Project!.model_identifier = 'ns:sample'
+		})
+
+		await loadProjectJson(await compileProject())
+
+		expect(await blockbench.evaluate(() => Project!.model_identifier)).toBe('ns:sample')
+	})
 })

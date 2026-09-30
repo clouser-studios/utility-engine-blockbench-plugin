@@ -238,6 +238,10 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				for (const key in ModelProject.properties) {
 					ModelProject.properties[key].merge(Project, model)
 				}
+				// Same as the .bbmodel codec: name after the file, except for autosave recovery.
+				if (path && path !== 'backup.bbmodel') {
+					Project.name = pathToName(path, false)
+				}
 
 				if (model.options) {
 					Project.utility_model = { ...Project.utility_model, ...model.options }
@@ -406,7 +410,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 				} as UtilityModelProject.Json
 
 				for (const key in ModelProject.properties) {
-					if (ModelProject.properties[key].export)
+					if (ModelProject.properties[key].export !== false)
 						ModelProject.properties[key].copy(Project, model)
 				}
 
