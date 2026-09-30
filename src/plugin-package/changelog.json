@@ -1,4 +1,31 @@
 {
+	"1.0.1": {
+		"title": "v1.0.1",
+		"author": "SnaveSutit",
+		"date": "2026-09-30",
+		"categories": [
+			{
+				"title": "New Features",
+				"list": [
+					"Added Function keyframes on the Effects row and locators.",
+					"Utility `.bbmodel` files, backups, and autosaves now open as Utility Model Projects.",
+					"Added Convert Project support for the Utility Model format.",
+					"Node names are now unique across types, except cubes and meshes."
+				]
+			},
+			{
+				"title": "Fixes",
+				"list": [
+					"Fixed dragged-in `.utility.json` files opening as Java Block models.",
+					"Fixed dragged-in `.utilityproject` files not opening.",
+					"Fixed project properties not being saved.",
+					"Fixed backups not using the Utility Model Project format.",
+					"Fixed doubled or wrong `.utility.json` export extensions.",
+					"Fixed Save Project on imported `.utility.json` files."
+				]
+			}
+		]
+	},
 	"1.0.0": {
 		"title": "v1.0.0",
 		"author": "SnaveSutit",
