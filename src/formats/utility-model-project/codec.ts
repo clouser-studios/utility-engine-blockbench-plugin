@@ -5,6 +5,7 @@ import { BB, displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { localize } from '@utility/util/lang.ts'
 import { log } from '@utility/util/log.ts'
 import { resetAllConsoleGroups } from '@utility/util/misc.ts'
+import { dedupeNodeNames } from '@utility/util/uniqueNodeNames.ts'
 import {
 	registerDeletableHandlerPatch,
 	registerPropertyOverridePatch,
@@ -383,6 +384,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 					})
 				}
 
+				dedupeNodeNames()
 				Canvas.updateAll()
 				Validator.validate()
 				this.dispatchEvent!('parsed', { model })
