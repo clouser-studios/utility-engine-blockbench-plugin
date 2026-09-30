@@ -27,7 +27,11 @@ export function saveUtilityModelProject() {
 			'Tried to save as Utility Model project, but the Utility Model Project codec was not found!'
 		)
 	}
-	codec.write(codec.compile(), Project.save_path)
+	if (Project.save_path) {
+		codec.write(codec.compile(), Project.save_path)
+	} else {
+		codec.export()
+	}
 }
 
 export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals'
 import { blockbench } from '@snavesutit/jestbench'
-import { CODEC_ID } from './support'
+import { CODEC_ID, dropFile } from './support'
 
 /** Loads a hand-written `.utility.json` document through the codec. */
 async function importUtilityJson(model: unknown) {
@@ -137,6 +137,62 @@ describe('.utility.json import', () => {
 
 		expect(faces.north).toBe('1')
 		expect(faces.south).toBe('11')
+	})
+})
+
+/**
+ * Drag-drop uses Blockbench's module-scoped `loadModelFile`, which can't pass the file path to
+ * our codec's `load_filter.condition`, so `java_block` claims `.utility.json` files. Those used
+ * to open as Java Block models and save as `.bbmodel`, or overwrite the `.utility.json` with
+ * vanilla Java JSON.
+ */
+describe('.utility.json dropped onto the window', () => {
+	it('opens as a Utility Model project named after the model', async () => {
+		await dropFile('models/papyrus_ball.utility.json', JSON.stringify(BASE_MODEL))
+
+		const project = await blockbench.evaluate(() => ({
+			format: Format.id,
+			name: Project!.name,
+			exportPath: Project!.export_path,
+		}))
+
+		expect(project.format).toBe('utility-engine:format/utility-model-project')
+		expect(project.name).toBe('papyrus_ball')
+		expect(project.exportPath).toBe('models/papyrus_ball.utility.json')
+	})
+
+	it('leaves plain Java block models to java_block', async () => {
+		await dropFile('models/block.json', JSON.stringify({ elements: [] }))
+
+		expect(await blockbench.evaluate(() => Format.id)).toBe('java_block')
+	})
+
+	it('prompts for a .utilityproject path on save instead of writing to an empty path', async () => {
+		await dropFile('models/papyrus_ball.utility.json', JSON.stringify(BASE_MODEL))
+
+		const result = await blockbench.evaluate(() => {
+			const exports: Array<{ name?: string; extensions?: string[] }> = []
+			const writes: string[] = []
+			const { export: originalExport, writeFile: originalWrite } = Blockbench
+			Blockbench.export = (options => {
+				exports.push({ name: options.name, extensions: options.extensions })
+			}) as typeof Blockbench.export
+			Blockbench.writeFile = (path => {
+				writes.push(path)
+			}) as typeof Blockbench.writeFile
+			try {
+				;(BarItems.save_project as Action).click()
+			} finally {
+				Blockbench.export = originalExport
+				Blockbench.writeFile = originalWrite
+			}
+			return { exports, writes }
+		})
+
+		expect(result.writes).toEqual([])
+		expect(result.exports).toEqual([
+			{ name: 'papyrus_ball.utilityproject', extensions: ['utilityproject'] },
+		])
 	})
 })
 

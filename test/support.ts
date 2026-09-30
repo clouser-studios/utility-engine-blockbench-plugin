@@ -69,6 +69,28 @@ export async function loadProjectJson(
 	)
 }
 
+/**
+ * Drops a model file onto the window through Blockbench's `model` drag handler. Unlike our
+ * `window.loadModelFile` override, it uses the module-scoped loader, which passes only the
+ * parsed content to `load_filter.condition`.
+ */
+export async function dropFile(path: string, content: string): Promise<void> {
+	await blockbench.evaluate(
+		(filePath, text) => {
+			const handlers = (
+				globalThis as unknown as {
+					Filesystem: { drag_handlers: Record<string, { cb(files: unknown[]): void }> }
+				}
+			).Filesystem.drag_handlers
+			handlers.model.cb([
+				{ path: filePath, name: filePath.split(/[\\/]/).pop(), content: text },
+			])
+		},
+		path,
+		content
+	)
+}
+
 /** A tiny 2x1 PNG (red / blue) as a data URL - enough for a real, loadable texture. */
 export const TEST_PNG =
 	'data:image/png;base64,' +
