@@ -553,9 +553,9 @@ export function importUtilityModel() {
 }
 
 export const IMPORT_UTILITY_MODEL_ACTION = registerDeletableHandlerPatch({
-	id: `utility-engine:action/import-utility-model`,
+	id: `utility_engine:action/import-utility-model`,
 	create() {
-		const action = new Action(`utility-engine:import-utility-model`, {
+		const action = new Action(`utility_engine:import-utility-model`, {
 			name: localize('action.import_utility_model.label'),
 			icon: Icon,
 			click() {

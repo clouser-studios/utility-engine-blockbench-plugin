@@ -12,9 +12,9 @@ declare module '@blockbench-types/generated/io/project.js' {
 }
 
 export const OPEN_PROJECT_SETTINGS_ACTION = registerDeletableHandlerPatch({
-	id: `utility-engine:action/open-utility-model-settings`,
+	id: `utility_engine:action/open-utility-model-settings`,
 	create: () => {
-		return new Action(`utility-engine:action/open-utility-model-settings`, {
+		return new Action(`utility_engine:action/open-utility-model-settings`, {
 			name: localize('action.open_utility_model_settings.label'),
 			icon: Icon,
 			condition: () => currentFormatIsUtilityModelProject(),
@@ -28,7 +28,7 @@ export const OPEN_PROJECT_SETTINGS_ACTION = registerDeletableHandlerPatch({
 const localizeSettings = createScopedTranslator('model_format.utility_model.project_settings')
 
 registerPatch({
-	id: `utility-engine:model-format-properties`,
+	id: `utility_engine:model-format-properties`,
 	apply: () => {
 		const modelIdentifier = new Property(ModelProject, 'string', 'model_identifier', {
 			label: localizeSettings('model_identifier'),

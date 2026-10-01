@@ -26,28 +26,28 @@ describe('Utility Model Project format', () => {
 
 	it('gates the export / settings actions on the active format', async () => {
 		await newProject('free')
-		expect(await gui.action('utility-engine:action/export-utility-model').isEnabled()).toBe(
+		expect(await gui.action('utility_engine:action/export-utility-model').isEnabled()).toBe(
 			false
 		)
 		expect(
-			await gui.action('utility-engine:action/open-utility-model-settings').isEnabled()
+			await gui.action('utility_engine:action/open-utility-model-settings').isEnabled()
 		).toBe(false)
 
 		await newProject(FORMAT_ID)
-		expect(await gui.action('utility-engine:action/export-utility-model').isEnabled()).toBe(
+		expect(await gui.action('utility_engine:action/export-utility-model').isEnabled()).toBe(
 			true
 		)
 		expect(
-			await gui.action('utility-engine:action/open-utility-model-settings').isEnabled()
+			await gui.action('utility_engine:action/open-utility-model-settings').isEnabled()
 		).toBe(true)
 	})
 
 	it('wires the codec and format to each other', async () => {
 		const linked = await blockbench.evaluate(() => {
-			const format = Formats['utility-engine:format/utility-model-project'] as unknown as {
+			const format = Formats['utility_engine:format/utility-model-project'] as unknown as {
 				codec?: { id: string }
 			}
-			const codec = Codecs['utility-engine:codec/utility-model-project'] as unknown as {
+			const codec = Codecs['utility_engine:codec/utility-model-project'] as unknown as {
 				format?: { id: string }
 			}
 			return {
@@ -55,7 +55,7 @@ describe('Utility Model Project format', () => {
 				codecFormatId: codec.format?.id,
 			}
 		})
-		expect(linked.formatCodecId).toBe('utility-engine:codec/utility-model-project')
-		expect(linked.codecFormatId).toBe('utility-engine:format/utility-model-project')
+		expect(linked.formatCodecId).toBe('utility_engine:codec/utility-model-project')
+		expect(linked.codecFormatId).toBe('utility_engine:format/utility-model-project')
 	})
 })

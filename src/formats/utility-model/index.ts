@@ -3,7 +3,7 @@ import { mount, unmount } from 'svelte'
 import FormatPage from './formatPage.svelte'
 import { importUtilityModel } from './import.ts'
 
-export const UTILITY_JSON_LOADER_ID = `utility-engine:model_loader/utility-model-json-loader`
+export const UTILITY_JSON_LOADER_ID = `utility_engine:model_loader/utility-model-json-loader`
 
 export const UTILITY_JSON_LOADER = registerDeletableHandlerPatch({
 	id: UTILITY_JSON_LOADER_ID,

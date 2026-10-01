@@ -28,7 +28,7 @@ function defineEnableBackfaceCullingProperty(target: typeof Cube | typeof Mesh) 
 	})
 }
 
-const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-backface-culling', {
+const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility_engine:use-default-backface-culling', {
 	name: localize('model_format.utility_model.element_settings.use_default_backface_culling'),
 	icon: 'settings_backup_restore',
 	onChange: (value: boolean) => {
@@ -46,7 +46,7 @@ const USE_DEFAULT_BACKFACE_CULLING = new Toggle('utility-engine:use-default-back
 	condition,
 })
 
-const BACKFACE_CULLING_TOGGLE = new Toggle('utility-engine:backface-culling-toggle', {
+const BACKFACE_CULLING_TOGGLE = new Toggle('utility_engine:backface-culling-toggle', {
 	name: localize('model_format.utility_model.element_settings.backface_culling'),
 	icon: 'texture',
 	onChange: (value: boolean) => {
@@ -75,7 +75,7 @@ function updateBackfaceCulling(material: THREE.Material, enableBackfaceCulling?:
 }
 
 registerPatch({
-	id: `utility-engine:cube/material-renderside`,
+	id: `utility_engine:cube/material-renderside`,
 	apply: () => {
 		const cubeProperty = defineEnableBackfaceCullingProperty(Cube)
 		const meshProperty = defineEnableBackfaceCullingProperty(Mesh)

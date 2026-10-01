@@ -4,7 +4,7 @@ import { log } from '@utility/util/log.ts'
 import { dedupeNodeNames } from '@utility/util/uniqueNodeNames.ts'
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 import { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
-import { updateUtilityProject } from './dfu.ts'
+import { migrateLegacyFormatIds, updateUtilityProject } from './dfu.ts'
 import { currentFormatIsUtilityModelProject, UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
 
 /**
@@ -40,7 +40,7 @@ function clearProjectContent() {
 
 /** File > Convert Project. Blockbench ignores a `convertTo` passed in the format's options. */
 registerPropertyOverridePatch({
-	id: `utility-engine:model-format/convert-to`,
+	id: `utility_engine:model-format/convert-to`,
 	target: ModelFormat.prototype,
 	key: 'convertTo',
 
@@ -59,7 +59,7 @@ registerPropertyOverridePatch({
  * still pick the Utility format.
  */
 registerPropertyOverridePatch({
-	id: `utility-engine:bbmodel-codec/compile`,
+	id: `utility_engine:bbmodel-codec/compile`,
 	target: Codecs.project,
 	key: 'compile',
 
@@ -80,17 +80,35 @@ registerPropertyOverridePatch({
 })
 
 /**
+ * `Codecs.project.load` sets up the project from `model_format` before parsing, so pre-v1.0.2
+ * format IDs must be migrated first or the project opens as a Free model.
+ */
+registerPropertyOverridePatch({
+	id: `utility_engine:bbmodel-codec/load`,
+	target: Codecs.project,
+	key: 'load',
+
+	get: original => {
+		return function (this: Codec, model: any, file: any, args?: any) {
+			migrateLegacyFormatIds(model)
+			return original!.call(this, model, file, args)
+		}
+	},
+})
+
+/**
  * Utility-format data reaching `Codecs.project.parse`: a project saved as `.bbmodel`, or a timed
  * backup or autosave (which hold `.utilityproject` data, see above). Parse it with the Utility
  * codec, fall back to the `.bbmodel` parser, and warn if both fail.
  */
 registerPropertyOverridePatch({
-	id: `utility-engine:bbmodel-codec/parse`,
+	id: `utility_engine:bbmodel-codec/parse`,
 	target: Codecs.project,
 	key: 'parse',
 
 	get: original => {
 		return function (this: Codec, model: any, path: string, args?: any) {
+			migrateLegacyFormatIds(model)
 			if (model?.meta?.model_format !== UTILITY_MODEL_PROJECT_FORMAT_ID) {
 				return original!.call(this, model, path, args)
 			}

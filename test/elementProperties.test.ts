@@ -65,7 +65,7 @@ describe('skin_model / render_passes element properties', () => {
 			exportPath
 		)
 
-		await action('utility-engine:action/export-utility-model').trigger()
+		await action('utility_engine:action/export-utility-model').trigger()
 
 		const model = JSON.parse(readFileSync(exportPath, 'utf-8')) as {
 			elements: Array<{
@@ -145,7 +145,7 @@ describe('skin_model / render_passes element properties', () => {
 			exportPath
 		)
 
-		await action('utility-engine:action/export-utility-model').trigger()
+		await action('utility_engine:action/export-utility-model').trigger()
 		const content = readFileSync(exportPath, 'utf-8')
 
 		await newProject(FORMAT_ID)

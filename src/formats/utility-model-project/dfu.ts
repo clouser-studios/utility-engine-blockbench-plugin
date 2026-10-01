@@ -6,12 +6,28 @@ import v0_0_5 from './versions/0.0.5.ts'
 import v0_0_7 from './versions/0.0.7.ts'
 import v0_0_8 from './versions/0.0.8.ts'
 import v0_0_9 from './versions/0.0.9.ts'
+import { UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
+
+/** The format ID before the plugin ID changed from `utility-engine` to `utility_engine` in v1.0.2. */
+export const LEGACY_UTILITY_MODEL_PROJECT_FORMAT_ID = 'utility-engine:format/utility-model-project'
+
+/** Rewrites the pre-v1.0.2 format ID in a `.utilityproject` or `.bbmodel` model, in place. */
+export function migrateLegacyFormatIds(model: any) {
+	if (!model?.meta) return
+	if (model.meta.format === LEGACY_UTILITY_MODEL_PROJECT_FORMAT_ID) {
+		model.meta.format = UTILITY_MODEL_PROJECT_FORMAT_ID
+	}
+	if (model.meta.model_format === LEGACY_UTILITY_MODEL_PROJECT_FORMAT_ID) {
+		model.meta.model_format = UTILITY_MODEL_PROJECT_FORMAT_ID
+	}
+}
 
 /**
  * Takes a utility model and returns a new utility model that has been upgraded to the latest version of the utility model format.
  */
 export function updateUtilityProject(model: any): UtilityModelProject.Json {
 	let newModel = JSON.parse(JSON.stringify(model))
+	migrateLegacyFormatIds(newModel)
 	const modelVersion = model.meta.format_version
 
 	// If the current plugin version is greater than the model version, upgrade the model

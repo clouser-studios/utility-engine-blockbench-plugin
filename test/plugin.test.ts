@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals'
 import { blockbench } from '@snavesutit/jestbench'
 import { CODEC_ID, FORMAT_ID, LOADER_ID, PLUGIN_ID } from './support'
 
-describe('utility-engine plugin registration', () => {
+describe('utility_engine plugin registration', () => {
 	it('loads into Blockbench without errors', async () => {
 		await expect(blockbench).toHaveLoadedPlugin(PLUGIN_ID)
 	})
@@ -33,11 +33,11 @@ describe('utility-engine plugin registration', () => {
 
 	it('registers its actions and title-bar menu items', async () => {
 		for (const id of [
-			'utility-engine:action/export-utility-model',
-			'utility-engine:action/export-utility-model-as',
-			'utility-engine:import-utility-model',
-			'utility-engine:action/open-utility-model-settings',
-			'utility-engine:action/create-skin-texture',
+			'utility_engine:action/export-utility-model',
+			'utility_engine:action/export-utility-model-as',
+			'utility_engine:import-utility-model',
+			'utility_engine:action/open-utility-model-settings',
+			'utility_engine:action/create-skin-texture',
 		]) {
 			await expect(blockbench).toHaveAction(id)
 		}

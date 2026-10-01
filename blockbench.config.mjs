@@ -6,6 +6,6 @@ export default defineConfig({
 	// Isolated envbench environment - never touches a real Blockbench install.
 	environment: 'utility-engine-tests',
 	// Production bundle. `bun run test` rebuilds it first; the file name must
-	// match the id passed to BBPlugin.register() ('utility-engine').
-	plugins: ['./dist/utility-engine.js'],
+	// match the id passed to BBPlugin.register() ('utility_engine').
+	plugins: ['./dist/utility_engine.js'],
 })

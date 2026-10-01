@@ -12,7 +12,7 @@ declare global {
 }
 
 registerPatch({
-	id: 'utility-engine:public-api',
+	id: 'utility_engine:public-api',
 	apply: () => {
 		// @ts-expect-error
 		window.UtilityEngine = API

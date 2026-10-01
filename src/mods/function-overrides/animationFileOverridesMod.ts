@@ -3,7 +3,7 @@ import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 registerPatch({
-	id: `utility-engine:animation/export-animation-file`,
+	id: `utility_engine:animation/export-animation-file`,
 	apply: () => {
 		const original = Animator.exportAnimationFile
 		Animator.exportAnimationFile = function (path: string) {

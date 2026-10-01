@@ -25,7 +25,7 @@ const cloneVec = (vec: ArrayVector3 | undefined): ArrayVector3 | undefined =>
 	vec ? [vec[0], vec[1], vec[2]] : undefined
 
 /** Where the untouched native methods are stashed, so a botched hot-reload can't nest wrappers. */
-const ORIGINALS = Symbol('utility-engine:display-slot-custom-field-originals')
+const ORIGINALS = Symbol('utility_engine:display-slot-custom-field-originals')
 
 type PatchedMethods = Pick<DisplaySlot, 'copy' | 'extend' | 'export' | 'default'>
 
@@ -42,7 +42,7 @@ type PatchedMethods = Pick<DisplaySlot, 'copy' | 'extend' | 'export' | 'default'
  * aspect via `copy()` and restores it via `extend()`) and `.utilityproject` save/load.
  */
 registerPatch({
-	id: 'utility-engine:display-slot-custom-fields',
+	id: 'utility_engine:display-slot-custom-fields',
 	apply: () => {
 		const proto = DisplaySlot.prototype as DisplaySlot & { [ORIGINALS]?: PatchedMethods }
 

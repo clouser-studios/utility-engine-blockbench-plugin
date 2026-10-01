@@ -39,7 +39,7 @@ const requestPanelUpdate = () => {
 }
 
 registerPatch({
-	id: `utility-engine:function-keyframes/panel`,
+	id: `utility_engine:function-keyframes/panel`,
 	apply: () => {
 		const unsubscribers = [
 			EVENTS.UPDATE_KEYFRAME_SELECTION.subscribe(requestPanelUpdate),

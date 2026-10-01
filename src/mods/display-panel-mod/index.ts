@@ -6,7 +6,7 @@ import OverridesInput from './overridesInput.svelte'
 import Panel from './panel.svelte'
 
 registerPatch({
-	id: 'utility-engine:display-panel/arm-rotation',
+	id: 'utility_engine:display-panel/arm-rotation',
 	apply: () => {
 		const unmountCallback = injectComponent({
 			component: Panel,
@@ -28,7 +28,7 @@ registerPatch({
 
 /** Mounts the model-override input as a sibling directly above `#display_sliders`. */
 registerPatch({
-	id: 'utility-engine:display-panel/overrides',
+	id: 'utility_engine:display-panel/overrides',
 	apply: () => {
 		let cancelled = false
 		let instance: ReturnType<typeof mount> | null = null
@@ -40,7 +40,7 @@ registerPatch({
 		)
 			.then(sliders => {
 				if (cancelled) return
-				anchor = document.createComment('utility-engine:display-overrides')
+				anchor = document.createComment('utility_engine:display-overrides')
 				sliders.before(anchor)
 				instance = mount(OverridesInput, { target: sliders.parentElement!, anchor })
 			})

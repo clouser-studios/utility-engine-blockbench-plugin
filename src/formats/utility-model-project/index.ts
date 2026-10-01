@@ -10,7 +10,7 @@ export { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
 
 const localize = createScopedTranslator('model_format.utility_model')
 
-export const UTILITY_MODEL_PROJECT_FORMAT_ID = 'utility-engine:format/utility-model-project'
+export const UTILITY_MODEL_PROJECT_FORMAT_ID = 'utility_engine:format/utility-model-project'
 
 export const currentFormatIsUtilityModelProject = () => {
 	// Compare by id, not instance: blockbench-patch-manager can re-create the
@@ -37,7 +37,7 @@ export function saveUtilityModelProject() {
 
 export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 	id: UTILITY_MODEL_PROJECT_FORMAT_ID,
-	dependencies: [`utility-engine:codec/utility-model-project`],
+	dependencies: [`utility_engine:codec/utility-model-project`],
 	create: () => {
 		let mountedComponent: ReturnType<typeof mount> | null = null
 		let titleElement: HTMLElement | null = null

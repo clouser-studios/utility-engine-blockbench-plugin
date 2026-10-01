@@ -5,7 +5,7 @@ import { UTILITY_MODEL_PROJECT_FORMAT_ID } from './index.ts'
 
 // Format Category Icon
 registerPatch({
-	id: `utility-engine:utility-model-format-icon`,
+	id: `utility_engine:utility-model-format-icon`,
 	apply: () => {
 		const unmountCallback = injectComponent({
 			component: Icon,

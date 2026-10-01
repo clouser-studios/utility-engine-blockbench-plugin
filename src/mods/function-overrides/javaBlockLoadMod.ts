@@ -7,7 +7,7 @@ import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
  * `java_block` loads them instead. Redirect those files to the Utility Model importer.
  */
 registerPropertyOverridePatch({
-	id: `utility-engine:java-block-codec/load`,
+	id: `utility_engine:java-block-codec/load`,
 	target: Codecs.java_block,
 	key: 'load',
 

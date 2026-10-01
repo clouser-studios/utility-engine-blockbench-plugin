@@ -2,7 +2,7 @@ import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-mod
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
 registerPropertyOverridePatch({
-	id: 'utility-engine:gui-light/condition',
+	id: 'utility_engine:gui-light/condition',
 	target: BarItems.gui_light as BarSelect,
 	key: 'condition',
 

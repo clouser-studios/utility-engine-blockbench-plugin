@@ -19,7 +19,7 @@ const getPoseAngleSlider = (element: HTMLElement) => {
 
 // Forces the pose angle label and slider to be hidden when in a Utility Model Project
 registerPatch({
-	id: 'utility-engine:display-mode-pose-angle-slider',
+	id: 'utility_engine:display-mode-pose-angle-slider',
 	apply: () => {
 		const defaultLabelDisplay = '' as string
 		const defaultSliderDisplay = '' as string

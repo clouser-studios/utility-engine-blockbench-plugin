@@ -62,7 +62,7 @@ LocatorAnimator.prototype.channels = {
 }
 
 registerPropertyOverridePatch({
-	id: `utility-engine:locator/animator`,
+	id: `utility_engine:locator/animator`,
 	target: Locator,
 	key: 'animator',
 
@@ -73,7 +73,7 @@ registerPropertyOverridePatch({
 
 /** Selecting a locator in Animate mode shows its row in the timeline, like a group. */
 registerPropertyOverridePatch({
-	id: `utility-engine:locator/select`,
+	id: `utility_engine:locator/select`,
 	target: Locator.prototype,
 	key: 'select',
 
@@ -96,7 +96,7 @@ function defaultMotionTrailTarget(): OutlinerNode | undefined {
 
 /** Locators have no position keyframes to trace, whether passed in or picked from the selection. */
 registerPropertyOverridePatch({
-	id: `utility-engine:animator/show-motion-trail`,
+	id: `utility_engine:animator/show-motion-trail`,
 	target: Animator,
 	key: 'showMotionTrail',
 

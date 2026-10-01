@@ -1,6 +1,13 @@
 import { describe, expect, it } from '@jest/globals'
 import { blockbench, newProject } from '@snavesutit/jestbench'
-import { CODEC_ID, dropFile, FORMAT_ID, settleUtilityFormat } from './support'
+import {
+	CODEC_ID,
+	compileProject,
+	dropFile,
+	FORMAT_ID,
+	LEGACY_FORMAT_ID,
+	settleUtilityFormat,
+} from './support'
 
 /**
  * Utility-format data that reaches Blockbench's `.bbmodel` codec (a `.bbmodel` file, a timed
@@ -36,7 +43,7 @@ async function buildUtilityBbmodel(): Promise<string> {
 	await settleUtilityFormat()
 	return blockbench.evaluate(() => {
 		new Cube({ name: 'cube', from: [0, 0, 0], to: [8, 8, 8] }).init()
-		BarItems['utility-engine:action/create-skin-texture'].trigger()
+		BarItems['utility_engine:action/create-skin-texture'].trigger()
 		Project!.name = 'papyrus_ball.utility'
 		const json = Codecs.project.compile() as string
 		void Project!.close(true)
@@ -171,7 +178,7 @@ describe('backups of Utility projects', () => {
 		await settleUtilityFormat()
 		return blockbench.evaluate(compileOptions => {
 			new Cube({ name: 'cube', from: [0, 0, 0], to: [8, 8, 8] }).init()
-			BarItems['utility-engine:action/create-skin-texture'].trigger()
+			BarItems['utility_engine:action/create-skin-texture'].trigger()
 			Project!.name = 'papyrus'
 			Project!.model_identifier = 'ns:papyrus'
 			const compiled = Codecs.project.compile(compileOptions)
@@ -232,5 +239,39 @@ describe('backups of Utility projects', () => {
 		expect(state).toMatchObject({ format: FORMAT_ID, name: 'papyrus', savePath: '' })
 		expect(state.skinTextureClasses).toEqual(['SkinTexture'])
 		expect(await blockbench.evaluate(() => Project!.model_identifier)).toBe('ns:papyrus')
+	})
+})
+
+describe('files saved before v1.0.2', () => {
+	/** Swaps the current format ID in compiled JSON for the pre-v1.0.2 one. */
+	function toLegacy(json: string): string {
+		return json.replaceAll(FORMAT_ID, LEGACY_FORMAT_ID)
+	}
+
+	it('opens a .bbmodel tagged with the old format ID', async () => {
+		const json = toLegacy(await buildUtilityBbmodel())
+		await blockbench.waitFor('ModelProject.all.length === 0')
+
+		await dropFile('models/papyrus_ball.utility.bbmodel', json)
+		await blockbench.waitFor('!!Project')
+
+		expect(await projectState()).toEqual(CONVERTED)
+	})
+
+	it('opens a .utilityproject with the old format ID', async () => {
+		await newProject(FORMAT_ID)
+		await blockbench.evaluate(() => {
+			new Cube({ name: 'cube', from: [0, 0, 0], to: [8, 8, 8] }).init()
+		})
+		const json = toLegacy(await compileProject())
+		await blockbench.evaluate(() => void Project!.close(true))
+		await blockbench.waitFor('ModelProject.all.length === 0')
+
+		await dropFile('models/papyrus_ball.utilityproject', json)
+		await blockbench.waitFor('!!Project')
+
+		const state = await projectState()
+		expect(state.format).toBe(FORMAT_ID)
+		expect(state.cubes).toEqual(['cube'])
 	})
 })

@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals'
 import { blockbench, gui, newProject } from '@snavesutit/jestbench'
 import { FORMAT_ID } from './support'
 
-const CREATE_SKIN_ACTION = 'utility-engine:action/create-skin-texture'
+const CREATE_SKIN_ACTION = 'utility_engine:action/create-skin-texture'
 
 describe('skin textures', () => {
 	it('offers the "create skin texture" action only until one exists', async () => {
@@ -24,7 +24,7 @@ describe('skin textures', () => {
 	it('marks its save copy so it round-trips as a skin texture', async () => {
 		await newProject(FORMAT_ID)
 		const save = await blockbench.evaluate(() => {
-			BarItems['utility-engine:action/create-skin-texture'].trigger()
+			BarItems['utility_engine:action/create-skin-texture'].trigger()
 			const skin = Texture.all.find(t => (t as { isSkinTexture?: boolean }).isSkinTexture)!
 			return skin.getSaveCopy() as { isSkinTexture?: boolean; name: string }
 		})

@@ -65,7 +65,7 @@ function refreshElementPanel() {
 }
 
 registerPatch({
-	id: 'utility-engine:element-properties',
+	id: 'utility_engine:element-properties',
 
 	apply() {
 		const properties = TARGETS.flatMap(([, target]) => defineProperties(target))

@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { FORMAT_ID, settleUtilityFormat } from './support'
 
-const EXPORT_ACTION = 'utility-engine:action/export-utility-model'
-const EXPORT_AS_ACTION = 'utility-engine:action/export-utility-model-as'
+const EXPORT_ACTION = 'utility_engine:action/export-utility-model'
+const EXPORT_AS_ACTION = 'utility_engine:action/export-utility-model-as'
 
 describe('.utility.json export file extension', () => {
 	let dir: string

@@ -20,7 +20,7 @@ declare global {
 const isCommandsPoint = (point: KeyframeDataPoint) => point.keyframe.channel === COMMANDS_CHANNEL
 
 registerPatch({
-	id: `utility-engine:function-keyframes/channel`,
+	id: `utility_engine:function-keyframes/channel`,
 	apply: () => {
 		EffectAnimator.addChannel(COMMANDS_CHANNEL, {
 			name: localize('timeline.commands'),

@@ -5,7 +5,7 @@ import {
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
 registerPropertyOverridePatch({
-	id: `utility-engine:save-project`,
+	id: `utility_engine:save-project`,
 	target: BarItems.save_project as Action,
 	key: 'click',
 

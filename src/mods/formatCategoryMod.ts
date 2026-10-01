@@ -10,7 +10,7 @@ Language.data['format_category.utility-engine'] = localize('format_category.util
 
 // Reorders the New Project format category list to put "Utility Engine" directly below "General".
 registerPropertyOverridePatch({
-	id: `utility-engine:format-category`,
+	id: `utility_engine:format-category`,
 	target: startScreenCompat.vue,
 	key: 'getFormatCategories',
 

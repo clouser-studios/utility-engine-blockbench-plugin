@@ -1,9 +1,11 @@
 import { blockbench, newProject } from '@snavesutit/jestbench'
 
-export const PLUGIN_ID = 'utility-engine'
-export const FORMAT_ID = 'utility-engine:format/utility-model-project'
-export const CODEC_ID = 'utility-engine:codec/utility-model-project'
-export const LOADER_ID = 'utility-engine:model_loader/utility-model-json-loader'
+export const PLUGIN_ID = 'utility_engine'
+export const FORMAT_ID = 'utility_engine:format/utility-model-project'
+/** The format ID written by v1.0.1 and older, before the plugin ID changed. */
+export const LEGACY_FORMAT_ID = 'utility-engine:format/utility-model-project'
+export const CODEC_ID = 'utility_engine:codec/utility-model-project'
+export const LOADER_ID = 'utility_engine:model_loader/utility-model-json-loader'
 
 /**
  * Points `Format` (and the active project's `.format`) at the currently

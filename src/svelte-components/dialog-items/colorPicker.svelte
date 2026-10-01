@@ -10,7 +10,7 @@
 
 	const { label, tooltip = '', value, defaultValue = '#ffffff' }: Props = $props()
 
-	const COLOR_PICKER = new ColorPicker(`utility-engine:${label}-color_picker`, {
+	const COLOR_PICKER = new ColorPicker(`utility_engine:${label}-color_picker`, {
 		onChange() {
 			const color = COLOR_PICKER.get() as tinycolor.Instance
 			value.set(color.toHexString())

@@ -3,7 +3,7 @@ import { displayModeCompat } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
 registerPatch({
-	id: 'utility-engine:display-slot-changed-event',
+	id: 'utility_engine:display-slot-changed-event',
 	apply: () => {
 		const originalLoadDisplayFunctions = {
 			// @ts-expect-error

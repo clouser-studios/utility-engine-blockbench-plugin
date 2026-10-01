@@ -2,7 +2,7 @@ import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-mod
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
 registerPropertyOverridePatch({
-	id: `utility-engine:save-all-animations`,
+	id: `utility_engine:save-all-animations`,
 	target: BarItems.save_all_animations as Action,
 	key: 'condition',
 

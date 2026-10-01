@@ -68,7 +68,7 @@ async function promptForUsername() {
 	console.log(username)
 	return new Promise<string>(resolve => {
 		new SvelteDialog({
-			id: `utility-engine:username-prompt`,
+			id: `utility_engine:username-prompt`,
 			title: '',
 			component: UsernamePrompt,
 			props: { username },
@@ -80,9 +80,9 @@ async function promptForUsername() {
 }
 
 export const CREATE_SKIN_TEXTURE_ACTION = registerDeletableHandlerPatch({
-	id: `utility-engine:action/create-skin-texture`,
+	id: `utility_engine:action/create-skin-texture`,
 	create() {
-		return new Action(`utility-engine:action/create-skin-texture`, {
+		return new Action(`utility_engine:action/create-skin-texture`, {
 			name: localize('action.create_skin_texture.label'),
 			icon: 'portrait',
 			condition() {
@@ -127,7 +127,7 @@ class OverrideTexture extends Texture {
 }
 
 registerPatch({
-	id: `utility-engine:skin-texture/override-texture-class`,
+	id: `utility_engine:skin-texture/override-texture-class`,
 	apply: () => {
 		const original = Texture
 		// @ts-expect-error

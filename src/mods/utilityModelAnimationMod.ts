@@ -141,7 +141,7 @@ UtilityModelAnimation.prototype.file_menu = new Menu([
 ])
 
 registerPatch({
-	id: 'utility-engine:utility-model-animation-override',
+	id: 'utility_engine:utility-model-animation-override',
 
 	apply: () => {
 		const originalAddAnimation = Panels.animations.vue.addAnimation

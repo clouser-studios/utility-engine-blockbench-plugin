@@ -279,7 +279,7 @@ describe('display slot model overrides', () => {
 				Project!.export_path = path
 			}, exportPath)
 
-			await action('utility-engine:action/export-utility-model').trigger()
+			await action('utility_engine:action/export-utility-model').trigger()
 
 			const model = JSON.parse(readFileSync(exportPath, 'utf-8')) as {
 				display?: Record<string, { overrides?: string }>

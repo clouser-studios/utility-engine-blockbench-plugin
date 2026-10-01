@@ -492,9 +492,9 @@ export function exportUtilityModel(path?: string) {
 }
 
 export const EXPORT_UTILITY_MODEL_AS_ACTION = registerDeletableHandlerPatch({
-	id: `utility-engine:action/export-utility-model-as`,
+	id: `utility_engine:action/export-utility-model-as`,
 	create() {
-		const action = new Action(`utility-engine:action/export-utility-model-as`, {
+		const action = new Action(`utility_engine:action/export-utility-model-as`, {
 			name: localize('action.export_utility_model_as.label'),
 			icon: Icon,
 			condition: () => currentFormatIsUtilityModelProject(),
@@ -510,9 +510,9 @@ export const EXPORT_UTILITY_MODEL_AS_ACTION = registerDeletableHandlerPatch({
 })
 
 export const EXPORT_UTILITY_MODEL_ACTION = registerDeletableHandlerPatch({
-	id: `utility-engine:action/export-utility-model`,
+	id: `utility_engine:action/export-utility-model`,
 	create() {
-		const action = new Action(`utility-engine:action/export-utility-model`, {
+		const action = new Action(`utility_engine:action/export-utility-model`, {
 			name: localize('action.export_utility_model.label'),
 			icon: Icon,
 			condition: () => currentFormatIsUtilityModelProject(),

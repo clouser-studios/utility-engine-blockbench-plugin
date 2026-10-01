@@ -9,7 +9,7 @@ declare global {
 }
 
 registerPatch({
-	id: `utility-engine:animation-rename-action`,
+	id: `utility_engine:animation-rename-action`,
 	apply: () => {
 		// The animation menu's structure is always a static array, never the dynamic-menu function variant.
 		const structure = BB.Animation.prototype.menu.structure as MenuItem[]

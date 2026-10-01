@@ -2,7 +2,7 @@ import EVENTS from '@events'
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
 registerPropertyOverridePatch({
-	id: `utility-engine:event-hook/external-plugin-load/load`,
+	id: `utility_engine:event-hook/external-plugin-load/load`,
 	target: BBPlugin.prototype,
 	key: 'load',
 
@@ -17,7 +17,7 @@ registerPropertyOverridePatch({
 })
 
 registerPropertyOverridePatch({
-	id: `utility-engine:event-hook/external-plugin-load/toggle-disabled`,
+	id: `utility_engine:event-hook/external-plugin-load/toggle-disabled`,
 	target: BBPlugin.prototype,
 	key: 'toggleDisabled',
 
@@ -33,7 +33,7 @@ registerPropertyOverridePatch({
 })
 
 registerPropertyOverridePatch({
-	id: `utility-engine:event-hook/external-plugin-unload/unload`,
+	id: `utility_engine:event-hook/external-plugin-unload/unload`,
 	target: BBPlugin.prototype,
 	key: 'unload',
 
@@ -48,7 +48,7 @@ registerPropertyOverridePatch({
 })
 
 registerPropertyOverridePatch({
-	id: `utility-engine:event-hook/pre-post-select-project-event`,
+	id: `utility_engine:event-hook/pre-post-select-project-event`,
 	target: ModelProject.prototype,
 	key: 'loadEditorState',
 

@@ -37,7 +37,7 @@ export function addProjectToRecentProjects(
 }
 
 registerPropertyOverridePatch({
-	id: 'utility-engine:codec/loadModelFile',
+	id: 'utility_engine:codec/loadModelFile',
 	target: window,
 	key: 'loadModelFile',
 
@@ -103,7 +103,7 @@ declare global {
 }
 
 registerPropertyOverridePatch({
-	id: 'utility-engine:codec/open-model',
+	id: 'utility_engine:codec/open-model',
 	target: BarItems.open_model as Action,
 	key: 'click',
 
@@ -151,9 +151,9 @@ registerPropertyOverridePatch({
 })
 
 export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
-	id: `utility-engine:codec/utility-model-project`,
+	id: `utility_engine:codec/utility-model-project`,
 	create() {
-		return new Codec(`utility-engine:codec/utility-model-project`, {
+		return new Codec(`utility_engine:codec/utility-model-project`, {
 			name: 'Utility Model Project',
 			extension: 'utilityproject',
 			remember: true,
@@ -171,7 +171,7 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 						return path.endsWith('.utilityproject') || path.endsWith('.utility.json')
 					}
 					const format: unknown = arg?.meta?.format
-					return typeof format === 'string' && format.startsWith('utility-engine:')
+					return typeof format === 'string' && /^utility[-_]engine:/.test(format)
 				},
 			},
 

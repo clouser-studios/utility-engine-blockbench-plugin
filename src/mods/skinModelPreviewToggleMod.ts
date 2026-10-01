@@ -4,7 +4,7 @@ import { toolbarsCompat } from '@utility/util/blockbenchCompat.ts'
 import { createScopedTranslator, localize } from '@utility/util/lang.ts'
 import { registerDeletableHandlerPatch, registerPatch } from 'blockbench-patch-manager'
 
-const TOGGLE_ID = 'utility-engine:action/skin-model-preview-toggle'
+const TOGGLE_ID = 'utility_engine:action/skin-model-preview-toggle'
 
 const localizeOption = createScopedTranslator('element_properties.skin_model.options')
 
@@ -60,8 +60,8 @@ function applyVisibilityFilter({ element }: { element: Cube | Mesh }) {
 }
 
 registerPatch({
-	id: 'utility-engine:skin-model-preview-toggle/apply-visibility-filter',
-	dependencies: ['utility-engine:element-properties'],
+	id: 'utility_engine:skin-model-preview-toggle/apply-visibility-filter',
+	dependencies: ['utility_engine:element-properties'],
 	apply: () => {
 		Cube.preview_controller.on('update_visibility', applyVisibilityFilter)
 		Mesh.preview_controller.on('update_visibility', applyVisibilityFilter)

@@ -3,7 +3,7 @@ import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
 registerPropertyOverridePatch({
-	id: `utility-engine:add-animation/click`,
+	id: `utility_engine:add-animation/click`,
 	target: BarItems.add_animation as Action,
 	key: 'click',
 

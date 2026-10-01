@@ -4,7 +4,7 @@ import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
 registerPropertyOverridePatch({
-	id: `utility-engine:animation-properties-action`,
+	id: `utility_engine:animation-properties-action`,
 	target: BB.Animation.prototype,
 	key: 'propertiesDialog',
 

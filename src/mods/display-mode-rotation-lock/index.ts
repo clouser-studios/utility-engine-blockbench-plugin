@@ -23,7 +23,7 @@ async function unmountDisplayModeButtons() {
 }
 
 registerPatch({
-	id: 'utility-engine:display-mode-rotation-lock',
+	id: 'utility_engine:display-mode-rotation-lock',
 	apply: () => {
 		const unsubscribe = EVENTS.SELECT_MODE.subscribe(({ mode }) => {
 			if (mode.id === 'display') {

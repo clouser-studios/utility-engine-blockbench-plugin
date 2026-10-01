@@ -8,7 +8,7 @@ import { registerPatch, registerPropertyOverridePatch } from 'blockbench-patch-m
 
 /** Turns on Blockbench's rename/paste/create uniqueness handling for every type but cubes and meshes. */
 registerPatch({
-	id: `utility-engine:unique-node-names/behavior`,
+	id: `utility_engine:unique-node-names/behavior`,
 	apply: () => {
 		const types = [Group, ...Object.values(OutlinerElement.types)].filter(
 			type => type !== Cube && type !== Mesh
@@ -28,7 +28,7 @@ registerPatch({
 
 /** Blockbench only compares names within a node's own type; compare across all of them instead. */
 registerPropertyOverridePatch({
-	id: `utility-engine:unique-node-names/create-unique-name`,
+	id: `utility_engine:unique-node-names/create-unique-name`,
 	target: OutlinerNode.prototype,
 	key: 'createUniqueName',
 
@@ -55,7 +55,7 @@ registerPropertyOverridePatch({
  * box right before the action's own `Undo.finishEdit`, so the rename is part of the same undo step.
  */
 registerPropertyOverridePatch({
-	id: `utility-engine:unique-node-names/add-bounding-box`,
+	id: `utility_engine:unique-node-names/add-bounding-box`,
 	target: BarItems.add_bounding_box as Action,
 	key: 'click',
 

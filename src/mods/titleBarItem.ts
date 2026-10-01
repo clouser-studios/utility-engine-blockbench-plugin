@@ -8,15 +8,15 @@ import { IMPORT_UTILITY_MODEL_ACTION } from '@utility/formats/utility-model/impo
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 
 export const TITLE_BAR_MENU = registerDeletableHandlerPatch({
-	id: 'utility-engine:bar-menu/title-bar-menu',
+	id: 'utility_engine:bar-menu/title-bar-menu',
 	dependencies: [
-		`utility-engine:action/open-utility-model-settings`,
-		`utility-engine:action/import-utility-model`,
-		`utility-engine:action/export-utility-model`,
-		`utility-engine:action/export-utility-model-as`,
+		`utility_engine:action/open-utility-model-settings`,
+		`utility_engine:action/import-utility-model`,
+		`utility_engine:action/export-utility-model`,
+		`utility_engine:action/export-utility-model-as`,
 	],
 	create() {
-		const menu = new BarMenu('utility-engine:bar-menu/title-bar-menu', [], {})
+		const menu = new BarMenu('utility_engine:bar-menu/title-bar-menu', [], {})
 
 		function createIconImg() {
 			const img = document.createElement('img')

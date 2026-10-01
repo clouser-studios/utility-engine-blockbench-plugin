@@ -5,7 +5,7 @@ import {
 import { registerPropertyOverridePatch } from 'blockbench-patch-manager'
 
 registerPropertyOverridePatch({
-	id: `utility-engine:export-over-mod`,
+	id: `utility_engine:export-over-mod`,
 	target: BarItems.export_over as Action,
 	key: 'click',
 

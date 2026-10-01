@@ -12,7 +12,7 @@ export function openAnimationPropertiesDialog(animation: BBAnimation) {
 	const loopDelay = observable(Number(animation.loop_delay) || 0)
 
 	new SvelteDialog({
-		id: `utility-engine:animation-properties-dialog`,
+		id: `utility_engine:animation-properties-dialog`,
 		title: localize('dialog.animation_properties.title', animation.name),
 		width: 600,
 		component: AnimationProperties,

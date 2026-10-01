@@ -2,9 +2,9 @@ import { describe, expect, it } from '@jest/globals'
 import { blockbench } from '@snavesutit/jestbench'
 import { buildSampleProject } from './support'
 
-const TOGGLE_ID = 'utility-engine:action/skin-model-preview-toggle'
-const ELEMENT_PROPERTIES_PATCH_ID = 'utility-engine:element-properties'
-const FILTER_PATCH_ID = 'utility-engine:skin-model-preview-toggle/apply-visibility-filter'
+const TOGGLE_ID = 'utility_engine:action/skin-model-preview-toggle'
+const ELEMENT_PROPERTIES_PATCH_ID = 'utility_engine:element-properties'
+const FILTER_PATCH_ID = 'utility_engine:skin-model-preview-toggle/apply-visibility-filter'
 
 /**
  * `apply-visibility-filter` depends on `element-properties`. If that dependency

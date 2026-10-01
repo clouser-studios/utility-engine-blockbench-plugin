@@ -103,7 +103,7 @@ describe('.utility.json import', () => {
 			textures: Texture.all.map(t => ({ id: t.id, name: t.name })),
 		}))
 
-		expect(result.format).toBe('utility-engine:format/utility-model-project')
+		expect(result.format).toBe('utility_engine:format/utility-model-project')
 		expect(result.cubes).toHaveLength(1)
 		expect(result.textures.map(t => t.id)).toContain('2')
 	})
@@ -156,7 +156,7 @@ describe('.utility.json dropped onto the window', () => {
 			exportPath: Project!.export_path,
 		}))
 
-		expect(project.format).toBe('utility-engine:format/utility-model-project')
+		expect(project.format).toBe('utility_engine:format/utility-model-project')
 		expect(project.name).toBe('papyrus_ball')
 		expect(project.exportPath).toBe('models/papyrus_ball.utility.json')
 	})
