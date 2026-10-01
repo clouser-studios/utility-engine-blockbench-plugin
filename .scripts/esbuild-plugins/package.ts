@@ -17,6 +17,7 @@ import * as svelteServer from 'svelte/internal/server'
 const SRC = './src/'
 const SRC_PACKAGE = pathjs.join(SRC, 'plugin-package/')
 const SRC_ABOUT = pathjs.join(SRC_PACKAGE, 'about.svelte')
+const SRC_ICON = pathjs.join(SRC, 'assets/icons/icon-96x.png')
 
 const DIST = './dist/'
 const DIST_PACKAGE = pathjs.join(DIST, 'package/')
@@ -41,10 +42,11 @@ function plugin(): Plugin {
 					return
 				}
 				copyFileSync(pluginBuildPath, pathjs.join(DIST_PACKAGE, packageJSON.name + '.js'))
+				copyFileSync(SRC_ICON, pathjs.join(DIST_PACKAGE, packageJSON.icon))
 				const svelteResult = compile(readFileSync(SRC_ABOUT, 'utf-8'), {
 					generate: 'server',
 					cssHash({ hash, css }) {
-						return `animated-java-plugin-page-${hash(css)}`
+						return `utility-engine-about-page-${hash(css)}`
 					},
 				})
 				const component = new Function(
@@ -57,7 +59,9 @@ function plugin(): Plugin {
 						.replace('export default', 'return')
 				)(svelteServer)
 				const result = svelteServer.render(component)
-				const html = `${result.html.replace(/^\t+/gm, '')}\n<style>${svelteResult.css!.code}</style>`
+				const style = svelteResult.css ? `\n<style>${svelteResult.css.code}</style>` : ''
+				// One line: Blockbench parses about.md as Markdown, which splits multi-line HTML into paragraphs.
+				const html = result.html.replace(/\s*\n\s*/g, ' ') + style
 				writeFileSync(DIST_README, html)
 				if (existsSync(pathjs.join(DIST_PACKAGE, 'about.svelte')))
 					unlinkSync(pathjs.join(DIST_PACKAGE, 'about.svelte'))

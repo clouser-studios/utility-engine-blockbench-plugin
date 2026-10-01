@@ -1,7 +1,7 @@
 {
 	"name": "utility_engine",
 	"title": "Utility Engine",
-	"icon": "icon.svg",
+	"icon": "icon.png",
 	"version": "1.0.1",
 	"min_blockbench_version": "5.1.6",
 	"variant": "desktop",
@@ -11,14 +11,18 @@
 		"Animation"
 	],
 	"author": {
-		"name": "SnaveSutit & Clouser Studios",
+		"name": "Clouser Studios",
 		"email": "snavesutit@gmail.com",
 		"url": "https://discordapp.com/users/213746232923783168"
 	},
 	"repository": {
 		"type": "github",
-		"url": "https://github.com/SnaveSutit/utility-mod-blockbench-plugin"
+		"url": "https://github.com/clouser-studios/utility-engine-blockbench-plugin"
 	},
+	"bugs": {
+		"url": "https://github.com/clouser-studios/utility-engine-blockbench-plugin/issues"
+	},
+	"homepage": "https://www.utility-engine.com",
 	"description": "A Blockbench plugin for creating Utility Engine models.",
 	"type": "module",
 	"main": "./dist/index.js",
