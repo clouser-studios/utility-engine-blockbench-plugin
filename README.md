@@ -1,18 +1,27 @@
 # Utility Engine
 
-A [Blockbench](https://blockbench.net) plugin for creating [Utility Engine](https://www.utility-engine.com) models.
+Build [Utility Engine](https://www.utility-engine.com) models without leaving [Blockbench](https://blockbench.net). Model, texture, animate, and export `.utility.json` files that are ready for your pack.
 
-Requires Blockbench `5.1.6` or newer, desktop.
+Requires Blockbench `5.1.6` or newer (desktop).
+
+## Install
+
+In Blockbench, open **File > Plugins**, search for **Utility Engine**, and click **Install**.
 
 ## Features
 
-- **Utility Model** format and **Utility Model Project** files (`.utilityproject`) that keep every bit of project data for future editing
-- Import and export `.utility.json` models
-- **Animation Properties** dialog with typed animations — main loop, custom, and the full set of held / placed / consume / charging / swimming states — plus loop mode and loop delay
-- **Skin textures** with a preview skin loaded from a file or a Minecraft username
-- **Arm Rotation** display panel for posing the player's arms around a held item, including a separate pose for when the offhand is occupied
-- Per-element backface culling with a project-wide default, and a model identifier in project settings
+- **Utility Model Projects** (`.utilityproject`) save every bit of project data, so you pick up exactly where you left off
+- **Import and export `.utility.json`**, with locators, billboards, bounding boxes, and armatures round-tripping intact
+- **Typed animations**: main loop, custom, and every held, placed, consume, charging, and swimming state, with loop mode, loop delay, and Function keyframes
+- **Skin textures** previewed from a file or any Minecraft username, with All / Wide Only / Slim Only variants per element
+- **Arm Rotation** display panel for posing the player's arms around a held item, including a separate pose for a full offhand
+- **Display overrides** that point any display slot at another model
+- Per-element render passes and backface culling, with a project-wide default
 - Display-mode helpers: rotation lock and pose-angle sliders
+
+## Bugs and ideas
+
+Found a bug or want a feature? [Open an issue](https://github.com/clouser-studios/utility-engine-blockbench-plugin/issues).
 
 ## Development
 
