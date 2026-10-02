@@ -2,12 +2,6 @@ import { currentFormatIsUtilityModelProject } from '@utility/formats/utility-mod
 import { BB } from '@utility/util/blockbenchCompat.ts'
 import { registerPatch } from 'blockbench-patch-manager'
 
-declare global {
-	interface BBAnimation {
-		utility_model_animation_type?: string
-	}
-}
-
 registerPatch({
 	id: `utility_engine:animation-rename-action`,
 	apply: () => {

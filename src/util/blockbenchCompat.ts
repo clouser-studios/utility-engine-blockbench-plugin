@@ -8,7 +8,7 @@ import type { ModelLoader } from '@blockbench-types/generated/io/model_loader.js
  * still affect the real global.
  */
 export const BB = Blockbench as typeof Blockbench & {
-	Animation: typeof BBAnimation
+	Animation: typeof _Animation
 	AnimationController: typeof AnimationController
 	ModelFormat: typeof ModelFormat
 	ModelLoader: typeof ModelLoader
@@ -54,6 +54,7 @@ declare global {
 	interface LocatorOptions {
 		position?: ArrayVector3
 	}
+	// @ts-expect-error - Duplicate definition warning for Locator interfaces
 	interface Locator {
 		position: ArrayVector3
 	}
