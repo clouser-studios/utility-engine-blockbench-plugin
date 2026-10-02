@@ -68,12 +68,15 @@ type AnimationType = keyof typeof ANIMATION_TYPES
 declare global {
 	interface _Animation {
 		utility_model_animation_type: AnimationType
+		// Untyped vanilla BB property
+		group_name: string
 	}
 }
 
 export interface UtilityModelAnimationOptions extends AnimationOptions {
 	utility_model_animation_type?: AnimationType
 	animators?: Record<string, GeneralAnimator>
+	group_name?: string
 }
 
 registerPatch({
@@ -110,15 +113,23 @@ function classifyUtilityAnimation(anim: _Animation) {
 		// respect existing classification
 	} else if (anim.name.startsWith('utility.')) {
 		anim.name = anim.name.slice(8)
-		anim.path = 'utility'
 		anim.utility_model_animation_type = anim.name as AnimationType
 	} else if (Object.keys(ANIMATION_TYPES).includes(anim.name)) {
-		anim.path = 'utility'
 		anim.utility_model_animation_type = anim.name as AnimationType
 	} else {
-		anim.path = 'custom'
 		anim.utility_model_animation_type = 'custom'
 	}
+
+	const type = anim.utility_model_animation_type
+	if (type && type !== 'custom' && type in ANIMATION_TYPES) {
+		anim.group_name = 'utility'
+	} else {
+		anim.group_name =
+			anim.group_name && anim.group_name !== 'utility' ? anim.group_name : 'custom'
+	}
+
+	// Optional: clear any leftover path so nothing treats it as a file
+	anim.path = ''
 }
 
 registerPropertyOverridePatch({
@@ -130,9 +141,6 @@ registerPropertyOverridePatch({
 
 	get(original) {
 		return function (this: _Animation, data?: UtilityModelAnimationOptions) {
-			data ??= {}
-			data.name ??= 'new_animation'
-
 			original.call(this, data)
 
 			classifyUtilityAnimation(this)
@@ -143,45 +151,18 @@ registerPropertyOverridePatch({
 })
 
 registerPropertyOverridePatch({
-	id: 'utility_engine:function_override/animation/remove',
-	target: BB.Animation.prototype,
-	key: 'remove',
+	id: 'utility_engine:function_override/BarItems/condition',
+	target: BarItems.create_animation_group,
+	key: 'condition',
 
 	condition: currentFormatIsUtilityModelProject,
 
 	get(original) {
-		return function (this: _Animation, undo: boolean, removeFromFiles = true) {
+		return function () {
 			if (currentFormatIsUtilityModelProject()) {
-				return original.call(this, undo, false)
-			} else {
-				return original.call(this, undo, removeFromFiles)
+				return false
 			}
-		}
-	},
-})
-
-registerPropertyOverridePatch({
-	id: 'utility_engine:function_override/animation/setLength',
-	target: BB.Animation.prototype,
-	key: 'setLength',
-
-	condition: currentFormatIsUtilityModelProject,
-
-	get(original) {
-		return function (this: _Animation, len = this.length) {
-			if (currentFormatIsUtilityModelProject()) {
-				this.length = 0
-				this.length = limitNumber(len, this.getMaxLength(), 1e4)
-				if (BB.Animation.selected == this) {
-					// @ts-expect-error
-					Timeline.vue._data.animation_length = this.length
-					// @ts-expect-error
-					BarItems.slider_animation_length.update()
-				}
-				return this
-			} else {
-				return original.call(this, len)
-			}
+			return Condition(original)
 		}
 	},
 })
@@ -194,15 +175,17 @@ registerProjectPatch({
 	},
 
 	apply() {
-		const originalFileMenu = BB.Animation.prototype.file_menu
-		BB.Animation.prototype.file_menu = new Menu([
+		// @ts-expect-error
+		const originalFileMenu = BB.Animation.prototype.group_menu
+		// @ts-expect-error
+		BB.Animation.prototype.group_menu = new Menu([
 			{
 				name: localize('action.delete_animation_folder.label'),
 				icon: 'delete',
 				click(folderName: string) {
 					Undo.initEdit({ animations: Animator.animations })
 					for (const anim of Animator.animations.filter(
-						anim => anim.path === folderName
+						a => a.group_name === folderName
 					)) {
 						anim.remove(false, false)
 					}
@@ -216,6 +199,7 @@ registerProjectPatch({
 	},
 
 	revert({ originalFileMenu }) {
-		BB.Animation.prototype.file_menu = originalFileMenu
+		// @ts-expect-error
+		BB.Animation.prototype.group_menu = originalFileMenu
 	},
 })

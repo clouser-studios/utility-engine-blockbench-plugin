@@ -3,6 +3,7 @@
 	import LineInput from '@utility/svelte-components/dialog-items/lineInput.svelte'
 	import NumberSlider from '@utility/svelte-components/dialog-items/numberSlider.svelte'
 	import Select from '@utility/svelte-components/dialog-items/select.svelte'
+	import { BB } from '@utility/util/blockbenchCompat.ts'
 	import { createScopedTranslator } from '@utility/util/lang.ts'
 	import { onMount } from 'svelte'
 	import { type Observable } from 'svelte-observable-store'
@@ -13,25 +14,25 @@
 <script lang="ts">
 	interface Props {
 		animationName: Observable<string>
-		animationPath: Observable<string>
+		animationGroup: Observable<string>
 		animationType: Observable<string>
 		loopMode: Observable<string>
 		loopDelay: Observable<number>
 	}
 
-	const { animationName, animationPath, animationType, loopMode, loopDelay }: Props = $props()
+	const { animationName, animationGroup, animationType, loopMode, loopDelay }: Props = $props()
 
-	const USED_TYPES = Blockbench.Animation.all.reduce((acc: string[], anim) => {
-		if (animationName.get() === anim.name) return acc // Ignore self
-		if (anim.path === 'utility') {
-			acc.push(anim.name)
-		}
+	const USED_TYPES = BB.Animation.all.reduce((acc: string[], anim) => {
+		if (animationName.get() === anim.name) return acc
+		if (anim.group_name === 'utility') acc.push(anim.name)
 		return acc
 	}, [])
 
 	const ANIMATION_TYPES_OPTIONS = Object.keys(ANIMATION_TYPES).reduce(
 		(acc: Record<string, string>, type) => {
-			if (type !== 'custom' && USED_TYPES.includes(type)) return acc
+			if (type !== 'custom' && USED_TYPES.includes(type) && type !== animationType.get()) {
+				return acc
+			}
 			acc[type] = localize(`animation_type.options.${type}`)
 			return acc
 		},
@@ -41,10 +42,10 @@
 	onMount(() => {
 		animationType.subscribe(type => {
 			if (type === 'custom') {
-				$animationPath = 'custom'
+				$animationGroup = 'custom'
 			} else if (Object.keys(ANIMATION_TYPES).includes(type)) {
 				$animationName = type
-				$animationPath = 'utility'
+				$animationGroup = 'utility'
 			}
 		})
 	})

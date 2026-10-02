@@ -2,8 +2,8 @@ import { createScopedTranslator } from '@utility/util/lang.ts'
 import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
 import { mount, unmount } from 'svelte'
 import { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
-import FormatPage from './formatPage.svelte'
 import './conversion.ts'
+import FormatPage from './formatPage.svelte'
 import './icon.ts'
 import './settings.ts'
 export { UTILITY_MODEL_PROJECT_CODEC } from './codec.ts'
@@ -78,7 +78,8 @@ export const UTILITY_MODEL_PROJECT_FORMAT = registerDeletableHandlerPatch({
 
 			animated_textures: true,
 			animation_controllers: false,
-			animation_files: true,
+			animation_files: false,
+			animation_grouping: 'custom',
 			texture_mcmeta: true,
 			animation_mode: true,
 			bone_binding_expression: false,
