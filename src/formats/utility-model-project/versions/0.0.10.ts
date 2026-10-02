@@ -56,14 +56,7 @@ export default {
 
 		// turn anim.path into anim.group
 		for (const anim of fixed.animations ?? []) {
-			if (anim.path) {
-				anim.group_name = anim.path
-				if (anim.group_name === '') {
-					anim.group_name = 'custom'
-				} else if (anim.group_name !== 'utility') {
-					anim.group_name = 'custom'
-				}
-			}
+			anim.group_name = anim.path
 		}
 
 		fixed.meta.format_version = '0.0.10'

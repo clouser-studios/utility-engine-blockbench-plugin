@@ -195,11 +195,22 @@ registerProjectPatch({
 				},
 			},
 		])
-		return { originalFileMenu }
+
+		const onFinishEdit = ({ aspects }: { aspects: any }) => {
+			if (!currentFormatIsUtilityModelProject()) return
+			for (const anim of aspects.animations ?? []) {
+				classifyUtilityAnimation(anim)
+			}
+		}
+
+		Blockbench.on('finish_edit', onFinishEdit)
+
+		return { originalFileMenu, onFinishEdit }
 	},
 
-	revert({ originalFileMenu }) {
+	revert({ originalFileMenu, onFinishEdit }) {
 		// @ts-expect-error
 		BB.Animation.prototype.group_menu = originalFileMenu
+		Blockbench.removeListener('finish_edit', onFinishEdit)
 	},
 })

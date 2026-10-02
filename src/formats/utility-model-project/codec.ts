@@ -318,12 +318,15 @@ export const UTILITY_MODEL_PROJECT_CODEC = registerDeletableHandlerPatch({
 					Outliner.loadJSON(model.outliner as any)
 				}
 
-				if (model.animations) {
-					for (const animation of model.animations) {
-						const newAnimation = new BB.Animation()
-						newAnimation.uuid = animation.uuid ?? guid()
-						newAnimation.extend(animation).add()
+				for (const animation of model.animations ?? []) {
+					const data = { ...animation }
+					if (!data.group_name && (data.path === 'utility' || data.path === 'custom')) {
+						data.group_name = data.path
+						data.path = ''
 					}
+					const anim = new BB.Animation(data)
+					anim.uuid = animation.uuid ?? guid()
+					anim.add()
 				}
 
 				if (model.animation_controllers) {
