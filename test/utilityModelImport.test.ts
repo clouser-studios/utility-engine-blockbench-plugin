@@ -138,6 +138,36 @@ describe('.utility.json import', () => {
 		expect(faces.north).toBe('1')
 		expect(faces.south).toBe('11')
 	})
+
+	it('imports faces missing from the file as removed, not empty', async () => {
+		await importUtilityJson({
+			...BASE_MODEL,
+			textures: { '1': 'minecraft:a' },
+			elements: [
+				{
+					uuid: 'cccccccc-0000-0000-0000-000000000001',
+					from: [0, 0, 0],
+					to: [1, 1, 1],
+					faces: { north: { uv: [0, 0, 16, 16], texture: '#1' } },
+				},
+			],
+			structure: { elements: ['cccccccc-0000-0000-0000-000000000001'] },
+		})
+
+		const textures = await blockbench.evaluate(() =>
+			Object.fromEntries(
+				Object.entries(Cube.all[0].faces).map(([direction, face]) => [
+					direction,
+					face.texture,
+				])
+			)
+		)
+
+		expect(textures.north).toEqual(expect.any(String))
+		for (const direction of ['east', 'south', 'west', 'up', 'down']) {
+			expect(textures[direction]).toBeNull()
+		}
+	})
 })
 
 /**

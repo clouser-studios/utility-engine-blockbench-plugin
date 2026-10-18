@@ -63,6 +63,11 @@ function buildOutliner(
 
 		const baseCube = new Cube(element as any)
 
+		// Export omits untextured faces, so a missing face was removed, not left empty.
+		for (const [direction, face] of Object.entries(baseCube.faces)) {
+			if (!element.faces?.[direction as CubeFaceDirection]) face.texture = null as any
+		}
+
 		if (element.skin_model) baseCube.skin_model = element.skin_model
 		if (element.render_passes) baseCube.render_passes = [...element.render_passes]
 
