@@ -66,9 +66,7 @@ async function importAndGetKeyframes(
 	return blockbench.evaluate(() => {
 		const group = Group.all.find(g => g.name === 'test_bone')!
 		const anim = Blockbench.Animation.all.find(a => a.name === 'anim')!
-		const animator = (anim.animators as Record<string, { keyframes: Keyframe[] }>)[
-			group.uuid
-		]
+		const animator = (anim.animators as Record<string, { keyframes: Keyframe[] }>)[group.uuid]
 		const byChannel: Record<string, Keyframe[]> = {}
 		for (const kf of animator.keyframes) {
 			;(byChannel[kf.channel] ??= []).push({

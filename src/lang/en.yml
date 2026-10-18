@@ -158,6 +158,7 @@ element_properties:
     add: Add render pass
     remove: Remove render pass
     placeholder: Pass ID
+    presets: Pick a preset render pass
 
 model_format:
   utility_model:

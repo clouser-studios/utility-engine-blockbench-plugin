@@ -5,6 +5,8 @@
 
 	const localizeRenderPasses = createScopedTranslator('element_properties.render_passes')
 
+	const RENDER_PASS_PRESETS = ['minecraft:main', 'utility:glow']
+
 	const REFRESH_ON: BlockbenchEventName[] = [
 		'update_selection',
 		'undo',
@@ -47,6 +49,22 @@
 		commitRenderPasses('Remove render pass')
 	}
 
+	function openPresetMenu(index: number, event: MouseEvent) {
+		new Menu(
+			RENDER_PASS_PRESETS.map(preset => ({
+				name: preset,
+				icon:
+					renderPasses[index] === preset
+						? 'radio_button_checked'
+						: 'radio_button_unchecked',
+				click: () => {
+					renderPasses[index] = preset
+					commitRenderPasses('Rename render pass')
+				},
+			}))
+		).open(event)
+	}
+
 	onMount(() => {
 		refresh()
 		for (const event of REFRESH_ON) Blockbench.on(event, refresh)
@@ -75,6 +93,13 @@
 						bind:value={renderPasses[index]}
 						onchange={() => commitRenderPasses('Rename render pass')}
 					/>
+					<div
+						class="tool"
+						title={localizeRenderPasses('presets')}
+						onclick={event => openPresetMenu(index, event)}
+					>
+						<i class="material-icons">expand_more</i>
+					</div>
 					<div
 						class="tool"
 						title={localizeRenderPasses('remove')}
